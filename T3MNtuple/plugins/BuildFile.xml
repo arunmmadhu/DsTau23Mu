@@ -1,0 +1,29 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/Candidate"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="PhysicsTools/Utilities"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="PhysicsTools/PatAlgos"/>
+<use name="CommonTools/CandUtils"/>
+<use name="DataFormats/RecoCandidate"/>
+<use name="CommonTools/Utils"/>
+<use name="CommonTools/CandAlgos"/>
+<use name="EgammaAnalysis/ElectronTools"/>
+<use name="PhysicsTools/KinFitter"/>
+<use name="JetMETCorrections/Modules"/>
+<use name="RecoEgamma/EgammaTools" />
+<use name="RecoEgamma/ElectronIdentification" />
+<use name="RecoVertex/AdaptiveVertexFit"/>
+<use name="DsTau23Mu/T3MNtuple"/>
+
+<library name="DsTau23MuT3MNtuplePlugin" file="*.cc">
+   <use name="root"/>
+   <use name="rootminuit"/>
+   <use name="clhep"/>
+   <use name="rootrflx"/>
+   <use name="rootmath"/>
+   <Flags EDM_PLUGIN="1"/>
+</library>
