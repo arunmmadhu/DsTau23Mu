@@ -575,7 +575,6 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     gtUtil_->retrieveL1(iEvent, iSetup, algToken_);
     const vector<pair<string, bool> > initialDecisions = gtUtil_->decisionsInitial();
-    cout<<";"<<endl;
     l1_doublemu0 = 0; l1_triplemu0 = 0; l1_triplemu500 = 0;
     l1_doublemu_10_0 = 0; l1_doublemu_11_4 = 0;
     l1_doublemu0_eta1p6 = 0; l1_doublemu0_eta1p6_os = 0; l1_doublemu0_eta1p4_os = 0;
@@ -1154,7 +1153,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             nOLTHout_reco[i] = t3->hitPattern().numberOfLostTrackerHits(HitPattern::MISSING_OUTER_HITS);
             drtau_reco[i] = deltaR(t3->eta(), t3->phi(), vtau.Eta(), vtau.Phi());
             iTnC_reco[i] = t3->normalizedChi2();
-	    cout<<" p_in  "  << p_in[i] << " i  "<<i << endl;
+	    //	    cout<<" p_in  "  << p_in[i] << " i  "<<i << endl;
             trigmat_reco[i] = 0;
             for(size_t it = 0; it < MuonLegObjects.size(); it ++) {
               const trigger::TriggerObject & to = MuonLegObjects[it];
