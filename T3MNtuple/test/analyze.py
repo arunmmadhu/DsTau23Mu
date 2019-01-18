@@ -94,33 +94,13 @@ process.TFileService = cms.Service('TFileService',
 process.source.fileNames = [#'/store/data/Run2017G/SingleMuon/AOD/17Nov2017-v1/60002/0639F498-BA2F-E811-A97B-02163E01213C.root',
                             '/store/data/Run2017F/DoubleMuonLowMass/AOD/17Nov2017-v1/10000/EEC5ACC2-B802-E811-AF14-0CC47A0AD498.root']
 
-process.Ntuplizer = cms.EDAnalyzer('T3MNtuple',
-                           mid = cms.int32(15),
-                           MC = cms.bool(False),
-                           passhlt = cms.bool(True),
-                           wideSB = cms.bool(False),
-                           do2mu = cms.bool(True), # do 2 mu category or not
-                           muons = cms.InputTag("muons"),
-                           pvs = cms.InputTag("offlinePrimaryVertices"),
-                           svs = cms.InputTag("inclusiveSecondaryVertices"),
-                           trks = cms.InputTag("generalTracks"),
-                           btagsCvsB = cms.InputTag("pfCombinedCvsBJetTags"),
-                           btagsMVA = cms.InputTag("pfCombinedMVAV2BJetTags"),
-                           btagsCSV = cms.InputTag("pfCombinedSecondaryVertexV2BJetTags"),
-                           pfcands = cms.InputTag("particleFlow"),
-                           triggerBitsH = cms.InputTag("TriggerResults", "", "HLT"),
-                           triggerSummary = cms.InputTag("hltTriggerSummaryAOD", "", "HLT"),
-                           beamSpotHandle = cms.InputTag("offlineBeamSpot"),
-                           pileupSummary = cms.InputTag("addPileupInfo"),
-                           genParticles = cms.InputTag("genParticles"),
-                           AlgInputTag = cms.InputTag( "gtStage2Digis" ),
-                           BadGlbMuonFilter = cms.InputTag("badGlobalMuonTagger")
-                           )
+
+#process.p = cms.Path(process.Ntuplizer)
+#process.schedule = cms.Schedule(process.tagger, process.p)
+
+
+process.load("DsTau23Mu.T3MNtuple.DsTauNtuple_cfi")
 process.tagger = cms.Path(process.badGlobalMuonTagger)
-process.p = cms.Path(process.Ntuplizer)
+process.DsTauNtuple = cms.Sequence(process.T3MTree)
+process.p = cms.Path(process.DsTauNtuple)
 process.schedule = cms.Schedule(process.tagger, process.p)
-
-
-#process.load("DsTau23Mu.T3MNtuple.DsTauNtuple_cfi")
-#process.DsTauNtuple = cms.Sequence(process.Ntuplizer)
-#process.p = cms.Path(process.DsTauNtuple)

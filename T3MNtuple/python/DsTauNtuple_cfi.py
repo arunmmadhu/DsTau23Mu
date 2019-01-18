@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 
-Ntuplizer = cms.EDAnalyzer('T3MNtuple',
+T3MTree = cms.EDAnalyzer('T3MNtuple',
                            mid = cms.int32(15),
                            MC = cms.bool(False),
                            passhlt = cms.bool(True),
