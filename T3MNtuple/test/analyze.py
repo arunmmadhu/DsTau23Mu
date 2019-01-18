@@ -91,13 +91,7 @@ process.TFileService = cms.Service('TFileService',
                                    fileName = cms.string("DsT3MNtuple.root")
                                    )
 
-process.source.fileNames = [#'/store/data/Run2017G/SingleMuon/AOD/17Nov2017-v1/60002/0639F498-BA2F-E811-A97B-02163E01213C.root',
-                            '/store/data/Run2017F/DoubleMuonLowMass/AOD/17Nov2017-v1/10000/EEC5ACC2-B802-E811-AF14-0CC47A0AD498.root']
-
-
-#process.p = cms.Path(process.Ntuplizer)
-#process.schedule = cms.Schedule(process.tagger, process.p)
-
+process.source.fileNames = ['/store/data/Run2017F/DoubleMuonLowMass/AOD/17Nov2017-v1/10000/EEC5ACC2-B802-E811-AF14-0CC47A0AD498.root'] # data file for debugs and test runs
 
 process.load("DsTau23Mu.T3MNtuple.DsTauNtuple_cfi")
 process.tagger = cms.Path(process.badGlobalMuonTagger)
