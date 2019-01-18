@@ -1154,7 +1154,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             nOLTHout_reco[i] = t3->hitPattern().numberOfLostTrackerHits(HitPattern::MISSING_OUTER_HITS);
             drtau_reco[i] = deltaR(t3->eta(), t3->phi(), vtau.Eta(), vtau.Phi());
             iTnC_reco[i] = t3->normalizedChi2();
-
+	    cout<<" p_in  "  << p_in[i] << " i  "<<i << endl;
             trigmat_reco[i] = 0;
             for(size_t it = 0; it < MuonLegObjects.size(); it ++) {
               const trigger::TriggerObject & to = MuonLegObjects[it];

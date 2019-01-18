@@ -12,7 +12,7 @@ options.register('globalTag',
                  "Global Tag")
 
 options.register('nEvents',
-                 10000, #default value
+                 500, #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Maximum number of processed events")
@@ -91,7 +91,8 @@ process.TFileService = cms.Service('TFileService',
                                    fileName = cms.string("DsT3MNtuple.root")
                                    )
 
-process.source.fileNames = ['/store/data/Run2017G/SingleMuon/AOD/17Nov2017-v1/60002/0639F498-BA2F-E811-A97B-02163E01213C.root']
+process.source.fileNames = [#'/store/data/Run2017G/SingleMuon/AOD/17Nov2017-v1/60002/0639F498-BA2F-E811-A97B-02163E01213C.root',
+                            '/store/data/Run2017F/DoubleMuonLowMass/AOD/17Nov2017-v1/10000/EEC5ACC2-B802-E811-AF14-0CC47A0AD498.root']
 
 process.Ntuplizer = cms.EDAnalyzer('T3MNtuple',
                            mid = cms.int32(15),
