@@ -199,6 +199,7 @@ private:
   EDGetTokenT<TrackCollection> trackToken_;
   EDGetTokenT<TriggerResults> triggerToken_;
   EDGetTokenT<trigger::TriggerEvent> trigeventToken_;
+  //  EDGetTokenT<std::vector<reco::Track> > trackToken_;
   EDGetToken algToken_;
   //EDGetTokenT<L1GlobalTriggerReadoutRecord> level1Token_;
   EDGetTokenT<BeamSpot> bsToken_;
@@ -1748,17 +1749,19 @@ void T3MNtuple::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSet
   Handle<VertexCollection> pvs;
   iEvent.getByToken(vtxToken_ , pvs);
   
-  edm::Handle<std::vector<reco::Track>> tracks;
+  Handle<TrackCollection> trackCollection;
+  iEvent.getByToken(trackToken_, trackCollection);
 
-  std::vector<reco::Track>::const_iterator trIt  = tracks->begin();
-  std::vector<reco::Track>::const_iterator trEnd = tracks->end();
+
+  std::vector<reco::Track>::const_iterator trIt  = trackCollection->begin();
+  std::vector<reco::Track>::const_iterator trEnd = trackCollection->end();
 
   int nTrk = 0;
   for (; trIt != trEnd; ++trIt) 
     {
 
       const reco::Track tr = (*trIt);
-
+      std::cout<<" tr  "<< tr.pt() << std::endl;
       /*      tau23mu::Track ntupleTr;
       ntupleTr.pt = tr.pt();
       ntupleTr.eta = tr.eta();
