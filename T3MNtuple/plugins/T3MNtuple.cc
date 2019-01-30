@@ -86,6 +86,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "DsTau23Mu/T3MNtuple/interface/PDGInfo.h"
+
 #include "TH2.h"
 #include <TTree.h>
 
@@ -163,20 +165,15 @@ private:
 
 
   // Tracks data 
-  std::vector<Double_t> Track_px;
-  std::vector<Double_t> Track_py;
-  std::vector<Double_t> Track_pz;
-  std::vector<Double_t> Track_e;
-  std::vector<Double_t> Track_normalizedChi2;
-  std::vector<Double_t> Track_numberOfValidHits;
-  std::vector<Double_t> Track_charge;
-  std::vector<Double_t> Track_dxy;
-  std::vector<Double_t> Track_dz;
-  std::vector<Double_t> Track_vx;
-  std::vector<Double_t> Track_vy;
-  std::vector<Double_t> Track_vz;
-  std::vector<Double_t> Track_dxyError;
-  std::vector<Double_t> Track_dzError;
+  std::vector<std::vector<double> > Track_p4;
+  std::vector<double> Track_normalizedChi2;
+  std::vector<double> Track_numberOfValidHits;
+  std::vector<double> Track_charge;
+  std::vector<double> Track_dxy;
+  std::vector<double> Track_dz;
+  std::vector<std::vector<double> > Track_poca;
+  std::vector<double> Track_dxyError;
+  std::vector<double> Track_dzError;
 
 
   bool MC_, wideSB_, do2mu_, passhlt_, doTracks_;
@@ -482,6 +479,15 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
   tr->Branch("m2mu_max", &m2mu_max, "m2mu_max/D");
   tr->Branch("m2mu_min", &m2mu_min, "m2mu_min/D");
 
+  tr->Branch("Track_p4", &Track_p4);
+  tr->Branch("Track_normalizedChi2", &Track_normalizedChi2);
+  tr->Branch("Track_numberOfValidHits", &Track_numberOfValidHits);
+  tr->Branch("Track_charge", &Track_charge);
+  tr->Branch("Track_dxy", &Track_dxy);
+  tr->Branch("Track_dz", &Track_dz);
+  tr->Branch("Track_poca", &Track_poca);
+  tr->Branch("Track_dxyError", &Track_dxyError);
+  tr->Branch("Track_dzError", &Track_dzError);
 }
 
 
@@ -1746,41 +1752,36 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 void T3MNtuple::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  Handle<VertexCollection> pvs;
-  iEvent.getByToken(vtxToken_ , pvs);
-  
   Handle<TrackCollection> trackCollection;
   iEvent.getByToken(trackToken_, trackCollection);
-
 
   std::vector<reco::Track>::const_iterator trIt  = trackCollection->begin();
   std::vector<reco::Track>::const_iterator trEnd = trackCollection->end();
 
-  int nTrk = 0;
   for (; trIt != trEnd; ++trIt) 
     {
-
+      std::vector<double> iTrack_p4;
+      std::vector<double> iTrack_poca;
       const reco::Track tr = (*trIt);
-      std::cout<<" tr  "<< tr.pt() << std::endl;
-      /*      tau23mu::Track ntupleTr;
-      ntupleTr.pt = tr.pt();
-      ntupleTr.eta = tr.eta();
-      ntupleTr.phi = tr.phi();
-      ntupleTr.nChi2 = tr.normalizedChi2();
-      ntupleTr.nValidHits = tr.numberOfValidHits();
-      ntupleTr.charge = tr.charge();
-      ntupleTr.dxy = tr.dxy();
-      ntupleTr.dz = tr.dz();
-      ntupleTr.vx = tr.vx();
-      ntupleTr.vy = tr.vy();
-      ntupleTr.vz = tr.vz();
-      ntupleTr.dxyError = tr.dxyError();
-      ntupleTr.dzError = tr.dzError();
+      iTrack_p4.push_back(sqrt(pow(tr.p(),2.0) + pow(PDGInfo::pi_mass(),2.0)));
+      iTrack_p4.push_back(tr.px());
+      iTrack_p4.push_back(tr.py());
+      iTrack_p4.push_back(tr.pz());
+      Track_p4.push_back(iTrack_p4);
 
-      nTrk++;
-      event_.tracks.push_back(ntupleTr);*/
+      Track_normalizedChi2.push_back(tr.normalizedChi2());
+      Track_numberOfValidHits.push_back(tr.numberOfValidHits());
+      Track_charge.push_back(tr.charge());
+      Track_dxy.push_back(tr.dxy());
+      Track_dz.push_back(tr.dz());
+      iTrack_poca.push_back(tr.vx());
+      iTrack_poca.push_back(tr.vy());
+      iTrack_poca.push_back(tr.vz());
+      Track_poca.push_back(iTrack_poca);
+
+      Track_dxyError.push_back(tr.dxyError());
+      Track_dzError.push_back(tr.dzError());
     }
-  //  event_.nTrk = nTrk;
 }
 
 
@@ -1848,18 +1849,13 @@ T3MNtuple::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
 
 void T3MNtuple::ClearEvent() {
-  Track_px.clear();
-  Track_py.clear();
-  Track_pz.clear();
-  Track_e.clear();
+  Track_p4.clear();
   Track_normalizedChi2.clear();
   Track_numberOfValidHits.clear();
   Track_charge.clear();
   Track_dxy.clear();
   Track_dz.clear();
-  Track_vx.clear();
-  Track_vy.clear();
-  Track_vz.clear();
+  Track_poca.clear();
   Track_dxyError.clear();
   Track_dzError.clear();
 
