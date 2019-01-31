@@ -120,6 +120,7 @@ private:
   // ----------member data ---------------------------
 
   void ClearEvent();
+  void fillEventInfo(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup);
@@ -154,7 +155,7 @@ private:
     uSta_reco[3], tKink_reco[3], gKink_reco[3], tRC2_reco[3], sRC2_reco[3], cLP_reco[3],
     cLM_reco[3], lDist_reco[3], gDEP_reco[3], tMat_reco[3], gTP_reco[3],
     ddz_12, m2mu_ss, m2mu_os1, m2mu_os2, m2mu_12, m2mu_23, m2mu_31, m2mu_min, m2mu_max,
-    puN, runN, lumiN, eventN, n_vtx, eta_min, eta_max, 
+    puN, n_vtx, eta_min, eta_max, 
     pf_reco[3], rpcmu_reco[3], rpchits_reco[3], nOVMH_reco[3], pterr_reco[3],
     pv_nmu, pv1_tC, pv1_nC, pv2_tC, pv2_nC, ntrk0p1, ntrk0p2, ntrk0p5, maxdxy_pv0, calomuon_3,
     jet_pt[30], jet_overlap[30], btagcvsb[30], btagcsv[30], btagmva[30],
@@ -167,7 +168,17 @@ private:
     mSWVH_reco[3], nOM_reco[3];
 
 
-  // Tracks data 
+  //=======  Event ===
+  int EventNumber;
+  unsigned int Event_EventNumber;
+  unsigned int Event_RunNumber;
+  int Event_bunchCrossing;
+  int Event_orbitNumber;
+  unsigned int Event_luminosityBlock;
+  bool Event_isRealData;
+
+
+  //=======  Tracks === 
   std::vector<std::vector<double> > Track_p4;
   std::vector<double> Track_normalizedChi2;
   std::vector<double> Track_numberOfValidHits;
@@ -182,7 +193,7 @@ private:
   bool doMC_, wideSB_, do2mu_, passhlt_, doTracks_, doMuons_, do3mutuple_, doL1_;
   size_t mid_, n_reco, n_sv, njet20, ifar, ipv_gen, ipv1, ipv2;
 
-  TTree *tr;
+  TTree *tree;
   TH1F *h_n3mu, *h_step;
   InputTag algInputTag_;
   int cnt_;
@@ -264,235 +275,241 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
   doTracks_ = iConfig.getParameter<bool>("doTracks");
   doMuons_ = iConfig.getParameter<bool>("doMuons");
   do3mutuple_ = iConfig.getParameter<bool>("do3mutuple");
-  doL1_ = iConfig.getParameter<bool>("dol1");
+  doL1_ = iConfig.getParameter<bool>("doL1");
 
 
   Service<TFileService> fs;
   h_n3mu = fs->make<TH1F>("n3mu", "", 10, 0, 10);
   h_step = fs->make<TH1F>("step", "", 10, 0, 10);
-  tr = fs->make<TTree>("data", "");
-  tr->Branch("puN", &puN, "puN/D");
-  tr->Branch("runN", &runN, "runN/D");
-  tr->Branch("lumiN", &lumiN, "lumiN/D");
-  tr->Branch("eventN", &eventN, "eventN/D");
-  //tr->Branch("filterbadGlbMuon", &filterbadGlbMuon, "filterbadGlbMuon/D");
-  tr->Branch("gen_flavor", &gen_flavor, "gen_flavor/D");
-  tr->Branch("nmu_mom", &nmu_mom, "nmu_mom/D");
-  tr->Branch("hlt_doublemu4_lmnrt", &hlt_doublemu4_lmnrt, "hlt_doublemu4_lmnrt/D");
-  tr->Branch("hlt_doublemu3_tau3mu", &hlt_doublemu3_tau3mu, "hlt_doublemu3_tau3mu/D");
-  tr->Branch("l1_triplemu0", &l1_triplemu0, "l1_triplemu0/D");
-  tr->Branch("l1_doublemu0", &l1_doublemu0, "l1_doublemu0/D");
-  tr->Branch("l1_doublemu0_eta1p6_os", &l1_doublemu0_eta1p6_os, "l1_doublemu0_eta1p6_os/D");
-  tr->Branch("l1_doublemu0_eta1p4_os", &l1_doublemu0_eta1p4_os, "l1_doublemu0_eta1p4_os/D");
-  tr->Branch("l1_doublemu0_eta1p6", &l1_doublemu0_eta1p6, "l1_doublemu0_eta1p6/D");
-  tr->Branch("l1_doublemu_10_0", &l1_doublemu_10_0, "l1_doublemu_10_0/D");
-  tr->Branch("l1_doublemu_11_4", &l1_doublemu_11_4, "l1_doublemu_11_4/D");
-  tr->Branch("l1_triplemu500", &l1_triplemu500, "l1_triplemu500/D");
-  tr->Branch("prescale_triplemu0", &prescale_triplemu0, "prescale_triplemu0/D");
-  tr->Branch("prescale_doublemu0_eta1p6", &prescale_doublemu0_eta1p6, "prescale_doublemu0_eta1p6/D");
-  tr->Branch("prescale_doublemu_10_0", &prescale_doublemu_10_0, "prescale_doublemu_10_0/D");
-  tr->Branch("prescale_triplemu500", &prescale_triplemu500, "prescale_triplemu500/D");
-  tr->Branch("prescale_doublemu0_eta1p6_os", &prescale_doublemu0_eta1p6_os, "prescale_doublemu0_eta1p6_os/D");
-  tr->Branch("prescale_doublemu0_eta1p4_os", &prescale_doublemu0_eta1p4_os, "prescale_doublemu0_eta1p4_os/D");
-  tr->Branch("prescale_doublemu_11_4", &prescale_doublemu_11_4, "prescale_doublemu_11_4/D");
-  tr->Branch("n_reco", &n_reco, "n_reco/I");
-  tr->Branch("ifar", &ifar, "ifar/I");
-  tr->Branch("ipv_gen", &ipv_gen, "ipv_gen/I");
-  tr->Branch("ipv1", &ipv1, "ipv1/I");
-  tr->Branch("ipv2", &ipv2, "ipv2/I");
-  tr->Branch("pdgid_reco", pdgid_reco, "pdgid_reco[3]/D");
-  tr->Branch("momid_reco", momid_reco, "momid_reco[3]/D");
-  tr->Branch("vxy_reco", vxy_reco, "vxy_reco[3]/D");
-  tr->Branch("n_vtx", &n_vtx, "n_vtx/D");
-  tr->Branch("trigmat_reco", trigmat_reco, "trigmat_reco[3]/D");
-  tr->Branch("trigmat_new", &trigmat_new, "trigmat_new/D");
-  tr->Branch("p_reco", p_reco, "p_reco[3]/D");
-  tr->Branch("pt_reco", pt_reco, "pt_reco[3]/D");
-  tr->Branch("pt_max", &pt_max, "pt_max/D");
-  tr->Branch("pt_min", &pt_min, "pt_min/D");
-  tr->Branch("eta_reco", eta_reco, "eta_reco[3]/D");
-  tr->Branch("eta_min", &eta_min, "eta_min/D");
-  tr->Branch("eta_max", &eta_max, "eta_max/D");
-  tr->Branch("phi_reco", phi_reco, "phi_reco[3]/D");
-  tr->Branch("p_in", p_in, "p_in[3]/D");
-  tr->Branch("eta_in", eta_in, "eta_in[3]/D");
-  tr->Branch("phi_in", phi_in, "phi_in[3]/D");
-  tr->Branch("p_out", p_out, "p_out[3]/D");
-  tr->Branch("eta_out", eta_out, "eta_out[3]/D");
-  tr->Branch("phi_out", phi_out, "phi_out[3]/D");
-  tr->Branch("p_glb", p_glb, "p_glb[3]/D");
-  tr->Branch("eta_glb", eta_glb, "eta_glb[3]/D");
-  tr->Branch("phi_glb", phi_glb, "phi_glb[3]/D");
-  tr->Branch("pt3mu_reco", &pt3mu_reco, "pt3mu_reco/D");
-  tr->Branch("pt2mu_12", &pt2mu_12, "pt2mu_12/D");
-  tr->Branch("p3mu_reco", &p3mu_reco, "p3mu_reco/D");
-  tr->Branch("eta3mu_reco", &eta3mu_reco, "eta3mu_reco/D");
-  tr->Branch("m3mu_reco", &m3mu_reco, "m3mu_reco/D");
-  tr->Branch("m3mu_simp", &m3mu_simp, "m3mu_simp/D");
-  tr->Branch("m3mu_refit", &m3mu_refit, "m3mu_refit/D");
-  tr->Branch("pf_reco", pf_reco, "pf_reco[3]/D");
-  tr->Branch("rpcmu_reco", rpcmu_reco, "rpcmu_reco[3]/D");
-  tr->Branch("rpchits_reco", rpchits_reco, "rpchits_reco[3]/D");
-  tr->Branch("comp2d_reco", comp2d_reco, "comp2d_reco[3]/D");
-  tr->Branch("tma_reco", tma_reco, "tma_reco[3]/D");
-  tr->Branch("tmost_reco", tmost_reco, "tmost_reco[3]/D");
-  tr->Branch("tmosat_reco", tmosat_reco, "tmosat_reco[3]/D");
-  tr->Branch("tmlst_reco", tmlst_reco, "tmlst_reco[3]/D");
-  tr->Branch("tmlsat_reco", tmlsat_reco, "tmlsat_reco[3]/D");
-  tr->Branch("tmlsolpt_reco", tmlsolpt_reco, "tmlsolpt_reco[3]/D");
-  tr->Branch("tmlsoblpt_reco", tmlsoblpt_reco, "tmlsoblpt_reco[3]/D");
-  tr->Branch("calocomp_reco", calocomp_reco, "calocomp_reco[3]/D");
-  tr->Branch("segmcomp_reco", segmcomp_reco, "segmcomp_reco[3]/D");
-  tr->Branch("segmcomp_0", segmcomp_0, "segmcomp_0[3]/D");
-  tr->Branch("segmcomp_1", segmcomp_1, "segmcomp_1[3]/D");
-  tr->Branch("segmcomp_2", segmcomp_2, "segmcomp_2[3]/D");
-  tr->Branch("segmcomp_3", segmcomp_3, "segmcomp_3[3]/D");
-  //tr->Branch("segmcomp_4", segmcomp_4, "segmcomp_4[3]/D");
-  //tr->Branch("segmcomp_5", segmcomp_5, "segmcomp_5[3]/D");
-  //tr->Branch("segmcomp_6", segmcomp_6, "segmcomp_6[3]/D");
-  //tr->Branch("segmcomp_7", segmcomp_7, "segmcomp_7[3]/D");
-  tr->Branch("trkhp_reco", trkhp_reco, "trkhp_reco[3]/D");
-  tr->Branch("glbnC_reco", glbnC_reco, "glbnC_reco[3]/D");
-  tr->Branch("nOVMH_reco", nOVMH_reco, "nOVMH_reco[3]/D");
-  tr->Branch("nOVPH_reco", nOVPH_reco, "nOVPH_reco[3]/D");
-  tr->Branch("nOVTH_reco", nOVTH_reco, "nOVTH_reco[3]/D");
-  tr->Branch("nOLTH_reco", nOLTH_reco, "nOLTH_reco[3]/D");
-  tr->Branch("nOLTHin_reco", nOLTHin_reco, "nOLTHin_reco[3]/D");
-  tr->Branch("nOLTHout_reco", nOLTHout_reco, "nOLTHout_reco[3]/D");
-  //tr->Branch("nSCH_reco", nSCH_reco, "nSCH_reco[3]/D");
-  tr->Branch("iTvF_reco", iTvF_reco, "iTvF_reco[3]/D");
-  tr->Branch("tLWM_reco", tLWM_reco, "tLWM_reco[3]/D");
-  tr->Branch("pLWM_reco", pLWM_reco, "pLWM_reco[3]/D");
-  tr->Branch("ggm_reco", ggm_reco, "ggm_reco[3]/D");
-  tr->Branch("tgm_reco", tgm_reco, "tgm_reco[3]/D");
-  tr->Branch("pterr_reco", pterr_reco, "pterr_reco[3]/D");
-  tr->Branch("Iso_sumPt", Iso_sumPt, "Iso_sumPt[3]/D");
-  tr->Branch("Iso_nTr", Iso_nTr, "Iso_nTr[3]/D");
-  tr->Branch("Iso_emEt", Iso_emEt, "Iso_emEt[3]/D");
-  tr->Branch("Iso_hadEt", Iso_hadEt, "Iso_hadEt[3]/D");
-  tr->Branch("Iso_eVE", Iso_eVE, "Iso_eVE[3]/D");
-  tr->Branch("Iso_hVE", Iso_hVE, "Iso_hVE[3]/D");
-  tr->Branch("nOMS_reco", nOMS_reco, "nOMS_reco[3]/D");
-  tr->Branch("nOM_reco", nOM_reco, "nOM_reco[3]/D");
-  tr->Branch("mSWVH_reco", mSWVH_reco, "mSWVH_reco[3]/D");
-  tr->Branch("cschits_sta1", cschits_sta1, "cschits_sta1[3]/D");
-  tr->Branch("cscchi2_sta1", cscchi2_sta1, "cscchi2_sta1[3]/D");
-  tr->Branch("cschits_sta2", cschits_sta2, "cschits_sta2[3]/D");
-  tr->Branch("cscchi2_sta2", cscchi2_sta2, "cscchi2_sta2[3]/D");
-  tr->Branch("cscdxdz_sta1", cscdxdz_sta1, "cscdxdz_sta1[3]/D");
-  tr->Branch("cscdxdz_sta2", cscdxdz_sta2, "cscdxdz_sta2[3]/D");
-  tr->Branch("cscdydz_sta1", cscdydz_sta1, "cscdydz_sta1[3]/D");
-  tr->Branch("cscdydz_sta2", cscdydz_sta2, "cscdydz_sta2[3]/D");
-  tr->Branch("cscnsegm_sta1", cscnsegm_sta1, "cscnsegm_sta1[3]/D");
-  tr->Branch("cscnsegm_sta2", cscnsegm_sta2, "cscnsegm_sta2[3]/D");
-  tr->Branch("nOMS_min", &nOMS_min, "nOMS_min/D");
-  tr->Branch("tLWM_min", &tLWM_min, "tLWM_min/D");
-  tr->Branch("d0_reco", d0_reco, "d0_reco[3]/D");
-  tr->Branch("d0sig_reco", d0sig_reco, "d0sig_reco[3]/D");
-  tr->Branch("dz_reco", dz_reco, "dz_reco[3]/D");
-  tr->Branch("dzpv_reco", dzpv_reco, "dzpv_reco[3]/D");
-  tr->Branch("dr12_reco", &dr12_reco, "dr12_reco/D");
-  tr->Branch("dr23_reco", &dr23_reco, "dr23_reco/D");
-  tr->Branch("dr31_reco", &dr31_reco, "dr31_reco/D");
-  tr->Branch("dr_min", &dr_min, "dr_min/D");
-  tr->Branch("drtau_max", &drtau_max, "drtau_max/D");
-  tr->Branch("charge_reco", charge_reco, "charge_reco[3]/D");
-  tr->Branch("drtau_reco", drtau_reco, "drtau_reco[3]/D");
-  tr->Branch("dca12_reco", &dca12_reco, "dca12_reco/D");
-  tr->Branch("dca23_reco", &dca23_reco, "dca23_reco/D");
-  tr->Branch("dca31_reco", &dca31_reco, "dca31_reco/D");
-  tr->Branch("dca_max", &dca_max, "dca_max/D");
-  tr->Branch("trkrel_reco", trkrel_reco, "trkrel_reco[3]/D");
-  tr->Branch("trkrel_max", &trkrel_max, "trkrel_max/D");
-  tr->Branch("trkrel_tau", &trkrel_tau, "trkrel_tau/D");
-  tr->Branch("trkrel_tau05", &trkrel_tau05, "trkrel_tau05/D");
-  tr->Branch("ntrk_reco", ntrk_reco, "ntrk_reco[3]/D");
-  tr->Branch("ntrk_sum", &ntrk_sum, "ntrk_sum/D");
-  tr->Branch("ntrk_tau", &ntrk_tau, "ntrk_tau/D");
-  tr->Branch("mindca_iso", &mindca_iso, "mindca_iso/D");
-  tr->Branch("ntrk_tau05", &ntrk_tau05, "ntrk_tau05/D");
-  tr->Branch("ntrk_tau_b", &ntrk_tau_b, "ntrk_tau_b/D");
-  tr->Branch("mindca_iso05", &mindca_iso05, "mindca_iso05/D");
-  tr->Branch("fv_tC", &fv_tC, "fv_tC/D");
-  tr->Branch("fv_nC", &fv_nC, "fv_nC/D");
-  tr->Branch("fvwo_tC", fvwo_tC, "fvwo_tC[3]/D");
-  tr->Branch("fvwo_nC", fvwo_nC, "fvwo_nC[3]/D");
-  tr->Branch("fv_Prob", &fv_Prob, "fv_Prob/D");
-  tr->Branch("fv_dxy", &fv_dxy, "fv_dxy/D");
-  tr->Branch("fv_dxysig", &fv_dxysig, "fv_dxysig/D");
-  tr->Branch("fv_ppdl", &fv_ppdl, "fv_ppdl/D");
-  tr->Branch("fv_cosdphi", &fv_cosdphi, "fv_cosdphi/D");
-  tr->Branch("fv_d3D", &fv_d3D, "fv_d3D/D");
-  tr->Branch("fv_d3Dsig", &fv_d3Dsig, "fv_d3Dsig/D");
-  tr->Branch("fv_ppdl3D", &fv_ppdl3D, "fv_ppdl3D/D");
-  tr->Branch("fv_cosdphi3D", &fv_cosdphi3D, "fv_cosdphi3D/D");
-  tr->Branch("iTnC_reco", iTnC_reco, "iTnC1_reco[3]/D");
-  tr->Branch("cLP_reco", cLP_reco, "cLP_reco[3]/D");
-  tr->Branch("cLM_reco", cLM_reco, "cLM_reco[3]/D");
-  tr->Branch("tKink_reco", tKink_reco, "tKink_reco[3]/D");
-  tr->Branch("gKink_reco", gKink_reco, "gKink_reco[3]/D");
-  tr->Branch("qprod_reco", qprod_reco, "qprod_reco[3]/D");
-  tr->Branch("vmuonhitcomb_reco", vmuonhitcomb_reco, "vmuonhitcomb_reco[3]/D");
-  tr->Branch("outerchi2_reco", outerchi2_reco, "outerchi2_reco[3]/D");
-  tr->Branch("timeatipinouterr_reco", timeatipinouterr_reco, "timeatipinouterr_reco[3]/D");
-  tr->Branch("uSta_reco", uSta_reco, "uSta_reco[3]/D");
-  tr->Branch("tRC2_reco", tRC2_reco, "tRC2_reco[3]/D");
-  tr->Branch("sRC2_reco", sRC2_reco, "sRC2_reco[3]/D");
-  tr->Branch("lDist_reco", lDist_reco, "lDist_reco[3]/D");
-  tr->Branch("gDEP_reco", gDEP_reco, "gDEP_reco[3]/D");
-  tr->Branch("tMat_reco", tMat_reco, "tMat_reco[3]/D");
-  tr->Branch("gTP_reco", gTP_reco, "gTP_reco[3]/D");
-  tr->Branch("calem_reco", calem_reco, "calem_reco[3]/D");
-  tr->Branch("calemS9_reco", calemS9_reco, "calemS9_reco[3]/D");
-  tr->Branch("calemS25_reco", calemS25_reco, "calemS25_reco[3]/D");
-  tr->Branch("calhad_reco", calhad_reco, "calhad_reco[3]/D");
-  tr->Branch("calhadS9_reco", calhadS9_reco, "calhadS9_reco[3]/D");
-  tr->Branch("ddz_12", &ddz_12, "ddz_12/D");
-  tr->Branch("calomuon_3", &calomuon_3, "calomuon_3/D");
-  tr->Branch("n_sv", &n_sv, "n_sv/I");
-  tr->Branch("sv_mass", sv_mass, "sv_mass[n_sv]/D");
-  tr->Branch("sv_nmu", sv_nmu, "sv_nmu[n_sv]/D");
-  tr->Branch("sv_d3D", sv_d3D, "sv_d3D[n_sv]/D");
-  tr->Branch("sv_d3Dsig", sv_d3Dsig, "sv_d3Dsig[n_sv]/D");
-  tr->Branch("sv_ppdl3D", sv_ppdl3D, "sv_ppdl3D[n_sv]/D");
-  tr->Branch("sv_ntrk", sv_ntrk, "sv_ntrk[n_sv]/D");
-  tr->Branch("sv_pt", sv_pt, "sv_pt[n_sv]/D");
-  tr->Branch("sv_dz", sv_dz, "sv_dz[n_sv]/D");
-  tr->Branch("sv_cosdphi3D", sv_cosdphi3D, "sv_cosdphi3D[n_sv]/D");
-  tr->Branch("sv_overlap", sv_overlap, "sv_overlap[n_sv]/D");
-  tr->Branch("pv_nmu", &pv_nmu, "pv_nmu/D");
-  tr->Branch("pv1_tC", &pv1_tC, "pv1_tC/D");
-  tr->Branch("pv1_nC", &pv1_nC, "pv1_nC/D");
-  tr->Branch("pv2_tC", &pv2_tC, "pv2_tC/D");
-  tr->Branch("pv2_nC", &pv2_nC, "pv2_nC/D");
-  tr->Branch("ntrk0p1", &ntrk0p1, "ntrk0p1/D");
-  tr->Branch("ntrk0p2", &ntrk0p2, "ntrk0p2/D");
-  tr->Branch("ntrk0p5", &ntrk0p5, "ntrk0p5/D");
-  tr->Branch("maxdxy_pv0", &maxdxy_pv0, "maxdxy_pv0/D");
-  tr->Branch("njet20", &njet20, "njet20/I");
-  tr->Branch("jet_pt", jet_pt, "jet_pt[njet20]/D");
-  tr->Branch("jet_overlap", jet_overlap, "jet_overlap[njet20]/D");
-  tr->Branch("btagcvsb", btagcvsb, "btagcvsb[njet20]/D");
-  tr->Branch("btagcsv", btagcsv, "btagcsv[njet20]/D");
-  tr->Branch("btagmva", btagmva, "btagmva[njet20]/D");
-  tr->Branch("m2mu_ss", &m2mu_ss, "m2mu_ss/D");
-  tr->Branch("m2mu_os1", &m2mu_os1, "m2mu_os1/D");
-  tr->Branch("m2mu_os2", &m2mu_os2, "m2mu_os2/D");
-  tr->Branch("m2mu_12", &m2mu_12, "m2mu_12/D");
-  tr->Branch("m2mu_23", &m2mu_23, "m2mu_23/D");
-  tr->Branch("m2mu_31", &m2mu_31, "m2mu_31/D");
-  tr->Branch("m2mu_max", &m2mu_max, "m2mu_max/D");
-  tr->Branch("m2mu_min", &m2mu_min, "m2mu_min/D");
+  tree = fs->make<TTree>("data", "");
 
-  tr->Branch("Track_p4", &Track_p4);
-  tr->Branch("Track_normalizedChi2", &Track_normalizedChi2);
-  tr->Branch("Track_numberOfValidHits", &Track_numberOfValidHits);
-  tr->Branch("Track_charge", &Track_charge);
-  tr->Branch("Track_dxy", &Track_dxy);
-  tr->Branch("Track_dz", &Track_dz);
-  tr->Branch("Track_poca", &Track_poca);
-  tr->Branch("Track_dxyError", &Track_dxyError);
-  tr->Branch("Track_dzError", &Track_dzError);
+
+  //=============== Event Block ==============
+  tree->Branch("Event_EventNumber", &Event_EventNumber);
+  tree->Branch("Event_RunNumber", &Event_RunNumber);
+  tree->Branch("Event_bunchCrossing", &Event_bunchCrossing);
+  tree->Branch("Event_orbitNumber", &Event_orbitNumber);
+  tree->Branch("Event_luminosityBlock", &Event_luminosityBlock);
+  tree->Branch("Event_isRealData", &Event_isRealData);
+  tree->Branch("puN", &puN, "puN/D");
+  //tree->Branch("filterbadGlbMuon", &filterbadGlbMuon, "filterbadGlbMuon/D");
+  tree->Branch("gen_flavor", &gen_flavor, "gen_flavor/D");
+  tree->Branch("nmu_mom", &nmu_mom, "nmu_mom/D");
+  tree->Branch("hlt_doublemu4_lmnrt", &hlt_doublemu4_lmnrt, "hlt_doublemu4_lmnrt/D");
+  tree->Branch("hlt_doublemu3_tau3mu", &hlt_doublemu3_tau3mu, "hlt_doublemu3_tau3mu/D");
+  tree->Branch("l1_triplemu0", &l1_triplemu0, "l1_triplemu0/D");
+  tree->Branch("l1_doublemu0", &l1_doublemu0, "l1_doublemu0/D");
+  tree->Branch("l1_doublemu0_eta1p6_os", &l1_doublemu0_eta1p6_os, "l1_doublemu0_eta1p6_os/D");
+  tree->Branch("l1_doublemu0_eta1p4_os", &l1_doublemu0_eta1p4_os, "l1_doublemu0_eta1p4_os/D");
+  tree->Branch("l1_doublemu0_eta1p6", &l1_doublemu0_eta1p6, "l1_doublemu0_eta1p6/D");
+  tree->Branch("l1_doublemu_10_0", &l1_doublemu_10_0, "l1_doublemu_10_0/D");
+  tree->Branch("l1_doublemu_11_4", &l1_doublemu_11_4, "l1_doublemu_11_4/D");
+  tree->Branch("l1_triplemu500", &l1_triplemu500, "l1_triplemu500/D");
+  tree->Branch("prescale_triplemu0", &prescale_triplemu0, "prescale_triplemu0/D");
+  tree->Branch("prescale_doublemu0_eta1p6", &prescale_doublemu0_eta1p6, "prescale_doublemu0_eta1p6/D");
+  tree->Branch("prescale_doublemu_10_0", &prescale_doublemu_10_0, "prescale_doublemu_10_0/D");
+  tree->Branch("prescale_triplemu500", &prescale_triplemu500, "prescale_triplemu500/D");
+  tree->Branch("prescale_doublemu0_eta1p6_os", &prescale_doublemu0_eta1p6_os, "prescale_doublemu0_eta1p6_os/D");
+  tree->Branch("prescale_doublemu0_eta1p4_os", &prescale_doublemu0_eta1p4_os, "prescale_doublemu0_eta1p4_os/D");
+  tree->Branch("prescale_doublemu_11_4", &prescale_doublemu_11_4, "prescale_doublemu_11_4/D");
+  tree->Branch("n_reco", &n_reco, "n_reco/I");
+  tree->Branch("ifar", &ifar, "ifar/I");
+  tree->Branch("ipv_gen", &ipv_gen, "ipv_gen/I");
+  tree->Branch("ipv1", &ipv1, "ipv1/I");
+  tree->Branch("ipv2", &ipv2, "ipv2/I");
+  tree->Branch("pdgid_reco", pdgid_reco, "pdgid_reco[3]/D");
+  tree->Branch("momid_reco", momid_reco, "momid_reco[3]/D");
+  tree->Branch("vxy_reco", vxy_reco, "vxy_reco[3]/D");
+  tree->Branch("n_vtx", &n_vtx, "n_vtx/D");
+  tree->Branch("trigmat_reco", trigmat_reco, "trigmat_reco[3]/D");
+  tree->Branch("trigmat_new", &trigmat_new, "trigmat_new/D");
+  tree->Branch("p_reco", p_reco, "p_reco[3]/D");
+  tree->Branch("pt_reco", pt_reco, "pt_reco[3]/D");
+  tree->Branch("pt_max", &pt_max, "pt_max/D");
+  tree->Branch("pt_min", &pt_min, "pt_min/D");
+  tree->Branch("eta_reco", eta_reco, "eta_reco[3]/D");
+  tree->Branch("eta_min", &eta_min, "eta_min/D");
+  tree->Branch("eta_max", &eta_max, "eta_max/D");
+  tree->Branch("phi_reco", phi_reco, "phi_reco[3]/D");
+  tree->Branch("p_in", p_in, "p_in[3]/D");
+  tree->Branch("eta_in", eta_in, "eta_in[3]/D");
+  tree->Branch("phi_in", phi_in, "phi_in[3]/D");
+  tree->Branch("p_out", p_out, "p_out[3]/D");
+  tree->Branch("eta_out", eta_out, "eta_out[3]/D");
+  tree->Branch("phi_out", phi_out, "phi_out[3]/D");
+  tree->Branch("p_glb", p_glb, "p_glb[3]/D");
+  tree->Branch("eta_glb", eta_glb, "eta_glb[3]/D");
+  tree->Branch("phi_glb", phi_glb, "phi_glb[3]/D");
+  tree->Branch("pt3mu_reco", &pt3mu_reco, "pt3mu_reco/D");
+  tree->Branch("pt2mu_12", &pt2mu_12, "pt2mu_12/D");
+  tree->Branch("p3mu_reco", &p3mu_reco, "p3mu_reco/D");
+  tree->Branch("eta3mu_reco", &eta3mu_reco, "eta3mu_reco/D");
+  tree->Branch("m3mu_reco", &m3mu_reco, "m3mu_reco/D");
+  tree->Branch("m3mu_simp", &m3mu_simp, "m3mu_simp/D");
+  tree->Branch("m3mu_refit", &m3mu_refit, "m3mu_refit/D");
+  tree->Branch("pf_reco", pf_reco, "pf_reco[3]/D");
+  tree->Branch("rpcmu_reco", rpcmu_reco, "rpcmu_reco[3]/D");
+  tree->Branch("rpchits_reco", rpchits_reco, "rpchits_reco[3]/D");
+  tree->Branch("comp2d_reco", comp2d_reco, "comp2d_reco[3]/D");
+  tree->Branch("tma_reco", tma_reco, "tma_reco[3]/D");
+  tree->Branch("tmost_reco", tmost_reco, "tmost_reco[3]/D");
+  tree->Branch("tmosat_reco", tmosat_reco, "tmosat_reco[3]/D");
+  tree->Branch("tmlst_reco", tmlst_reco, "tmlst_reco[3]/D");
+  tree->Branch("tmlsat_reco", tmlsat_reco, "tmlsat_reco[3]/D");
+  tree->Branch("tmlsolpt_reco", tmlsolpt_reco, "tmlsolpt_reco[3]/D");
+  tree->Branch("tmlsoblpt_reco", tmlsoblpt_reco, "tmlsoblpt_reco[3]/D");
+  tree->Branch("calocomp_reco", calocomp_reco, "calocomp_reco[3]/D");
+  tree->Branch("segmcomp_reco", segmcomp_reco, "segmcomp_reco[3]/D");
+  tree->Branch("segmcomp_0", segmcomp_0, "segmcomp_0[3]/D");
+  tree->Branch("segmcomp_1", segmcomp_1, "segmcomp_1[3]/D");
+  tree->Branch("segmcomp_2", segmcomp_2, "segmcomp_2[3]/D");
+  tree->Branch("segmcomp_3", segmcomp_3, "segmcomp_3[3]/D");
+  //tree->Branch("segmcomp_4", segmcomp_4, "segmcomp_4[3]/D");
+  //tree->Branch("segmcomp_5", segmcomp_5, "segmcomp_5[3]/D");
+  //tree->Branch("segmcomp_6", segmcomp_6, "segmcomp_6[3]/D");
+  //tree->Branch("segmcomp_7", segmcomp_7, "segmcomp_7[3]/D");
+  tree->Branch("trkhp_reco", trkhp_reco, "trkhp_reco[3]/D");
+  tree->Branch("glbnC_reco", glbnC_reco, "glbnC_reco[3]/D");
+  tree->Branch("nOVMH_reco", nOVMH_reco, "nOVMH_reco[3]/D");
+  tree->Branch("nOVPH_reco", nOVPH_reco, "nOVPH_reco[3]/D");
+  tree->Branch("nOVTH_reco", nOVTH_reco, "nOVTH_reco[3]/D");
+  tree->Branch("nOLTH_reco", nOLTH_reco, "nOLTH_reco[3]/D");
+  tree->Branch("nOLTHin_reco", nOLTHin_reco, "nOLTHin_reco[3]/D");
+  tree->Branch("nOLTHout_reco", nOLTHout_reco, "nOLTHout_reco[3]/D");
+  //tree->Branch("nSCH_reco", nSCH_reco, "nSCH_reco[3]/D");
+  tree->Branch("iTvF_reco", iTvF_reco, "iTvF_reco[3]/D");
+  tree->Branch("tLWM_reco", tLWM_reco, "tLWM_reco[3]/D");
+  tree->Branch("pLWM_reco", pLWM_reco, "pLWM_reco[3]/D");
+  tree->Branch("ggm_reco", ggm_reco, "ggm_reco[3]/D");
+  tree->Branch("tgm_reco", tgm_reco, "tgm_reco[3]/D");
+  tree->Branch("pterr_reco", pterr_reco, "pterr_reco[3]/D");
+  tree->Branch("Iso_sumPt", Iso_sumPt, "Iso_sumPt[3]/D");
+  tree->Branch("Iso_nTr", Iso_nTr, "Iso_nTr[3]/D");
+  tree->Branch("Iso_emEt", Iso_emEt, "Iso_emEt[3]/D");
+  tree->Branch("Iso_hadEt", Iso_hadEt, "Iso_hadEt[3]/D");
+  tree->Branch("Iso_eVE", Iso_eVE, "Iso_eVE[3]/D");
+  tree->Branch("Iso_hVE", Iso_hVE, "Iso_hVE[3]/D");
+  tree->Branch("nOMS_reco", nOMS_reco, "nOMS_reco[3]/D");
+  tree->Branch("nOM_reco", nOM_reco, "nOM_reco[3]/D");
+  tree->Branch("mSWVH_reco", mSWVH_reco, "mSWVH_reco[3]/D");
+  tree->Branch("cschits_sta1", cschits_sta1, "cschits_sta1[3]/D");
+  tree->Branch("cscchi2_sta1", cscchi2_sta1, "cscchi2_sta1[3]/D");
+  tree->Branch("cschits_sta2", cschits_sta2, "cschits_sta2[3]/D");
+  tree->Branch("cscchi2_sta2", cscchi2_sta2, "cscchi2_sta2[3]/D");
+  tree->Branch("cscdxdz_sta1", cscdxdz_sta1, "cscdxdz_sta1[3]/D");
+  tree->Branch("cscdxdz_sta2", cscdxdz_sta2, "cscdxdz_sta2[3]/D");
+  tree->Branch("cscdydz_sta1", cscdydz_sta1, "cscdydz_sta1[3]/D");
+  tree->Branch("cscdydz_sta2", cscdydz_sta2, "cscdydz_sta2[3]/D");
+  tree->Branch("cscnsegm_sta1", cscnsegm_sta1, "cscnsegm_sta1[3]/D");
+  tree->Branch("cscnsegm_sta2", cscnsegm_sta2, "cscnsegm_sta2[3]/D");
+  tree->Branch("nOMS_min", &nOMS_min, "nOMS_min/D");
+  tree->Branch("tLWM_min", &tLWM_min, "tLWM_min/D");
+  tree->Branch("d0_reco", d0_reco, "d0_reco[3]/D");
+  tree->Branch("d0sig_reco", d0sig_reco, "d0sig_reco[3]/D");
+  tree->Branch("dz_reco", dz_reco, "dz_reco[3]/D");
+  tree->Branch("dzpv_reco", dzpv_reco, "dzpv_reco[3]/D");
+  tree->Branch("dr12_reco", &dr12_reco, "dr12_reco/D");
+  tree->Branch("dr23_reco", &dr23_reco, "dr23_reco/D");
+  tree->Branch("dr31_reco", &dr31_reco, "dr31_reco/D");
+  tree->Branch("dr_min", &dr_min, "dr_min/D");
+  tree->Branch("drtau_max", &drtau_max, "drtau_max/D");
+  tree->Branch("charge_reco", charge_reco, "charge_reco[3]/D");
+  tree->Branch("drtau_reco", drtau_reco, "drtau_reco[3]/D");
+  tree->Branch("dca12_reco", &dca12_reco, "dca12_reco/D");
+  tree->Branch("dca23_reco", &dca23_reco, "dca23_reco/D");
+  tree->Branch("dca31_reco", &dca31_reco, "dca31_reco/D");
+  tree->Branch("dca_max", &dca_max, "dca_max/D");
+  tree->Branch("trkrel_reco", trkrel_reco, "trkrel_reco[3]/D");
+  tree->Branch("trkrel_max", &trkrel_max, "trkrel_max/D");
+  tree->Branch("trkrel_tau", &trkrel_tau, "trkrel_tau/D");
+  tree->Branch("trkrel_tau05", &trkrel_tau05, "trkrel_tau05/D");
+  tree->Branch("ntrk_reco", ntrk_reco, "ntrk_reco[3]/D");
+  tree->Branch("ntrk_sum", &ntrk_sum, "ntrk_sum/D");
+  tree->Branch("ntrk_tau", &ntrk_tau, "ntrk_tau/D");
+  tree->Branch("mindca_iso", &mindca_iso, "mindca_iso/D");
+  tree->Branch("ntrk_tau05", &ntrk_tau05, "ntrk_tau05/D");
+  tree->Branch("ntrk_tau_b", &ntrk_tau_b, "ntrk_tau_b/D");
+  tree->Branch("mindca_iso05", &mindca_iso05, "mindca_iso05/D");
+  tree->Branch("fv_tC", &fv_tC, "fv_tC/D");
+  tree->Branch("fv_nC", &fv_nC, "fv_nC/D");
+  tree->Branch("fvwo_tC", fvwo_tC, "fvwo_tC[3]/D");
+  tree->Branch("fvwo_nC", fvwo_nC, "fvwo_nC[3]/D");
+  tree->Branch("fv_Prob", &fv_Prob, "fv_Prob/D");
+  tree->Branch("fv_dxy", &fv_dxy, "fv_dxy/D");
+  tree->Branch("fv_dxysig", &fv_dxysig, "fv_dxysig/D");
+  tree->Branch("fv_ppdl", &fv_ppdl, "fv_ppdl/D");
+  tree->Branch("fv_cosdphi", &fv_cosdphi, "fv_cosdphi/D");
+  tree->Branch("fv_d3D", &fv_d3D, "fv_d3D/D");
+  tree->Branch("fv_d3Dsig", &fv_d3Dsig, "fv_d3Dsig/D");
+  tree->Branch("fv_ppdl3D", &fv_ppdl3D, "fv_ppdl3D/D");
+  tree->Branch("fv_cosdphi3D", &fv_cosdphi3D, "fv_cosdphi3D/D");
+  tree->Branch("iTnC_reco", iTnC_reco, "iTnC1_reco[3]/D");
+  tree->Branch("cLP_reco", cLP_reco, "cLP_reco[3]/D");
+  tree->Branch("cLM_reco", cLM_reco, "cLM_reco[3]/D");
+  tree->Branch("tKink_reco", tKink_reco, "tKink_reco[3]/D");
+  tree->Branch("gKink_reco", gKink_reco, "gKink_reco[3]/D");
+  tree->Branch("qprod_reco", qprod_reco, "qprod_reco[3]/D");
+  tree->Branch("vmuonhitcomb_reco", vmuonhitcomb_reco, "vmuonhitcomb_reco[3]/D");
+  tree->Branch("outerchi2_reco", outerchi2_reco, "outerchi2_reco[3]/D");
+  tree->Branch("timeatipinouterr_reco", timeatipinouterr_reco, "timeatipinouterr_reco[3]/D");
+  tree->Branch("uSta_reco", uSta_reco, "uSta_reco[3]/D");
+  tree->Branch("tRC2_reco", tRC2_reco, "tRC2_reco[3]/D");
+  tree->Branch("sRC2_reco", sRC2_reco, "sRC2_reco[3]/D");
+  tree->Branch("lDist_reco", lDist_reco, "lDist_reco[3]/D");
+  tree->Branch("gDEP_reco", gDEP_reco, "gDEP_reco[3]/D");
+  tree->Branch("tMat_reco", tMat_reco, "tMat_reco[3]/D");
+  tree->Branch("gTP_reco", gTP_reco, "gTP_reco[3]/D");
+  tree->Branch("calem_reco", calem_reco, "calem_reco[3]/D");
+  tree->Branch("calemS9_reco", calemS9_reco, "calemS9_reco[3]/D");
+  tree->Branch("calemS25_reco", calemS25_reco, "calemS25_reco[3]/D");
+  tree->Branch("calhad_reco", calhad_reco, "calhad_reco[3]/D");
+  tree->Branch("calhadS9_reco", calhadS9_reco, "calhadS9_reco[3]/D");
+  tree->Branch("ddz_12", &ddz_12, "ddz_12/D");
+  tree->Branch("calomuon_3", &calomuon_3, "calomuon_3/D");
+  tree->Branch("n_sv", &n_sv, "n_sv/I");
+  tree->Branch("sv_mass", sv_mass, "sv_mass[n_sv]/D");
+  tree->Branch("sv_nmu", sv_nmu, "sv_nmu[n_sv]/D");
+  tree->Branch("sv_d3D", sv_d3D, "sv_d3D[n_sv]/D");
+  tree->Branch("sv_d3Dsig", sv_d3Dsig, "sv_d3Dsig[n_sv]/D");
+  tree->Branch("sv_ppdl3D", sv_ppdl3D, "sv_ppdl3D[n_sv]/D");
+  tree->Branch("sv_ntrk", sv_ntrk, "sv_ntrk[n_sv]/D");
+  tree->Branch("sv_pt", sv_pt, "sv_pt[n_sv]/D");
+  tree->Branch("sv_dz", sv_dz, "sv_dz[n_sv]/D");
+  tree->Branch("sv_cosdphi3D", sv_cosdphi3D, "sv_cosdphi3D[n_sv]/D");
+  tree->Branch("sv_overlap", sv_overlap, "sv_overlap[n_sv]/D");
+  tree->Branch("pv_nmu", &pv_nmu, "pv_nmu/D");
+  tree->Branch("pv1_tC", &pv1_tC, "pv1_tC/D");
+  tree->Branch("pv1_nC", &pv1_nC, "pv1_nC/D");
+  tree->Branch("pv2_tC", &pv2_tC, "pv2_tC/D");
+  tree->Branch("pv2_nC", &pv2_nC, "pv2_nC/D");
+  tree->Branch("ntrk0p1", &ntrk0p1, "ntrk0p1/D");
+  tree->Branch("ntrk0p2", &ntrk0p2, "ntrk0p2/D");
+  tree->Branch("ntrk0p5", &ntrk0p5, "ntrk0p5/D");
+  tree->Branch("maxdxy_pv0", &maxdxy_pv0, "maxdxy_pv0/D");
+  tree->Branch("njet20", &njet20, "njet20/I");
+  tree->Branch("jet_pt", jet_pt, "jet_pt[njet20]/D");
+  tree->Branch("jet_overlap", jet_overlap, "jet_overlap[njet20]/D");
+  tree->Branch("btagcvsb", btagcvsb, "btagcvsb[njet20]/D");
+  tree->Branch("btagcsv", btagcsv, "btagcsv[njet20]/D");
+  tree->Branch("btagmva", btagmva, "btagmva[njet20]/D");
+  tree->Branch("m2mu_ss", &m2mu_ss, "m2mu_ss/D");
+  tree->Branch("m2mu_os1", &m2mu_os1, "m2mu_os1/D");
+  tree->Branch("m2mu_os2", &m2mu_os2, "m2mu_os2/D");
+  tree->Branch("m2mu_12", &m2mu_12, "m2mu_12/D");
+  tree->Branch("m2mu_23", &m2mu_23, "m2mu_23/D");
+  tree->Branch("m2mu_31", &m2mu_31, "m2mu_31/D");
+  tree->Branch("m2mu_max", &m2mu_max, "m2mu_max/D");
+  tree->Branch("m2mu_min", &m2mu_min, "m2mu_min/D");
+
+  tree->Branch("Track_p4", &Track_p4);
+  tree->Branch("Track_normalizedChi2", &Track_normalizedChi2);
+  tree->Branch("Track_numberOfValidHits", &Track_numberOfValidHits);
+  tree->Branch("Track_charge", &Track_charge);
+  tree->Branch("Track_dxy", &Track_dxy);
+  tree->Branch("Track_dz", &Track_dz);
+  tree->Branch("Track_poca", &Track_poca);
+  tree->Branch("Track_dxyError", &Track_dxyError);
+  tree->Branch("Track_dzError", &Track_dzError);
 }
 
 
@@ -510,6 +527,7 @@ T3MNtuple::~T3MNtuple()
 //
 
 
+
 // ------------ method called for each event  ------------
 void
 T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -522,6 +540,8 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   cnt_++;
   ClearEvent();
 
+
+  fillEventInfo(iEvent, iSetup);
   if(doTracks_)
     fillTracks(iEvent, iSetup);
   if(doMuons_)
@@ -532,10 +552,6 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     fillL1(iEvent, iSetup);
 
 
-
-  runN = iEvent.id().run();
-  lumiN = iEvent.id().luminosityBlock();
-  eventN = iEvent.id().event();
 
   h_step->Fill(0);
 
@@ -614,104 +630,6 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   if(passhlt_ && hlt_doublemu3_tau3mu<0.1) return;
   h_step->Fill(2);
-
-  ////////////////////////////
-  // L1 Trigger
-
-  // gtUtil_->retrieveL1(iEvent, iSetup, algToken_);
-  // const vector<pair<string, bool> > initialDecisions = gtUtil_->decisionsInitial();
-  // l1_doublemu0 = 0; l1_triplemu0 = 0; l1_triplemu500 = 0;
-  // l1_doublemu_10_0 = 0; l1_doublemu_11_4 = 0;
-  // l1_doublemu0_eta1p6 = 0; l1_doublemu0_eta1p6_os = 0; l1_doublemu0_eta1p4_os = 0;
-  // prescale_triplemu0 = 0; prescale_doublemu_10_0 = 0; prescale_doublemu0_eta1p6 = 0;
-  // prescale_triplemu500 = 0; prescale_doublemu_11_4 = 0; prescale_doublemu0_eta1p6_os = 0;
-  // prescale_doublemu0_eta1p4_os = 0;
-
-  // if(doMC_) {
-
-  //   for (size_t i_l1t = 0; i_l1t < initialDecisions.size(); i_l1t++) {
-
-  //     string l1tName = (initialDecisions.at(i_l1t)).first;
-  //     if( l1tName == "NULL") continue;
-
-  //     if( l1tName == "L1_DoubleMu0" ) {
-  // 	if( initialDecisions.at(i_l1t).second ) l1_doublemu0 = 1;
-  //     }
-  //     if( l1tName == "L1_TripleMu0" ) {
-  // 	if( initialDecisions.at(i_l1t).second ) l1_triplemu0 = 1;
-  //     }
-  //     if( l1tName == "L1_TripleMu_5_0_0" ) {
-  // 	if( initialDecisions.at(i_l1t).second ) l1_triplemu500 = 1;
-  //     }
-  //     if( l1tName == "L1_DoubleMu0er1p6_dEta_Max1p8" ) {
-  // 	if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p6 = 1;
-  //     }
-  //     if( l1tName == "L1_DoubleMu0er1p6_dEta_Max1p8_OS" ) {
-  // 	if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p6_os = 1;
-  //     }
-  //     if( l1tName == "L1_DoubleMu0er1p4_dEta_Max1p8_OS" ) {
-  // 	if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p4_os = 1;
-  //     }
-  //     if( l1tName == "L1_DoubleMu_10_0_dEta_Max1p8" ) {
-  // 	if( initialDecisions.at(i_l1t).second ) l1_doublemu_10_0 = 1;
-  //     }
-  //     if( l1tName == "L1_DoubleMu_11_4" ) {
-  // 	if( initialDecisions.at(i_l1t).second ) l1_doublemu_11_4 = 1;
-  //     }
-
-  //   }
-  // } // MC
-  // else if (0){  // data 
-
-  //   //ESHandle<L1TUtmTriggerMenu> l1GtMenu;
-  //   //iSetup.get<L1TUtmTriggerMenuRcd>().get(l1GtMenu);
-
-  //   ESHandle<L1TGlobalPrescalesVetos> psAndVetos;
-  //   auto psRcd = iSetup.tryToGet<L1TGlobalPrescalesVetosRcd>();
-  //   if(psRcd) psRcd->get(psAndVetos);
-  //   int columnN= gtUtil_->prescaleColumn();
-
-  //   for (size_t i_l1t = 0; i_l1t < initialDecisions.size(); i_l1t++) {
-
-  //     string l1tName = (initialDecisions.at(i_l1t)).first;
-  //     if( l1tName == "NULL") continue;
-
-  //     if( l1tName == "L1_DoubleMu0" ) {
-  // 	if( initialDecisions.at(i_l1t).second ) l1_doublemu0 = 1;
-  // 	//cout<<(psAndVetos->prescale_table_)[columnN][i_l1t]<<endl;
-  //     }
-  //     if( l1tName == "L1_TripleMu0" ) {
-  // 	if( initialDecisions.at(i_l1t).second ) l1_triplemu0 = 1;
-  // 	prescale_triplemu0 = (psAndVetos->prescale_table_)[columnN][i_l1t];
-  //     }
-  //     if( l1tName == "L1_TripleMu_5_0_0" ) {
-  // 	if( initialDecisions.at(i_l1t).second ) l1_triplemu500 = 1;
-  // 	prescale_triplemu500 = (psAndVetos->prescale_table_)[columnN][i_l1t];
-  //     }
-  //     if( l1tName == "L1_DoubleMu0er1p6_dEta_Max1p8" ) {
-  // 	if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p6 = 1;
-  // 	prescale_doublemu0_eta1p6 = (psAndVetos->prescale_table_)[columnN][i_l1t];
-  //     }
-  //     if( l1tName == "L1_DoubleMu0er1p6_dEta_Max1p8_OS" ) {
-  // 	if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p6_os = 1;
-  // 	prescale_doublemu0_eta1p6_os = (psAndVetos->prescale_table_)[columnN][i_l1t];
-  //     }
-  //     if( l1tName == "L1_DoubleMu0er1p4_dEta_Max1p8_OS" ) {
-  // 	if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p4_os = 1;
-  // 	prescale_doublemu0_eta1p4_os = (psAndVetos->prescale_table_)[columnN][i_l1t];
-  //     }
-  //     if( l1tName == "L1_DoubleMu_10_0_dEta_Max1p8" ) {
-  // 	if( initialDecisions.at(i_l1t).second ) l1_doublemu_10_0 = 1;
-  // 	prescale_doublemu_10_0 = (psAndVetos->prescale_table_)[columnN][i_l1t];
-  //     }
-  //     if( l1tName == "L1_DoubleMu_11_4" ) {
-  // 	if( initialDecisions.at(i_l1t).second ) l1_doublemu_11_4 = 1;
-  // 	prescale_doublemu_11_4 = (psAndVetos->prescale_table_)[columnN][i_l1t];
-  //     }
-
-  //   }
-
-  // } // data
 
 
     //////////////////////
@@ -1746,7 +1664,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     njet20 ++;
   }
 
-  tr->Fill();
+  tree->Fill();
   h_step->Fill(6);
 
 }
@@ -1903,6 +1821,18 @@ void T3MNtuple::fillL1(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     } // data
 }
 
+
+void T3MNtuple::fillEventInfo(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+
+  Event_EventNumber = iEvent.id().event();
+  Event_RunNumber = iEvent.id().run();
+  Event_bunchCrossing = iEvent.bunchCrossing();
+  Event_orbitNumber = iEvent.orbitNumber();
+  Event_luminosityBlock = iEvent.luminosityBlock();
+  Event_isRealData = iEvent.isRealData();
+
+}
 
 
 // ------------ method called once each job just before starting event loop  ------------
