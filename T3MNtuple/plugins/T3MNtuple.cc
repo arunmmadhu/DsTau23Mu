@@ -122,6 +122,8 @@ private:
   void ClearEvent();
   void fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void fillL1(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
   double /*filterbadGlbMuon*/ gen_flavor, nmu_mom, hlt_doublemu4_lmnrt, hlt_doublemu3_tau3mu, l1_triplemu0, l1_doublemu0,
     prescale_triplemu0, prescale_doublemu_10_0, prescale_doublemu0_eta1p6,
@@ -177,7 +179,7 @@ private:
   std::vector<double> Track_dzError;
 
 
-  bool MC_, wideSB_, do2mu_, passhlt_, doTracks_, doMuons_;
+  bool doMC_, wideSB_, do2mu_, passhlt_, doTracks_, doMuons_, do3mutuple_, doL1_;
   size_t mid_, n_reco, n_sv, njet20, ifar, ipv_gen, ipv1, ipv2;
 
   TTree *tr;
@@ -254,14 +256,15 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
 
   //trackAssociator_.useDefaultPropagator();
 
-  MC_ = iConfig.getParameter<bool>("MC");
+  doMC_ = iConfig.getParameter<bool>("doMC");
   wideSB_ = iConfig.getParameter<bool>("wideSB");
   do2mu_ = iConfig.getParameter<bool>("do2mu");
   passhlt_ = iConfig.getParameter<bool>("passhlt");
   mid_ = iConfig.getParameter<int>("mid");
   doTracks_ = iConfig.getParameter<bool>("doTracks");
   doMuons_ = iConfig.getParameter<bool>("doMuons");
-
+  do3mutuple_ = iConfig.getParameter<bool>("do3mutuple");
+  doL1_ = iConfig.getParameter<bool>("dol1");
 
 
   Service<TFileService> fs;
@@ -523,13 +526,12 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     fillTracks(iEvent, iSetup);
   if(doMuons_)
     fillMuons(iEvent, iSetup);
+  if (doMC_)
+    fillMCTruth(iEvent, iSetup);
+  if (doL1_)
+    fillL1(iEvent, iSetup);
 
-  Handle<vector<PileupSummaryInfo> >  PupInfo;
-  puN = 0;
-  if(MC_) {
-    iEvent.getByToken(puToken_, PupInfo);
-    puN = PupInfo->begin()->getTrueNumInteractions();
-  }
+
 
   runN = iEvent.id().run();
   lumiN = iEvent.id().luminosityBlock();
@@ -616,100 +618,100 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   ////////////////////////////
   // L1 Trigger
 
-  gtUtil_->retrieveL1(iEvent, iSetup, algToken_);
-  const vector<pair<string, bool> > initialDecisions = gtUtil_->decisionsInitial();
-  l1_doublemu0 = 0; l1_triplemu0 = 0; l1_triplemu500 = 0;
-  l1_doublemu_10_0 = 0; l1_doublemu_11_4 = 0;
-  l1_doublemu0_eta1p6 = 0; l1_doublemu0_eta1p6_os = 0; l1_doublemu0_eta1p4_os = 0;
-  prescale_triplemu0 = 0; prescale_doublemu_10_0 = 0; prescale_doublemu0_eta1p6 = 0;
-  prescale_triplemu500 = 0; prescale_doublemu_11_4 = 0; prescale_doublemu0_eta1p6_os = 0;
-  prescale_doublemu0_eta1p4_os = 0;
+  // gtUtil_->retrieveL1(iEvent, iSetup, algToken_);
+  // const vector<pair<string, bool> > initialDecisions = gtUtil_->decisionsInitial();
+  // l1_doublemu0 = 0; l1_triplemu0 = 0; l1_triplemu500 = 0;
+  // l1_doublemu_10_0 = 0; l1_doublemu_11_4 = 0;
+  // l1_doublemu0_eta1p6 = 0; l1_doublemu0_eta1p6_os = 0; l1_doublemu0_eta1p4_os = 0;
+  // prescale_triplemu0 = 0; prescale_doublemu_10_0 = 0; prescale_doublemu0_eta1p6 = 0;
+  // prescale_triplemu500 = 0; prescale_doublemu_11_4 = 0; prescale_doublemu0_eta1p6_os = 0;
+  // prescale_doublemu0_eta1p4_os = 0;
 
-  if(MC_) {
+  // if(doMC_) {
 
-    for (size_t i_l1t = 0; i_l1t < initialDecisions.size(); i_l1t++) {
+  //   for (size_t i_l1t = 0; i_l1t < initialDecisions.size(); i_l1t++) {
 
-      string l1tName = (initialDecisions.at(i_l1t)).first;
-      if( l1tName == "NULL") continue;
+  //     string l1tName = (initialDecisions.at(i_l1t)).first;
+  //     if( l1tName == "NULL") continue;
 
-      if( l1tName == "L1_DoubleMu0" ) {
-	if( initialDecisions.at(i_l1t).second ) l1_doublemu0 = 1;
-      }
-      if( l1tName == "L1_TripleMu0" ) {
-	if( initialDecisions.at(i_l1t).second ) l1_triplemu0 = 1;
-      }
-      if( l1tName == "L1_TripleMu_5_0_0" ) {
-	if( initialDecisions.at(i_l1t).second ) l1_triplemu500 = 1;
-      }
-      if( l1tName == "L1_DoubleMu0er1p6_dEta_Max1p8" ) {
-	if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p6 = 1;
-      }
-      if( l1tName == "L1_DoubleMu0er1p6_dEta_Max1p8_OS" ) {
-	if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p6_os = 1;
-      }
-      if( l1tName == "L1_DoubleMu0er1p4_dEta_Max1p8_OS" ) {
-	if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p4_os = 1;
-      }
-      if( l1tName == "L1_DoubleMu_10_0_dEta_Max1p8" ) {
-	if( initialDecisions.at(i_l1t).second ) l1_doublemu_10_0 = 1;
-      }
-      if( l1tName == "L1_DoubleMu_11_4" ) {
-	if( initialDecisions.at(i_l1t).second ) l1_doublemu_11_4 = 1;
-      }
+  //     if( l1tName == "L1_DoubleMu0" ) {
+  // 	if( initialDecisions.at(i_l1t).second ) l1_doublemu0 = 1;
+  //     }
+  //     if( l1tName == "L1_TripleMu0" ) {
+  // 	if( initialDecisions.at(i_l1t).second ) l1_triplemu0 = 1;
+  //     }
+  //     if( l1tName == "L1_TripleMu_5_0_0" ) {
+  // 	if( initialDecisions.at(i_l1t).second ) l1_triplemu500 = 1;
+  //     }
+  //     if( l1tName == "L1_DoubleMu0er1p6_dEta_Max1p8" ) {
+  // 	if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p6 = 1;
+  //     }
+  //     if( l1tName == "L1_DoubleMu0er1p6_dEta_Max1p8_OS" ) {
+  // 	if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p6_os = 1;
+  //     }
+  //     if( l1tName == "L1_DoubleMu0er1p4_dEta_Max1p8_OS" ) {
+  // 	if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p4_os = 1;
+  //     }
+  //     if( l1tName == "L1_DoubleMu_10_0_dEta_Max1p8" ) {
+  // 	if( initialDecisions.at(i_l1t).second ) l1_doublemu_10_0 = 1;
+  //     }
+  //     if( l1tName == "L1_DoubleMu_11_4" ) {
+  // 	if( initialDecisions.at(i_l1t).second ) l1_doublemu_11_4 = 1;
+  //     }
 
-    }
-  } // MC
-  else if (0){  // data 
+  //   }
+  // } // MC
+  // else if (0){  // data 
 
-    //ESHandle<L1TUtmTriggerMenu> l1GtMenu;
-    //iSetup.get<L1TUtmTriggerMenuRcd>().get(l1GtMenu);
+  //   //ESHandle<L1TUtmTriggerMenu> l1GtMenu;
+  //   //iSetup.get<L1TUtmTriggerMenuRcd>().get(l1GtMenu);
 
-    ESHandle<L1TGlobalPrescalesVetos> psAndVetos;
-    auto psRcd = iSetup.tryToGet<L1TGlobalPrescalesVetosRcd>();
-    if(psRcd) psRcd->get(psAndVetos);
-    int columnN= gtUtil_->prescaleColumn();
+  //   ESHandle<L1TGlobalPrescalesVetos> psAndVetos;
+  //   auto psRcd = iSetup.tryToGet<L1TGlobalPrescalesVetosRcd>();
+  //   if(psRcd) psRcd->get(psAndVetos);
+  //   int columnN= gtUtil_->prescaleColumn();
 
-    for (size_t i_l1t = 0; i_l1t < initialDecisions.size(); i_l1t++) {
+  //   for (size_t i_l1t = 0; i_l1t < initialDecisions.size(); i_l1t++) {
 
-      string l1tName = (initialDecisions.at(i_l1t)).first;
-      if( l1tName == "NULL") continue;
+  //     string l1tName = (initialDecisions.at(i_l1t)).first;
+  //     if( l1tName == "NULL") continue;
 
-      if( l1tName == "L1_DoubleMu0" ) {
-	if( initialDecisions.at(i_l1t).second ) l1_doublemu0 = 1;
-	//cout<<(psAndVetos->prescale_table_)[columnN][i_l1t]<<endl;
-      }
-      if( l1tName == "L1_TripleMu0" ) {
-	if( initialDecisions.at(i_l1t).second ) l1_triplemu0 = 1;
-	prescale_triplemu0 = (psAndVetos->prescale_table_)[columnN][i_l1t];
-      }
-      if( l1tName == "L1_TripleMu_5_0_0" ) {
-	if( initialDecisions.at(i_l1t).second ) l1_triplemu500 = 1;
-	prescale_triplemu500 = (psAndVetos->prescale_table_)[columnN][i_l1t];
-      }
-      if( l1tName == "L1_DoubleMu0er1p6_dEta_Max1p8" ) {
-	if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p6 = 1;
-	prescale_doublemu0_eta1p6 = (psAndVetos->prescale_table_)[columnN][i_l1t];
-      }
-      if( l1tName == "L1_DoubleMu0er1p6_dEta_Max1p8_OS" ) {
-	if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p6_os = 1;
-	prescale_doublemu0_eta1p6_os = (psAndVetos->prescale_table_)[columnN][i_l1t];
-      }
-      if( l1tName == "L1_DoubleMu0er1p4_dEta_Max1p8_OS" ) {
-	if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p4_os = 1;
-	prescale_doublemu0_eta1p4_os = (psAndVetos->prescale_table_)[columnN][i_l1t];
-      }
-      if( l1tName == "L1_DoubleMu_10_0_dEta_Max1p8" ) {
-	if( initialDecisions.at(i_l1t).second ) l1_doublemu_10_0 = 1;
-	prescale_doublemu_10_0 = (psAndVetos->prescale_table_)[columnN][i_l1t];
-      }
-      if( l1tName == "L1_DoubleMu_11_4" ) {
-	if( initialDecisions.at(i_l1t).second ) l1_doublemu_11_4 = 1;
-	prescale_doublemu_11_4 = (psAndVetos->prescale_table_)[columnN][i_l1t];
-      }
+  //     if( l1tName == "L1_DoubleMu0" ) {
+  // 	if( initialDecisions.at(i_l1t).second ) l1_doublemu0 = 1;
+  // 	//cout<<(psAndVetos->prescale_table_)[columnN][i_l1t]<<endl;
+  //     }
+  //     if( l1tName == "L1_TripleMu0" ) {
+  // 	if( initialDecisions.at(i_l1t).second ) l1_triplemu0 = 1;
+  // 	prescale_triplemu0 = (psAndVetos->prescale_table_)[columnN][i_l1t];
+  //     }
+  //     if( l1tName == "L1_TripleMu_5_0_0" ) {
+  // 	if( initialDecisions.at(i_l1t).second ) l1_triplemu500 = 1;
+  // 	prescale_triplemu500 = (psAndVetos->prescale_table_)[columnN][i_l1t];
+  //     }
+  //     if( l1tName == "L1_DoubleMu0er1p6_dEta_Max1p8" ) {
+  // 	if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p6 = 1;
+  // 	prescale_doublemu0_eta1p6 = (psAndVetos->prescale_table_)[columnN][i_l1t];
+  //     }
+  //     if( l1tName == "L1_DoubleMu0er1p6_dEta_Max1p8_OS" ) {
+  // 	if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p6_os = 1;
+  // 	prescale_doublemu0_eta1p6_os = (psAndVetos->prescale_table_)[columnN][i_l1t];
+  //     }
+  //     if( l1tName == "L1_DoubleMu0er1p4_dEta_Max1p8_OS" ) {
+  // 	if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p4_os = 1;
+  // 	prescale_doublemu0_eta1p4_os = (psAndVetos->prescale_table_)[columnN][i_l1t];
+  //     }
+  //     if( l1tName == "L1_DoubleMu_10_0_dEta_Max1p8" ) {
+  // 	if( initialDecisions.at(i_l1t).second ) l1_doublemu_10_0 = 1;
+  // 	prescale_doublemu_10_0 = (psAndVetos->prescale_table_)[columnN][i_l1t];
+  //     }
+  //     if( l1tName == "L1_DoubleMu_11_4" ) {
+  // 	if( initialDecisions.at(i_l1t).second ) l1_doublemu_11_4 = 1;
+  // 	prescale_doublemu_11_4 = (psAndVetos->prescale_table_)[columnN][i_l1t];
+  //     }
 
-    }
+  //   }
 
-  } // data
+  // } // data
 
 
     //////////////////////
@@ -718,7 +720,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   double gen_pv = 0;
   size_t ndsgen = 0;
 
-  if(MC_) {
+  if(doMC_) {
 
     Handle<GenParticleCollection> genParticles;
     iEvent.getByToken(genToken_, genParticles);
@@ -744,12 +746,9 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if(abs(p.pdgId())!=13) continue; // mu
       if(abs(p.mother()->pdgId())!=mid_) continue; // phi (norm. channel), or tau (signal channel)
       nmu_mom++;
-
     }
-
     //if(ndsgen>1)return;
     //if(nmu_mom>3)return; // why ???
-
   }
 
   //h_step->Fill(2);
@@ -967,7 +966,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //cout<<MuonLegObjects.size()<<"\t"<<n_reco<<endl;
 
-  if(n_reco >= 3 && MC_){
+  if(n_reco >= 3 && doMC_){
 
     Handle<GenParticleCollection> genParticles2;
     iEvent.getByToken(genToken_, genParticles2);
@@ -1796,6 +1795,120 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 }
 
+void T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+if (!iEvent.isRealData())
+  {
+  Handle<vector<PileupSummaryInfo> >  PupInfo;
+  iEvent.getByToken(puToken_, PupInfo);
+  puN = PupInfo->begin()->getTrueNumInteractions();
+  
+
+  }
+}
+
+
+void T3MNtuple::fillL1(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+
+
+  gtUtil_->retrieveL1(iEvent, iSetup, algToken_);
+  const vector<pair<string, bool> > initialDecisions = gtUtil_->decisionsInitial();
+
+  if (!iEvent.isRealData())
+    {
+      //      gtUtil_->retrieveL1(iEvent, iSetup, algToken_);
+      //      const vector<pair<string, bool> > initialDecisions = gtUtil_->decisionsInitial();
+      for (size_t i_l1t = 0; i_l1t < initialDecisions.size(); i_l1t++) 
+	{
+    	  string l1tName = (initialDecisions.at(i_l1t)).first;
+	  if( l1tName == "NULL") continue;
+    
+	  if( l1tName == "L1_DoubleMu0" ) 
+	    {
+	      if( initialDecisions.at(i_l1t).second ) l1_doublemu0 = 1;
+	    }
+	  if( l1tName == "L1_TripleMu0" )
+	    {
+	      if( initialDecisions.at(i_l1t).second ) l1_triplemu0 = 1;
+	    }
+	  if( l1tName == "L1_TripleMu_5_0_0" )
+	    {
+	      if( initialDecisions.at(i_l1t).second ) l1_triplemu500 = 1;
+	    }
+	  if( l1tName == "L1_DoubleMu0er1p6_dEta_Max1p8" )
+	    {
+	      if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p6 = 1;
+	    }
+	  if( l1tName == "L1_DoubleMu0er1p6_dEta_Max1p8_OS" )
+	    {
+	      if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p6_os = 1;
+	    }
+	  if( l1tName == "L1_DoubleMu0er1p4_dEta_Max1p8_OS" ) 
+	    {
+	      if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p4_os = 1;
+	    }
+	  if( l1tName == "L1_DoubleMu_10_0_dEta_Max1p8" ) 
+	    {
+	      if( initialDecisions.at(i_l1t).second ) l1_doublemu_10_0 = 1;
+	    }
+	  if( l1tName == "L1_DoubleMu_11_4" ) 
+	    {
+	      if( initialDecisions.at(i_l1t).second ) l1_doublemu_11_4 = 1;
+	    }
+	}
+    }
+  else
+    {  // data 
+      //ESHandle<L1TUtmTriggerMenu> l1GtMenu;
+      //iSetup.get<L1TUtmTriggerMenuRcd>().get(l1GtMenu);
+      ESHandle<L1TGlobalPrescalesVetos> psAndVetos;
+      auto psRcd = iSetup.tryToGet<L1TGlobalPrescalesVetosRcd>();
+      if(psRcd) psRcd->get(psAndVetos);
+      int columnN= gtUtil_->prescaleColumn();
+
+      for (size_t i_l1t = 0; i_l1t < initialDecisions.size(); i_l1t++) {
+
+	string l1tName = (initialDecisions.at(i_l1t)).first;
+	if( l1tName == "NULL") continue;
+
+	if( l1tName == "L1_DoubleMu0" ) {
+	  if( initialDecisions.at(i_l1t).second ) l1_doublemu0 = 1;
+	  //cout<<(psAndVetos->prescale_table_)[columnN][i_l1t]<<endl;
+	}
+	if( l1tName == "L1_TripleMu0" ) {
+	  if( initialDecisions.at(i_l1t).second ) l1_triplemu0 = 1;
+	  prescale_triplemu0 = (psAndVetos->prescale_table_)[columnN][i_l1t];
+	}
+	if( l1tName == "L1_TripleMu_5_0_0" ) {
+	  if( initialDecisions.at(i_l1t).second ) l1_triplemu500 = 1;
+	  prescale_triplemu500 = (psAndVetos->prescale_table_)[columnN][i_l1t];
+	}
+	if( l1tName == "L1_DoubleMu0er1p6_dEta_Max1p8" ) {
+	  if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p6 = 1;
+	  prescale_doublemu0_eta1p6 = (psAndVetos->prescale_table_)[columnN][i_l1t];
+	}
+	if( l1tName == "L1_DoubleMu0er1p6_dEta_Max1p8_OS" ) {
+	  if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p6_os = 1;
+	  prescale_doublemu0_eta1p6_os = (psAndVetos->prescale_table_)[columnN][i_l1t];
+	}
+	if( l1tName == "L1_DoubleMu0er1p4_dEta_Max1p8_OS" ) {
+	  if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p4_os = 1;
+	  prescale_doublemu0_eta1p4_os = (psAndVetos->prescale_table_)[columnN][i_l1t];
+	}
+	if( l1tName == "L1_DoubleMu_10_0_dEta_Max1p8" ) {
+	  if( initialDecisions.at(i_l1t).second ) l1_doublemu_10_0 = 1;
+	  prescale_doublemu_10_0 = (psAndVetos->prescale_table_)[columnN][i_l1t];
+	}
+	if( l1tName == "L1_DoubleMu_11_4" ) {
+	  if( initialDecisions.at(i_l1t).second ) l1_doublemu_11_4 = 1;
+	  prescale_doublemu_11_4 = (psAndVetos->prescale_table_)[columnN][i_l1t];
+	}
+      }
+    } // data
+}
+
+
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
@@ -1859,6 +1972,17 @@ T3MNtuple::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
 
 void T3MNtuple::ClearEvent() {
+
+
+  puN = 0;
+
+  l1_doublemu0 = 0; l1_triplemu0 = 0; l1_triplemu500 = 0;
+  l1_doublemu_10_0 = 0; l1_doublemu_11_4 = 0;
+  l1_doublemu0_eta1p6 = 0; l1_doublemu0_eta1p6_os = 0; l1_doublemu0_eta1p4_os = 0;
+  prescale_triplemu0 = 0; prescale_doublemu_10_0 = 0; prescale_doublemu0_eta1p6 = 0;
+  prescale_triplemu500 = 0; prescale_doublemu_11_4 = 0; prescale_doublemu0_eta1p6_os = 0;
+  prescale_doublemu0_eta1p4_os = 0;
+
   Track_p4.clear();
   Track_normalizedChi2.clear();
   Track_numberOfValidHits.clear();
