@@ -122,6 +122,8 @@ private:
   void fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void fillL1(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
+  bool isGoodTrack(const Track &track);
+
   double /*filterbadGlbMuon*/ gen_flavor, nmu_mom, hlt_doublemu4_lmnrt, hlt_doublemu3_tau3mu, l1_triplemu0, l1_doublemu0,
     prescale_triplemu0, prescale_doublemu_10_0, prescale_doublemu0_eta1p6,
     prescale_triplemu500, prescale_doublemu_11_4, prescale_doublemu0_eta1p6_os, prescale_doublemu0_eta1p4_os,
@@ -189,6 +191,10 @@ private:
   bool doMC_, wideSB_, do2mu_, passhlt_, doTracks_, doMuons_, do3mutuple_, doL1_;
   size_t mid_, n_reco, n_sv, njet20, ifar, ipv_gen, ipv1, ipv2;
 
+  static double MuonPtCut_;
+  static double MuonEtaCut_;
+
+
   TTree *tree;
   TH1F *h_n3mu, *h_step;
   InputTag algInputTag_;
@@ -228,7 +234,8 @@ private:
 //
 // static data member definitions
 //
-
+double T3MNtuple::MuonPtCut_(-1.);
+double T3MNtuple::MuonEtaCut_(999);
 //
 // constructors and destructor
 //
@@ -273,6 +280,9 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
   do3mutuple_ = iConfig.getParameter<bool>("do3mutuple");
   doL1_ = iConfig.getParameter<bool>("doL1");
 
+  MuonPtCut_ = iConfig.getParameter<double>("MuonPtCut"); //default: 3.0
+  MuonEtaCut_ = iConfig.getParameter<double>("MuonEtaCut"); //default: 2.5
+
 
 }
 
@@ -289,6 +299,18 @@ T3MNtuple::~T3MNtuple()
 //
 // member functions
 //
+
+
+bool T3MNtuple::isGoodTrack(const Track &track) {
+  if(!(track.pt()>1.)){
+    if(!(abs(track.eta())<2.4)){
+      if(!(track.hitPattern().trackerLayersWithMeasurement()>5)){
+	if(!(track.hitPattern().pixelLayersWithMeasurement()>1)) return false;
+      }
+    }
+  }
+  return true;
+}
 
 
 
@@ -445,67 +467,71 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   TLorentzVector vtau, vm12 ;
   double min_fvnC_2mu1tk = 10, min_fvnC = 100;
   int iTrk = 9999;
-  vector<size_t> idxrec;
+  vector<size_t> kinematic_muon_index;
 
-  for(size_t i = 0; i < muons->size(); ++ i) {
-    const Muon & mu = (*muons)[i];
-    //if(!(mu.pt()>1))continue;
-    if(!(mu.pt()>2))continue;
-    if(!(abs(mu.eta())<2.4)) continue;
-
-    bool isID = false;
-
-    if(mu.isPFMuon() && mu.isGlobalMuon()) isID=true;
-    //if(mu.isPFMuon() && (mu.isGlobalMuon()||mu.isTrackerMuon())) isID=true;
-
-    //if( muon::isGoodMuon(mu, muon::TMOneStationTight)
-    //  && mu.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5
-    //  && mu.innerTrack()->hitPattern().pixelLayersWithMeasurement() > 0
-    //  //if(!(m_1.innerTrack()->quality(TrackBase::highPurity)))continue;
-    //  && abs(mu.innerTrack()->dxy(beamSpotHandle->position())) < 0.3
-    //  && abs(mu.innerTrack()->dz(beamSpotHandle->position())) < 20
-    //) isID=true;
-
-    if(isID)idxrec.push_back(i);
-
-  }
-
-  if(idxrec.size() < (do2mu_?2:3)) return;
+  for(size_t i = 0; i < muons->size(); ++ i) 
+    {
+      const Muon & mu = (*muons)[i];
+      if(!(mu.pt() > MuonPtCut_) || !(abs(mu.eta()) < MuonEtaCut_))continue;
+      //    bool isID = false;
+      if(mu.isPFMuon() && mu.isGlobalMuon()) kinematic_muon_index.push_back(i);// isID=true;
+      //if(mu.isPFMuon() && (mu.isGlobalMuon()||mu.isTrackerMuon())) isID=true;
+      
+      //if( muon::isGoodMuon(mu, muon::TMOneStationTight)
+      //  && mu.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5
+      //  && mu.innerTrack()->hitPattern().pixelLayersWithMeasurement() > 0
+      //  //if(!(m_1.innerTrack()->quality(TrackBase::highPurity)))continue;
+      //  && abs(mu.innerTrack()->dxy(beamSpotHandle->position())) < 0.3
+      //  && abs(mu.innerTrack()->dz(beamSpotHandle->position())) < 20
+      //) isID=true;
+      
+      //    if(isID)kinematic_muon_index.push_back(i);
+    }
+  std::cout<<"number of muons  "<< kinematic_muon_index.size() << std::endl;
+  if(kinematic_muon_index.size() < (do2mu_?2:3)) return;  //  if kinematic_muon < 3  - continue
   h_step->Fill(3);
 
-  for(size_t i = 0; i < idxrec.size()-1; ++ i) {
-    const Muon & m_1 = (*muons)[idxrec[i]];
 
-    for(size_t j = i+1; j < idxrec.size(); ++ j) {
-      const Muon & m_2 = (*muons)[idxrec[j]];
 
-      double dz12 = abs(m_2.innerTrack()->dz(beamSpotHandle->position())-m_1.innerTrack()->dz(beamSpotHandle->position())); 
-      if(dz12>0.5)continue; 
-      double dr12 = deltaR(m_1.eta(), m_1.phi(), m_2.eta(), m_2.phi());
-      if(dr12>0.8)continue; 
+  for(size_t i = 0; i < kinematic_muon_index.size()-1; ++ i)      //  loop over muons passed kinematic cuts
+    {
+    const Muon & m_1 = (*muons)[kinematic_muon_index[i]];
 
-      if(j<idxrec.size()-1) {
 
-	for(size_t k = j+1; k < idxrec.size(); ++ k) {
-	  const Muon & m_3 = (*muons)[idxrec[k]];
+    for(size_t j = i+1; j < kinematic_muon_index.size(); ++ j)   // second loop to find a muon pair
+      {
+      const Muon & m_2 = (*muons)[kinematic_muon_index[j]];
 
-	  size_t npt2p5 = 0;
-	  if(m_1.pt()>2.5)npt2p5++;
-	  if(m_2.pt()>2.5)npt2p5++;
-	  if(m_3.pt()>2.5)npt2p5++;
-	  if(npt2p5<2)continue;
+      double dz12 = abs(m_2.innerTrack()->dz(beamSpotHandle->position())-m_1.innerTrack()->dz(beamSpotHandle->position()));  //   DeltaZ
+      double dr12 = deltaR(m_1.eta(), m_1.phi(), m_2.eta(), m_2.phi());                                                      //   DeltaR
+
+      if(dz12>0.5 ||  dr12>0.8)continue; // if Delta POCA_Z of two muon candiadate  > 0.5 cm or large deltaR  - skip the pair  candidate
+      if(j<kinematic_muon_index.size()-1) 
+	{
+	for(size_t k = j+1; k < kinematic_muon_index.size(); ++ k) 
+	  {
+	  const Muon & m_3 = (*muons)[kinematic_muon_index[k]];
+
+	  size_t n_muons_pt2p5 = 0;
+	  if(m_1.pt()>2.5)n_muons_pt2p5++;
+	  if(m_2.pt()>2.5)n_muons_pt2p5++;
+	  if(m_3.pt()>2.5)n_muons_pt2p5++;
+	  if(n_muons_pt2p5<2)continue;  //  ?? only to reduce the ntuple size ?
 
 	  double dz23 = abs(m_3.innerTrack()->dz(beamSpotHandle->position())-m_2.innerTrack()->dz(beamSpotHandle->position()));
 	  double dz31 = abs(m_3.innerTrack()->dz(beamSpotHandle->position())-m_1.innerTrack()->dz(beamSpotHandle->position()));
-	  if(dz23>0.5||dz31>0.5)continue;
+	  if(dz23>0.5 || dz31>0.5)continue;
 	  double dr23 = deltaR(m_3.eta(), m_3.phi(), m_2.eta(), m_2.phi());
 	  double dr31 = deltaR(m_3.eta(), m_3.phi(), m_1.eta(), m_1.phi());
-	  if(dr23>0.8||dr31>0.8)continue;
+	  if(dr23>0.8 || dr31>0.8)continue;
 
+
+	  std::cout<<"muon1 charge "<<m_1.charge() << std::endl;
+	  std::cout<<"muon2 charge "<<m_2.charge() << std::endl;
+	  std::cout<<"muon3 charge "<<m_3.charge() << std::endl;
 	  if(abs(m_1.charge()+m_2.charge()+m_3.charge())>1.1)continue;
-	  //if(abs(m_1.charge()+m_2.charge()+m_3.charge())<2.9)continue;
 
-	  vector<TransientTrack> t_trks;
+	  vector<TransientTrack> t_trks;   
 	  ESHandle<TransientTrackBuilder> theB;
 	  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
 	  TrackRef trk1 = m_1.innerTrack();
@@ -516,117 +542,134 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  t_trks.push_back(theB->build(trk3));
 	  KalmanVertexFitter kvf;
 	  TransientVertex fv = kvf.vertex(t_trks);
-	  if(!fv.isValid()) continue;
+	  std::cout<<"  if the vertex of three muons valid ? " << fv.isValid() << std::endl;
+	  if(!fv.isValid()) continue; // eff ? 
 	  double fvnC_tmp = fv.totalChiSquared()/fv.degreesOfFreedom();
 
 	  //vtau.SetPxPyPzE(m_1.px()+m_2.px()+m_3.px(), m_1.py()+m_2.py()+m_3.py(), m_1.pz()+m_2.pz()+m_3.pz(), m_1.energy()+m_2.energy()+m_3.energy());
-
+	  
 	  if(n_reco==0)n_reco=3;
 	  else {n_reco++;}
 	  //cout<<"eveN: "<<eventN<<"  mass: "<<vtau.M()<<"  pt: "<<vtau.Pt()<<"  fvnC: "<<fvnC_tmp<<endl;
-
+	  
 	  //if(vtau.M() >  max_mtau){ // keep the max mass
-	  if(fvnC_tmp < min_fvnC){
-
-	    if(m_1.p()>m_2.p()){
-	      if(m_2.p()>m_3.p()){
-		j1=idxrec[i]; j2=idxrec[j]; j3=idxrec[k];
-	      }
-	      else if(m_1.p()>m_3.p()){
-		j1=idxrec[i]; j2=idxrec[k]; j3=idxrec[j];
-	      }
-	      else {j1=idxrec[k]; j2=idxrec[i]; j3=idxrec[j];}
+	  if(fvnC_tmp < min_fvnC)  // check the loose quality of the SV
+	    {
+	      if(m_1.p()>m_2.p())  // sort muons by momentum
+		{
+		  if(m_2.p()>m_3.p())
+		    {
+		      j1=kinematic_muon_index[i]; j2=kinematic_muon_index[j]; j3=kinematic_muon_index[k];
+		    }
+		  else if(m_1.p()>m_3.p())
+		    {
+		      j1=kinematic_muon_index[i]; j2=kinematic_muon_index[k]; j3=kinematic_muon_index[j];
+		    }
+		  else
+		    {
+		      j1=kinematic_muon_index[k]; j2=kinematic_muon_index[i]; j3=kinematic_muon_index[j];
+		    }
+		}
+	      else 
+		{
+		  if(m_1.p()>m_3.p())
+		    {
+		      j1=kinematic_muon_index[j]; j2=kinematic_muon_index[i]; j3=kinematic_muon_index[k];
+		    }
+		  else if(m_2.p()>m_3.p())
+		    {
+		      j1=kinematic_muon_index[j]; j2=kinematic_muon_index[k]; j3=kinematic_muon_index[i];
+		    }
+		  else 
+		    {
+		      j1=kinematic_muon_index[k]; j2=kinematic_muon_index[j]; j3=kinematic_muon_index[i];
+		    }
+		}
+	      
+	      min_fvnC = fvnC_tmp; // select finally the three_muon candidate by the best vertex;
 	    }
-	    else {
-	      if(m_1.p()>m_3.p()){
-		j1=idxrec[j]; j2=idxrec[i]; j3=idxrec[k];
-	      }
-	      else if(m_2.p()>m_3.p()){
-		j1=idxrec[j]; j2=idxrec[k]; j3=idxrec[i];
-	      }
-	      else {j1=idxrec[k]; j2=idxrec[j]; j3=idxrec[i];}
-	    }
-
-	    //max_mtau = vtau.M();
-	    min_fvnC = fvnC_tmp;
 	  }
+	} 
+      
+      if(n_reco<3 && do2mu_ && m_1.pt() > 2.5 && m_2.pt() > 2.5)  ////////// if do 2mu+1trk
+	{
+	  for(size_t itk = 0; itk < trks->size(); itk++)
+	  {
+	    const Track & t = (*trks)[itk];
 
-	}
+	    if(!isGoodTrack(t)) continue;
+	    if(!(abs(t.dxy(beamSpotHandle->position())) < .3)  ||  !(abs(t.dz(beamSpotHandle->position())) < 20)) continue;   // check if the tracks is far from the BS.
 
-      } // if(j<muons->size()-1)
 
-      if(n_reco<3 && do2mu_ && m_1.pt()>2.5 && m_2.pt()>2.5) {     ////////// if do 2mu+1trk
-	for(size_t itk = 0; itk < trks->size(); itk++){
-	  const Track & t = (*trks)[itk];
-	  if(!(t.pt()>1.))continue; // was 0.5
-	  if(!(abs(t.eta())<2.4)) continue;
-	  if(!(t.hitPattern().trackerLayersWithMeasurement()>5)) continue;
-	  if(!(t.hitPattern().pixelLayersWithMeasurement()>1))continue; // was 0
-	  //if(!(t.quality(TrackBase::highPurity)))continue;
-	  if(!(abs(t.dxy(beamSpotHandle->position())) < .3))continue;
-	  if(!(abs(t.dz(beamSpotHandle->position())) < 20))continue;
+	    
+	    double dz23 = abs(t.dz(beamSpotHandle->position())-m_2.innerTrack()->dz(beamSpotHandle->position()));  // if the POCA of the track candidate is far from the muons - continue
+	    double dz31 = abs(t.dz(beamSpotHandle->position())-m_1.innerTrack()->dz(beamSpotHandle->position()));
 
-	  double dz23 = abs(t.dz(beamSpotHandle->position())-m_2.innerTrack()->dz(beamSpotHandle->position()));
-	  double dz31 = abs(t.dz(beamSpotHandle->position())-m_1.innerTrack()->dz(beamSpotHandle->position()));
-	  if(dz23>.5||dz31>.5)continue;
-	  double dr23 = deltaR(t.eta(), t.phi(), m_2.eta(), m_2.phi());
-	  double dr31 = deltaR(t.eta(), t.phi(), m_1.eta(), m_1.phi());
-	  if(dr23>1.2||dr31>1.2)continue;
-	  if(dr23<0.02||dr31<0.02)continue;
-	  if(abs(m_1.charge()+m_2.charge()+t.charge())>1.1)continue;
+	    if(dz23 > 0.5 || dz31 > 0.5)  continue;
 
-	  vector<TransientTrack> t_trks;
-	  ESHandle<TransientTrackBuilder> theB;
-	  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
-	  TrackRef trk1 = m_1.innerTrack();
-	  TrackRef trk2 = m_2.innerTrack();
-	  TrackRef trk3 = TrackRef(trks, itk);
-	  t_trks.push_back(theB->build(trk1));
-	  t_trks.push_back(theB->build(trk2));
-	  t_trks.push_back(theB->build(trk3));
-	  KalmanVertexFitter kvf;
-	  TransientVertex fv = kvf.vertex(t_trks);
-	  if(!fv.isValid()) continue;
-	  double fv_tC = fv.totalChiSquared();
-	  double fv_dOF = fv.degreesOfFreedom();
-	  double fv_nC = fv_tC/fv_dOF;
-	  if(fv_nC>5)continue;
-	  if(fv_nC < min_fvnC_2mu1tk){
+	    double dr23 = deltaR(t.eta(), t.phi(), m_2.eta(), m_2.phi());
+	    double dr31 = deltaR(t.eta(), t.phi(), m_1.eta(), m_1.phi());
 
-	    //double t_energy = sqrt(0.140*0.140 + t.p()*t.p()); // pion mass
-	    //vtau.SetPxPyPzE(m_1.px()+m_2.px()+t.px(), m_1.py()+m_2.py()+t.py(), m_1.pz()+m_2.pz()+t.pz(), m_1.energy()+m_2.energy()+t_energy);
-	    //vm12.SetPxPyPzE(m_1.px()+m_2.px(), m_1.py()+m_2.py(), m_1.pz()+m_2.pz(), m_1.energy()+m_2.energy());
-	    //if(min_fvnC_2mu1tk>9.99)cout<<endl;
-	    //cout<<eventN<<"\t"<<fv_nC<<"\t"<<vm12.M()<<"\t"<<vtau.M()<<endl;
-	    //if(vtau.M() >  max_mtau_2mu[0]t) // keep the max mass
+	    if(dr23 > 1.2 || dr31 > 1.2)    continue;
+	    if(dr23 < 0.02 || dr31 < 0.02)  continue;
 
-	    iTrk=itk;
-	    n_reco=2;
+	    if( abs(m_1.charge()+m_2.charge()+t.charge())>1.1 ) continue;  // check the charge
+	    
+	    vector<TransientTrack> t_trks;
+	    ESHandle<TransientTrackBuilder> theB;
+	    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+	    TrackRef trk1 = m_1.innerTrack();
+	    TrackRef trk2 = m_2.innerTrack();
+	    TrackRef trk3 = TrackRef(trks, itk);
+	    t_trks.push_back(theB->build(trk1));
+	    t_trks.push_back(theB->build(trk2));
+	    t_trks.push_back(theB->build(trk3));
+	    KalmanVertexFitter kvf;
+	    TransientVertex fv = kvf.vertex(t_trks);
+	    if(!fv.isValid()) continue;
+	    double fv_tC = fv.totalChiSquared();
+	    double fv_dOF = fv.degreesOfFreedom();
+	    double fv_nC = fv_tC/fv_dOF;
+	    if(fv_nC > 5) continue;  // why 5 ?
+	    if(fv_nC < min_fvnC_2mu1tk){
+	      
+	      //double t_energy = sqrt(0.140*0.140 + t.p()*t.p()); // pion mass
+	      //vtau.SetPxPyPzE(m_1.px()+m_2.px()+t.px(), m_1.py()+m_2.py()+t.py(), m_1.pz()+m_2.pz()+t.pz(), m_1.energy()+m_2.energy()+t_energy);
+	      //vm12.SetPxPyPzE(m_1.px()+m_2.px(), m_1.py()+m_2.py(), m_1.pz()+m_2.pz(), m_1.energy()+m_2.energy());
+	      //if(min_fvnC_2mu1tk>9.99)cout<<endl;
+	      //cout<<eventN<<"\t"<<fv_nC<<"\t"<<vm12.M()<<"\t"<<vtau.M()<<endl;
+	      //if(vtau.M() >  max_mtau_2mu[0]t) // keep the max mass
+	      
+	      iTrk=itk; // index of the survived candidate
+	      n_reco=2; //  2mu + track category
+	      
+	      if(m_1.p()>m_2.p()) // sort muons by p
+		{
+		  j1=kinematic_muon_index[i]; j2=kinematic_muon_index[j];
+		}
+	      else 
+		{
+		  j1=kinematic_muon_index[j]; j2=kinematic_muon_index[i];
+		}
 
-	    if(m_1.p()>m_2.p()){
-	      j1=idxrec[i]; j2=idxrec[j];
+	      //max_mtau_2mu[0]t = vtau.M();
+	      min_fvnC_2mu1tk = fv_nC;
+	      
 	    }
-	    else {j1=idxrec[j]; j2=idxrec[i];}
-
-	    //max_mtau_2mu[0]t = vtau.M();
-	    min_fvnC_2mu1tk = fv_nC;
-
-	  }
-
-	} // loop of tracks
-
-      } // if (n_reco<3)
-
+	    
+	  } // loop of tracks
+	
+	} // if (n_reco<3)
+      
+      }
+    
     }
 
-  }
-
   h_n3mu->Fill(n_reco);
-
   if(n_reco < (do2mu_?2:3)) return; 
   h_step->Fill(4);
 
-  vector<Muon> mu;
+  vector<Muon> mu; // -------------  this must be checked again
   mu.push_back((*muons)[j1]);
   mu.push_back((*muons)[j2]);
   mu.push_back((*muons)[j3]);
