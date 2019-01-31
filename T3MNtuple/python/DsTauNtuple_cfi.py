@@ -7,6 +7,7 @@ T3MTree = cms.EDAnalyzer('T3MNtuple',
                            passhlt = cms.bool(True),
                            wideSB = cms.bool(False),
                            do2mu = cms.bool(True), # do 2 mu category or not
+                           doTracks = cms.bool(True), # do fillTracks
                            muons = cms.InputTag("muons"),
                            pvs = cms.InputTag("offlinePrimaryVertices"),
                            svs = cms.InputTag("inclusiveSecondaryVertices"),

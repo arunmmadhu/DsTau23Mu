@@ -258,7 +258,7 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
   do2mu_ = iConfig.getParameter<bool>("do2mu");
   passhlt_ = iConfig.getParameter<bool>("passhlt");
   mid_ = iConfig.getParameter<int>("mid");
-
+  doTracks_ = iConfig.getParameter<bool>("doTracks");
 
 
 
@@ -517,7 +517,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   cnt_++;
   ClearEvent();
 
-  if(/*doTracks_*/true)
+  if(/*doTracks_*/false)
     fillTracks(iEvent, iSetup);
 
   Handle<vector<PileupSummaryInfo> >  PupInfo;
