@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 T3MTree = cms.EDAnalyzer('T3MNtuple',
                            mid = cms.int32(15),
-                           MC = cms.bool(False),
+                           doMC = cms.bool(False),
                            passhlt = cms.bool(True),
                            wideSB = cms.bool(False),
                            do2mu = cms.bool(True), # do 2 mu category or not

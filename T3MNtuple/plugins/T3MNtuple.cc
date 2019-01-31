@@ -11,7 +11,7 @@
      [Notes on implementation]
 */
 //
-// Original Author:  Vladimir Cherepanov
+// Original Author:  Vladimir Cherepanov, Jian Wang
 //         Created:  Thu, 17 Jan 2019 15:04:27 GMT
 //
 //
@@ -1746,7 +1746,6 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     njet20 ++;
   }
 
-
   tr->Fill();
   h_step->Fill(6);
 
@@ -1802,16 +1801,12 @@ if (!iEvent.isRealData())
   Handle<vector<PileupSummaryInfo> >  PupInfo;
   iEvent.getByToken(puToken_, PupInfo);
   puN = PupInfo->begin()->getTrueNumInteractions();
-  
-
   }
 }
 
 
 void T3MNtuple::fillL1(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
-
   gtUtil_->retrieveL1(iEvent, iSetup, algToken_);
   const vector<pair<string, bool> > initialDecisions = gtUtil_->decisionsInitial();
 
