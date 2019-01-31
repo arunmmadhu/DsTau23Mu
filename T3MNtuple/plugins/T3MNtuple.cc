@@ -121,6 +121,7 @@ private:
 
   void ClearEvent();
   void fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
   double /*filterbadGlbMuon*/ gen_flavor, nmu_mom, hlt_doublemu4_lmnrt, hlt_doublemu3_tau3mu, l1_triplemu0, l1_doublemu0,
     prescale_triplemu0, prescale_doublemu_10_0, prescale_doublemu0_eta1p6,
@@ -176,7 +177,7 @@ private:
   std::vector<double> Track_dzError;
 
 
-  bool MC_, wideSB_, do2mu_, passhlt_, doTracks_;
+  bool MC_, wideSB_, do2mu_, passhlt_, doTracks_, doMuons_;
   size_t mid_, n_reco, n_sv, njet20, ifar, ipv_gen, ipv1, ipv2;
 
   TTree *tr;
@@ -259,6 +260,7 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
   passhlt_ = iConfig.getParameter<bool>("passhlt");
   mid_ = iConfig.getParameter<int>("mid");
   doTracks_ = iConfig.getParameter<bool>("doTracks");
+  doMuons_ = iConfig.getParameter<bool>("doMuons");
 
 
 
@@ -517,8 +519,10 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   cnt_++;
   ClearEvent();
 
-  if(/*doTracks_*/false)
+  if(doTracks_)
     fillTracks(iEvent, iSetup);
+  if(doMuons_)
+    fillMuons(iEvent, iSetup);
 
   Handle<vector<PileupSummaryInfo> >  PupInfo;
   puN = 0;
@@ -1784,7 +1788,13 @@ void T3MNtuple::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSet
     }
 }
 
+void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
 
+
+
+
+}
 
 
 // ------------ method called once each job just before starting event loop  ------------
