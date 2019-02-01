@@ -120,7 +120,6 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //Handle<bool> ifilterbadGlbMuon;
   //iEvent.getByToken(BadGlbMuonFilterToken_, ifilterbadGlbMuon);
   //filterbadGlbMuon = *ifilterbadGlbMuon;
-  //cout<<filterbadGlbMuon<<endl;
   cnt_++;
   ClearEvent();
 
@@ -144,8 +143,6 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(bsToken_, beamSpotHandle);
   bs = *beamSpotHandle;
 
-  //cout<<bs.x0()<<"  "<<bs.y0()<<"  "<<bs.z0()<<endl;
-  //cout<<beamSpotHandle->position().x()<<"  "<<beamSpotHandle->position().y()<<"  "<<beamSpotHandle->position().z()<<endl;
 
   Handle<VertexCollection> pvs;
   iEvent.getByToken(vtxToken_ , pvs);
@@ -154,7 +151,6 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<VertexCollection> svs;
   iEvent.getByToken(svToken_ , svs);
 
-  //cout<<(*pvs)[0].position().X()<<" "<<(*pvs)[0].position().Y()<<"  "<<(*pvs)[0].position().Z()<<endl;
 
   Handle<MuonCollection> muons;
   iEvent.getByToken(muonToken_, muons);
@@ -164,7 +160,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //Handle<MuonCollection> badmuons;
   //iEvent.getByToken(badmuonToken_, badmuons);
-  //cout<<badmuons->size()<<endl;
+
 
 
   h_step->Fill(1);
@@ -204,7 +200,6 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   for (size_t i_hlt = 0; i_hlt != triggerBitsH->size(); ++i_hlt)
     {
       string hltName = triggerNames.triggerName(i_hlt);
-      //cout<<hltName<<"\t"<<triggerBitsH->accept(i_hlt)<<endl;
       if(!(hltName.find("HLT_DoubleMu4_LowMassNonResonantTrk_Displaced_v") == string::npos)){
         if( triggerBitsH->wasrun(i_hlt) && !triggerBitsH->error(i_hlt) && triggerBitsH->accept(i_hlt )) hlt_doublemu4_lmnrt = 1;
       }
@@ -285,7 +280,6 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       
       //    if(isID)kinematic_muon_index.push_back(i);
     }
-  std::cout<<"number of muons  "<< kinematic_muon_index.size() << std::endl;
   if(kinematic_muon_index.size() < (do2mu_?2:3)) return;  //  if kinematic_muon < 3  - continue
   h_step->Fill(3);
 
@@ -324,9 +318,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  if(dr23>0.8 || dr31>0.8)continue;
 
 
-	  std::cout<<"muon1 charge "<<m_1.charge() << std::endl;
-	  std::cout<<"muon2 charge "<<m_2.charge() << std::endl;
-	  std::cout<<"muon3 charge "<<m_3.charge() << std::endl;
+
 	  if(abs(m_1.charge()+m_2.charge()+m_3.charge())>1.1)continue;
 
 	  vector<TransientTrack> t_trks;   
@@ -340,7 +332,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  t_trks.push_back(theB->build(trk3));
 	  KalmanVertexFitter kvf;
 	  TransientVertex fv = kvf.vertex(t_trks);
-	  std::cout<<"  if the vertex of three muons valid ? " << fv.isValid() << std::endl;
+
 	  if(!fv.isValid()) continue; // eff ? 
 	  double fvnC_tmp = fv.totalChiSquared()/fv.degreesOfFreedom();
 
@@ -348,7 +340,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  
 	  if(n_reco==0)n_reco=3;
 	  else {n_reco++;}
-	  //cout<<"eveN: "<<eventN<<"  mass: "<<vtau.M()<<"  pt: "<<vtau.Pt()<<"  fvnC: "<<fvnC_tmp<<endl;
+
 	  
 	  //if(vtau.M() >  max_mtau){ // keep the max mass
 	  if(fvnC_tmp < min_fvnC)  // check the loose quality of the SV
@@ -622,8 +614,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     if(mat1 && mat2 && mat3) {trigmat_new = 1; break;}
   }
 
-  //cout<<hlt_doublemu3_tau3mu<<"    "<<MuonLegObjects.size()<<endl<<endl;
-  //cout<<endl<<lumiN<<endl;
+
 
   //cout<<"muon: "<<endl;  
   for(int i = 0; i < 3; i++) {  // loop muon
@@ -1331,6 +1322,9 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
       iMuon_p4.push_back(RefMuon->p4().Py());
       iMuon_p4.push_back(RefMuon->p4().Pz());
       Muon_p4.push_back(iMuon_p4);
+
+
+
 
       const reco::MuonIsolation Iso03 = RefMuon->isolationR03();
       const reco::MuonIsolation Iso05 = RefMuon->isolationR05();
