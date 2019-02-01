@@ -125,6 +125,7 @@ private:
   void fillL1(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
   bool isGoodTrack(const Track &track);
+  bool getTrackMatch(edm::Handle<std::vector<reco::Track> > &trackCollection, reco::TrackRef &refTrack, int &match);
 
   double /*filterbadGlbMuon*/ gen_flavor, nmu_mom, hlt_doublemu4_lmnrt, hlt_doublemu3_tau3mu, l1_triplemu0, l1_doublemu0,
     prescale_triplemu0, prescale_doublemu_10_0, prescale_doublemu0_eta1p6,
@@ -266,7 +267,7 @@ private:
   static double MuonEtaCut_;
 
 
-  TTree *tree;
+  TTree *output_tree;
   TH1F *h_n3mu, *h_step;
   InputTag algInputTag_;
   int cnt_;
