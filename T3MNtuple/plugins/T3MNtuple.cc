@@ -379,7 +379,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      min_fvnC = fvnC_tmp; // select finally the three_muon candidate by the best vertex;
 	    }
 	  }
-	} 
+	}
       
       if(n_reco<3 && do2mu_ && m_1.pt() > 2.5 && m_2.pt() > 2.5)  ////////// if do 2mu+1trk
 	{
