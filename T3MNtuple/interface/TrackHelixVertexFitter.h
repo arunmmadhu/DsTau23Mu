@@ -7,7 +7,7 @@
 #include <TVector3.h>
 #include <TVectorD.h>
 
-#include "DsTau23Mu/T3MNtuple/interface/Particle.h"
+#include "DsTau23Mu/T3MNtuple/interface/SimpleParticle.h"
 #include "DsTau23Mu/T3MNtuple/interface/TrackParticle.h"
 #include "DsTau23Mu/T3MNtuple/interface/LorentzVectorParticle.h"
 #include "DsTau23Mu/T3MNtuple/interface/ErrorMatrixPropagator.h"

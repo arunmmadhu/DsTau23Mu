@@ -1,12 +1,14 @@
 #ifndef LorentzVectorParticle_h
 #define LorentzVectorParticle_h
 
-#include "DsTau23Mu/T3MNtuple/interface/Particle.h"
+#include "DsTau23Mu/T3MNtuple/interface/SimpleParticle.h"
 #include "TString.h"
 #include "TMath.h"
 #include "TLorentzVector.h"
 
-class LorentzVectorParticle : public Particle {
+
+
+class LorentzVectorParticle : virtual  public SimpleParticle {
  public:
   enum LorentzandVectorPar{vx=0,vy,vz,px,py,pz,m,NLorentzandVertexPar,E=-1,p=-2,pt=-3};// Lorentez+vertex parameters
   enum VertexInfo{NVertex=3};

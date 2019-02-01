@@ -1,10 +1,10 @@
 #ifndef TrackParticle_h
 #define TrackParticle_h
 
-#include "DsTau23Mu/T3MNtuple/interface/Particle.h"
+#include "DsTau23Mu/T3MNtuple/interface/SimpleParticle.h"
 #include "TString.h"
 
-class TrackParticle : public Particle {
+class TrackParticle : virtual public SimpleParticle {
  public:
   enum {kappa=0,lambda,phi,dxy,dz,NHelixPar};// 5 track helix Parameters
 
