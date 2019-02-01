@@ -188,6 +188,75 @@ private:
   std::vector<double> Track_dzError;
 
 
+
+  //=======  Muons ===
+  std::vector<std::vector<double> > Muon_p4;
+  std::vector<std::vector<double> > Muon_Poca;
+  std::vector<bool> Muon_isGlobalMuon;
+  std::vector<bool> Muon_isStandAloneMuon;
+  std::vector<bool> Muon_isTrackerMuon;
+  std::vector<bool> Muon_isCaloMuon;
+  std::vector<bool> Muon_isIsolationValid;
+  std::vector<bool> Muon_isQualityValid;
+  std::vector<bool> Muon_isTimeValid;
+  std::vector<bool> Muon_isPFMuon;
+
+  std::vector<float> Muon_emEt03;
+  std::vector<float> Muon_emVetoEt03;
+  std::vector<float> Muon_hadEt03;
+  std::vector<float> Muon_hadVetoEt03;
+  std::vector<int> Muon_nJets03;
+  std::vector<int> Muon_nTracks03;
+  std::vector<float> Muon_sumPt03;
+  std::vector<float> Muon_trackerVetoPt03;
+
+  std::vector<float> Muon_emEt05;
+  std::vector<float> Muon_emVetoEt05;
+  std::vector<float> Muon_hadEt05;
+  std::vector<float> Muon_hadVetoEt05;
+  std::vector<int> Muon_nJets05;
+  std::vector<int> Muon_nTracks05;
+  std::vector<float> Muon_sumPt05;
+  std::vector<float> Muon_trackerVetoPt05;
+
+  std::vector<float> Muon_sumChargedHadronPt03;              // sum-pt of charged Hadron
+  std::vector<float> Muon_sumChargedParticlePt03;            // sum-pt of charged Particles(inludes e/mu)
+  std::vector<float> Muon_sumNeutralHadronEt03;              // sum pt of neutral hadrons
+  std::vector<float> Muon_sumNeutralHadronEtHighThreshold03; // sum pt of neutral hadrons with a higher threshold
+  std::vector<float> Muon_sumPhotonEt03;                     // sum pt of PF photons
+  std::vector<float> Muon_sumPhotonEtHighThreshold03;        // sum pt of PF photons with a higher threshold
+  std::vector<float> Muon_sumPUPt03;                         // sum pt of charged Particles not from PV (for Pu corrections)
+
+  std::vector<float> Muon_sumChargedHadronPt04;              // sum-pt of charged Hadron
+  std::vector<float> Muon_sumChargedParticlePt04;            // sum-pt of charged Particles(inludes e/mu)
+  std::vector<float> Muon_sumNeutralHadronEt04;              // sum pt of neutral hadrons
+  std::vector<float> Muon_sumNeutralHadronEtHighThreshold04; // sum pt of neutral hadrons with a higher threshold
+  std::vector<float> Muon_sumPhotonEt04;                     // sum pt of PF photons
+  std::vector<float> Muon_sumPhotonEtHighThreshold04;        // sum pt of PF photons with a higher threshold
+  std::vector<float> Muon_sumPUPt04;                         // sum pt of charged Particles not from PV (for Pu corrections)
+
+  std::vector<int> Muon_numberOfChambers;
+  std::vector<unsigned int> Muon_Track_idx;
+
+  std::vector<int> Muon_charge;
+  std::vector<int> Muon_trackCharge;
+  std::vector<int> Muon_pdgid;
+  std::vector<double> Muon_B;
+  std::vector<double> Muon_M;
+  std::vector<std::vector<double> > Muon_par;
+  std::vector<std::vector<double> > Muon_cov;
+
+  std::vector<int> Muon_hitPattern_pixelLayerwithMeas;
+  std::vector<int> Muon_numberOfMatchedStations;
+  std::vector<float> Muon_normChi2;
+  std::vector<int> Muon_hitPattern_numberOfValidMuonHits;
+  std::vector<int> Muon_innerTrack_numberofValidHits;
+  std::vector<int> Muon_numberofValidPixelHits;
+  std::vector<int> Muon_numberOfMatches;
+  std::vector<int> Muon_trackerLayersWithMeasurement;
+
+
+
   bool doMC_, wideSB_, do2mu_, passhlt_, doTracks_, doMuons_, do3mutuple_, doL1_;
   size_t mid_, n_reco, n_sv, njet20, ifar, ipv_gen, ipv1, ipv2;
 
@@ -1514,9 +1583,25 @@ void T3MNtuple::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSet
 void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-
-
-
+  Handle<MuonCollection> muonCollection;
+  iEvent.getByToken(muonToken_, muonCollection);
+  int Muon_index = 0;
+  for (reco::MuonCollection::const_iterator iMuon = muonCollection->begin(); iMuon != muonCollection->end(); ++iMuon, Muon_index++) {
+    reco::MuonRef RefMuon(muonCollection, Muon_index);
+    //    if (isGoodMuon(RefMuon)) {
+      std::vector<double> iMuon_Poca;
+      iMuon_Poca.push_back(RefMuon->vx());
+      iMuon_Poca.push_back(RefMuon->vy());
+      iMuon_Poca.push_back(RefMuon->vz());
+      Muon_Poca.push_back(iMuon_Poca);
+      std::vector<double> iMuon_p4;
+      iMuon_p4.push_back(RefMuon->p4().E());
+      iMuon_p4.push_back(RefMuon->p4().Px());
+      iMuon_p4.push_back(RefMuon->p4().Py());
+      iMuon_p4.push_back(RefMuon->p4().Pz());
+      Muon_p4.push_back(iMuon_p4);
+    
+  }
 }
 
 void T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
