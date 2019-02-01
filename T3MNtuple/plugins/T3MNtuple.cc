@@ -1303,7 +1303,45 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
       iMuon_p4.push_back(RefMuon->p4().Py());
       iMuon_p4.push_back(RefMuon->p4().Pz());
       Muon_p4.push_back(iMuon_p4);
-    
+
+
+      Muon_numberOfChambers.push_back(RefMuon->numberOfChambers());
+      Muon_isGlobalMuon.push_back(RefMuon->isGlobalMuon());
+      Muon_isPFMuon.push_back(RefMuon->isPFMuon());
+      Muon_isStandAloneMuon.push_back(RefMuon->isStandAloneMuon());
+      Muon_isTrackerMuon.push_back(RefMuon->isTrackerMuon());
+      Muon_isCaloMuon.push_back(RefMuon->isCaloMuon());
+      Muon_isQualityValid.push_back(RefMuon->isQualityValid());
+      Muon_isTimeValid.push_back(RefMuon->isTimeValid());
+      Muon_isIsolationValid.push_back(RefMuon->isIsolationValid());
+      Muon_numberOfMatchedStations.push_back(RefMuon->numberOfMatchedStations());
+      Muon_numberOfMatches.push_back(RefMuon->numberOfMatches());
+      Muon_charge.push_back(RefMuon->charge());
+
+
+      if (RefMuon->isGlobalMuon()) {
+	Muon_normChi2.push_back(RefMuon->globalTrack()->normalizedChi2());
+	Muon_hitPattern_numberOfValidMuonHits.push_back(RefMuon->globalTrack()->hitPattern().numberOfValidMuonHits());
+	Muon_trackerLayersWithMeasurement.push_back(RefMuon->innerTrack()->hitPattern().trackerLayersWithMeasurement());
+	Muon_numberofValidPixelHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfValidPixelHits());
+
+      } else {
+	Muon_normChi2.push_back(0);
+	Muon_hitPattern_numberOfValidMuonHits.push_back(0);
+	Muon_trackerLayersWithMeasurement.push_back(0);
+	Muon_numberofValidPixelHits.push_back(0);
+      }
+      if (RefMuon->isTrackerMuon()) {
+	Muon_innerTrack_numberofValidHits.push_back(RefMuon->innerTrack()->numberOfValidHits());
+	Muon_hitPattern_pixelLayerwithMeas.push_back(RefMuon->innerTrack()->hitPattern().pixelLayersWithMeasurement());
+
+      } else {
+	Muon_innerTrack_numberofValidHits.push_back(0);
+	Muon_hitPattern_pixelLayerwithMeas.push_back(0);
+      }
+
+
+
   }
 }
 
