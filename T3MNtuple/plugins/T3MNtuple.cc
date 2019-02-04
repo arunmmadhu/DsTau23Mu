@@ -1367,16 +1367,30 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	iMuon_outerTrack_p4.push_back(RefMuon->outerTrack()->eta());
 	iMuon_outerTrack_p4.push_back(RefMuon->outerTrack()->phi());
 	Muon_prod_inner_outer_charge.push_back(RefMuon->outerTrack()->charge()*RefMuon->innerTrack()->charge());
+	Muon_outerTrack_normalizedChi2.push_back(RefMuon->outerTrack()->normalizedChi2());
+	Muon_outerTrack_muonStationsWithValidHits.push_back(RefMuon->outerTrack()->hitPattern().muonStationsWithValidHits());
+
+
 
       } else {
 	Muon_normChi2.push_back(0);
 	Muon_hitPattern_numberOfValidMuonHits.push_back(0);
 	Muon_trackerLayersWithMeasurement.push_back(0);
 	Muon_numberofValidPixelHits.push_back(0);
-	Muon_prod_inner_outer_charge.push_back(-999.);
+	Muon_prod_inner_outer_charge.push_back(0);
+	Muon_outerTrack_normalizedChi2.push_back(0);
+	Muon_outerTrack_muonStationsWithValidHits.push_back(0);
       }
 
       if (RefMuon->isTrackerMuon()) {
+	Muon_innerTrack_validFraction.push_back(RefMuon->innerTrack()->validFraction());
+	Muon_innerTrack_pixelLayersWithMeasurement.push_back(RefMuon->innerTrack()->hitPattern().pixelLayersWithMeasurement() );
+	Muon_innerTrack_numberOfValidTrackerHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfValidTrackerHits() );
+	Muon_innerTrack_numberOfLostTrackerHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfLostTrackerHits(HitPattern::TRACK_HITS) );
+	Muon_innerTrack_numberOfLostTrackerInnerHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfLostTrackerHits(HitPattern::MISSING_INNER_HITS) );
+	Muon_innerTrack_numberOfLostTrackerOuterHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfLostTrackerHits(HitPattern::MISSING_OUTER_HITS) );
+	Muon_innerTrack_normalizedChi2.push_back(RefMuon->innerTrack()->normalizedChi2() );
+
 	Muon_innerTrack_numberofValidHits.push_back(RefMuon->innerTrack()->numberOfValidHits());
 	Muon_hitPattern_pixelLayerwithMeas.push_back(RefMuon->innerTrack()->hitPattern().pixelLayersWithMeasurement());
 
@@ -1388,6 +1402,13 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	Muon_innerTrack_quality.push_back(0);
 	Muon_innerTrack_numberofValidHits.push_back(0);
 	Muon_hitPattern_pixelLayerwithMeas.push_back(0);
+	Muon_innerTrack_validFraction.push_back(0);
+	Muon_innerTrack_pixelLayersWithMeasurement.push_back(0);
+	Muon_innerTrack_numberOfValidTrackerHits.push_back(0);
+	Muon_innerTrack_numberOfLostTrackerHits.push_back(0);
+	Muon_innerTrack_numberOfLostTrackerInnerHits.push_back(0);
+	Muon_innerTrack_numberOfLostTrackerOuterHits.push_back(0);
+	Muon_innerTrack_normalizedChi2.push_back(0);
       }
       Muon_outerTrack_p4.push_back(iMuon_outerTrack_p4);
       Muon_innerTrack_p4.push_back(iMuon_innerTrack_p4);
@@ -1491,55 +1512,18 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
       Muon_segmentCompatibility.push_back(muon::segmentCompatibility(*RefMuon));
       Muon_caloCompatibility.push_back(muon::caloCompatibility(*RefMuon));
-      Muon_isGoodMuonTM2DCompatibility.push_back(muon::isGoodMuon(*RefMuon, muon::TM2DCompatibilityTight));
+
 
       Muon_ptErrOverPt.push_back(RefMuon->muonBestTrack()->ptError()/RefMuon->muonBestTrack()->pt());
-
-
-
-
-      /*Muon_prod_inner_outer_charge
-Muon_outerTrack_p4
-Muon_innerTrack_p4
-Muon_innerTrack_quality
-Muon_ptErrOverPt
-Muon_calEnergy_hadS9
-Muon_calEnergy_had
-Muon_calEnergy_emS25
-Muon_calEnergy_emS9
-Muon_calEnergy_em*/
-
-
-
-
-
-
-      /*
-      iTvF_reco[i] = mu[i].innerTrack()->validFraction();
-      pLWM_reco[i] = mu[i].innerTrack()->hitPattern().pixelLayersWithMeasurement();
-      nOVTH_reco[i] = mu[i].innerTrack()->hitPattern().numberOfValidTrackerHits();
-      nOLTH_reco[i] = mu[i].innerTrack()->hitPattern().numberOfLostTrackerHits(HitPattern::TRACK_HITS);
-      nOLTHin_reco[i] = mu[i].innerTrack()->hitPattern().numberOfLostTrackerHits(HitPattern::MISSING_INNER_HITS);
-      nOLTHout_reco[i] = mu[i].innerTrack()->hitPattern().numberOfLostTrackerHits(HitPattern::MISSING_OUTER_HITS);
-      iTnC_reco[i] = mu[i].innerTrack()->normalizedChi2();
-      outerchi2_reco[i] = mu[i].outerTrack()->normalizedChi2();
-      mSWVH_reco[i] = mu[i].outerTrack()->hitPattern().muonStationsWithValidHits();
-
-
-      tma_reco[i] = muon::isGoodMuon(mu[i], muon::TrackerMuonArbitrated);
-      tmost_reco[i] = muon::isGoodMuon(mu[i], muon::TMOneStationTight);
-      tmosat_reco[i] = muon::isGoodMuon(mu[i], muon::TMOneStationAngTight);
-      tmlst_reco[i] = muon::isGoodMuon(mu[i], muon::TMLastStationTight);
-      tmlsat_reco[i] = muon::isGoodMuon(mu[i], muon::TMLastStationAngTight);
-      tmlsolpt_reco[i] = muon::isGoodMuon(mu[i], muon::TMLastStationOptimizedLowPtTight);
-      tmlsoblpt_reco[i] = muon::isGoodMuon(mu[i], muon::TMLastStationOptimizedBarrelLowPtTight);
-      timeatipinouterr_reco[i] = mu[i].time().timeAtIpInOutErr;*/
-
-
-
-
-
-
+     
+      Muon_isGoodMuon_TM2DCompatibility.push_back(muon::isGoodMuon(*RefMuon, muon::TM2DCompatibilityTight));
+      Muon_isGoodMuon_TrackerMuonArbitrated.push_back(muon::isGoodMuon(*RefMuon,muon::TrackerMuonArbitrated));
+      Muon_isGoodMuon_TMOneStationTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMOneStationTight));
+      Muon_isGoodMuon_TMOneStationAngTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMOneStationAngTight));
+      Muon_isGoodMuon_TMLastStationTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMLastStationTight));
+      Muon_isGoodMuon_TMLastStationAngTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMLastStationAngTight));
+      Muon_isGoodMuon_TMLastStationOptimizedLowPtTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMLastStationOptimizedLowPtTight));
+      Muon_isGoodMuon_TMLastStationOptimizedBarrelLowPtTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMLastStationOptimizedBarrelLowPtTight));
 
 
       reco::TrackRef Track = RefMuon->track();
@@ -2018,7 +2002,26 @@ T3MNtuple::beginJob()
 
   output_tree->Branch("Muon_segmentCompatibility",&Muon_segmentCompatibility);
   output_tree->Branch("Muon_caloCompatibility",&Muon_caloCompatibility);
-  output_tree->Branch("Muon_isGoodMuonTM2DCompatibility",&Muon_isGoodMuonTM2DCompatibility);
+  output_tree->Branch("Muon_isGoodMuon_TM2DCompatibility",&Muon_isGoodMuon_TM2DCompatibility);
+
+
+  output_tree->Branch("Muon_innerTrack_validFraction",&Muon_innerTrack_validFraction );
+  output_tree->Branch("Muon_innerTrack_pixelLayersWithMeasurement",&Muon_innerTrack_pixelLayersWithMeasurement );
+  output_tree->Branch("Muon_innerTrack_numberOfValidTrackerHits",&Muon_innerTrack_numberOfValidTrackerHits );
+  output_tree->Branch("Muon_innerTrack_numberOfLostTrackerHits",&Muon_innerTrack_numberOfLostTrackerHits );
+  output_tree->Branch("Muon_innerTrack_numberOfLostTrackerInnerHits",&Muon_innerTrack_numberOfLostTrackerInnerHits );
+  output_tree->Branch("Muon_innerTrack_numberOfLostTrackerOuterHits",&Muon_innerTrack_numberOfLostTrackerOuterHits );
+  output_tree->Branch("Muon_innerTrack_normalizedChi2",&Muon_innerTrack_normalizedChi2 );
+  
+  output_tree->Branch("Muon_outerTrack_normalizedChi2",&Muon_outerTrack_normalizedChi2 );
+  output_tree->Branch("Muon_outerTrack_muonStationsWithValidHits",&Muon_outerTrack_muonStationsWithValidHits );
+  output_tree->Branch("Muon_isGoodMuon_TrackerMuonArbitrated",&Muon_isGoodMuon_TrackerMuonArbitrated );
+  output_tree->Branch("Muon_isGoodMuon_TMOneStationTight",&Muon_isGoodMuon_TMOneStationTight );
+  output_tree->Branch("Muon_isGoodMuon_TMOneStationAngTight",&Muon_isGoodMuon_TMOneStationAngTight );
+  output_tree->Branch("Muon_isGoodMuon_TMLastStationTight",&Muon_isGoodMuon_TMLastStationTight );
+  output_tree->Branch("Muon_isGoodMuon_TMLastStationAngTight",&Muon_isGoodMuon_TMLastStationAngTight );
+  output_tree->Branch("Muon_isGoodMuon_TMLastStationOptimizedLowPtTight",&Muon_isGoodMuon_TMLastStationOptimizedLowPtTight );
+  output_tree->Branch("Muon_isGoodMuon_TMLastStationOptimizedBarrelLowPtTight",&Muon_isGoodMuon_TMLastStationOptimizedBarrelLowPtTight );
 
   output_tree->Branch("Muon_charge", &Muon_charge);
   output_tree->Branch("Muon_trackCharge", &Muon_trackCharge);
@@ -2200,7 +2203,26 @@ void T3MNtuple::ClearEvent() {
 
   Muon_segmentCompatibility.clear();
   Muon_caloCompatibility.clear();
-  Muon_isGoodMuonTM2DCompatibility.clear();
+
+  Muon_innerTrack_validFraction.clear();
+  Muon_innerTrack_pixelLayersWithMeasurement.clear();
+  Muon_innerTrack_numberOfValidTrackerHits.clear();
+  Muon_innerTrack_numberOfLostTrackerHits.clear();
+  Muon_innerTrack_numberOfLostTrackerInnerHits.clear();
+  Muon_innerTrack_numberOfLostTrackerOuterHits.clear();
+  Muon_innerTrack_normalizedChi2.clear();
+  
+  Muon_outerTrack_normalizedChi2.clear();
+  Muon_outerTrack_muonStationsWithValidHits.clear();
+  Muon_isGoodMuon_TM2DCompatibility.clear();
+  Muon_isGoodMuon_TrackerMuonArbitrated.clear();
+  Muon_isGoodMuon_TMOneStationTight.clear();
+  Muon_isGoodMuon_TMOneStationAngTight.clear();
+  Muon_isGoodMuon_TMLastStationTight.clear();
+  Muon_isGoodMuon_TMLastStationAngTight.clear();
+  Muon_isGoodMuon_TMLastStationOptimizedLowPtTight.clear();
+  Muon_isGoodMuon_TMLastStationOptimizedBarrelLowPtTight.clear();
+
 
 
 }

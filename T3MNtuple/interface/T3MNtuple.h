@@ -284,7 +284,28 @@ private:
   std::vector<int>   Muon_trackerLayersWithMeasurement;
   std::vector<bool>  Muon_segmentCompatibility;
   std::vector<bool>  Muon_caloCompatibility;
-  std::vector<bool>  Muon_isGoodMuonTM2DCompatibility;
+
+
+
+  std::vector<double> Muon_innerTrack_validFraction;
+  std::vector<double> Muon_innerTrack_pixelLayersWithMeasurement;
+  std::vector<double> Muon_innerTrack_numberOfValidTrackerHits;
+  std::vector<double> Muon_innerTrack_numberOfLostTrackerHits;
+  std::vector<double> Muon_innerTrack_numberOfLostTrackerInnerHits;
+  std::vector<double> Muon_innerTrack_numberOfLostTrackerOuterHits;
+  std::vector<double> Muon_innerTrack_normalizedChi2;
+
+  std::vector<double> Muon_outerTrack_normalizedChi2;
+  std::vector<double> Muon_outerTrack_muonStationsWithValidHits;
+  std::vector<bool>   Muon_isGoodMuon_TM2DCompatibility;
+  std::vector<bool>   Muon_isGoodMuon_TrackerMuonArbitrated;
+  std::vector<bool>   Muon_isGoodMuon_TMOneStationTight;
+  std::vector<bool>   Muon_isGoodMuon_TMOneStationAngTight;
+  std::vector<bool>   Muon_isGoodMuon_TMLastStationTight;
+  std::vector<bool>   Muon_isGoodMuon_TMLastStationAngTight;
+  std::vector<bool>   Muon_isGoodMuon_TMLastStationOptimizedLowPtTight;
+  std::vector<bool>   Muon_isGoodMuon_TMLastStationOptimizedBarrelLowPtTight;
+
 
 
 
