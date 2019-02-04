@@ -1597,7 +1597,21 @@ if (!iEvent.isRealData())
 
 bool T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  Handle<TrackCollection> trackCollection;
+  iEvent.getByToken(trackToken_, trackCollection);
 
+  Handle<MuonCollection> muonCollection;
+  iEvent.getByToken(muonToken_, muonCollection);
+  int Muon_index = 0;
+  std::vector<unsigned int> preselected_muon_idx;
+  for (reco::MuonCollection::const_iterator iMuon = muonCollection->begin(); iMuon != muonCollection->end(); ++iMuon, Muon_index++) {
+    reco::MuonRef RefMuon(muonCollection, Muon_index);
+    //    std::cout<<"muon index "<< Muon_index <<std::endl;
+    if(!(RefMuon->pt() > MuonPtCut_) || !(abs(RefMuon->eta()) < MuonEtaCut_)) continue;
+    if(RefMuon->isPFMuon() && RefMuon->isGlobalMuon())preselected_muon_idx.push_back(Muon_index);
+  }
+
+  //  std::cout<<"Good muons size "<< preselected_muon_idx.size() << std::endl;
   return true;
 }
 void T3MNtuple::fillL1(const edm::Event& iEvent, const edm::EventSetup& iSetup)
