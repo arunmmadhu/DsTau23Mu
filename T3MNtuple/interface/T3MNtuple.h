@@ -203,6 +203,7 @@ private:
   std::vector<bool> Muon_isQualityValid;
   std::vector<bool> Muon_isTimeValid;
   std::vector<bool> Muon_isPFMuon;
+  std::vector<bool> Muon_isRPCMuon;
 
   std::vector<float> Muon_emEt03;
   std::vector<float> Muon_emVetoEt03;
@@ -254,6 +255,16 @@ private:
   std::vector<double> Muon_combinedQuality_glbTrackProbability;
 
 
+  std::vector<double>   Muon_prod_inner_outer_charge;
+  std::vector<std::vector<double> > Muon_outerTrack_p4;
+  std::vector<std::vector<double> > Muon_innerTrack_p4;
+  std::vector<double>   Muon_innerTrack_quality;
+  std::vector<double>   Muon_ptErrOverPt;
+  std::vector<double>   Muon_calEnergy_hadS9;
+  std::vector<double>   Muon_calEnergy_had;
+  std::vector<double>   Muon_calEnergy_emS25;
+  std::vector<double>   Muon_calEnergy_emS9;
+  std::vector<double>   Muon_calEnergy_em;
 
   std::vector<int> Muon_charge;
   std::vector<int> Muon_trackCharge;
@@ -263,14 +274,17 @@ private:
   std::vector<std::vector<double> > Muon_par;
   std::vector<std::vector<double> > Muon_cov;
 
-  std::vector<int> Muon_hitPattern_pixelLayerwithMeas;
-  std::vector<int> Muon_numberOfMatchedStations;
+  std::vector<int>   Muon_hitPattern_pixelLayerwithMeas;
+  std::vector<int>   Muon_numberOfMatchedStations;
   std::vector<float> Muon_normChi2;
-  std::vector<int> Muon_hitPattern_numberOfValidMuonHits;
-  std::vector<int> Muon_innerTrack_numberofValidHits;
-  std::vector<int> Muon_numberofValidPixelHits;
-  std::vector<int> Muon_numberOfMatches;
-  std::vector<int> Muon_trackerLayersWithMeasurement;
+  std::vector<int>   Muon_hitPattern_numberOfValidMuonHits;
+  std::vector<int>   Muon_innerTrack_numberofValidHits;
+  std::vector<int>   Muon_numberofValidPixelHits;
+  std::vector<int>   Muon_numberOfMatches;
+  std::vector<int>   Muon_trackerLayersWithMeasurement;
+  std::vector<bool>  Muon_segmentCompatibility;
+  std::vector<bool>  Muon_caloCompatibility;
+  std::vector<bool>  Muon_isGoodMuonTM2DCompatibility;
 
 
 

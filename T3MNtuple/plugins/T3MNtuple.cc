@@ -1343,6 +1343,7 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
       Muon_numberOfChambers.push_back(RefMuon->numberOfChambers());
       Muon_isGlobalMuon.push_back(RefMuon->isGlobalMuon());
       Muon_isPFMuon.push_back(RefMuon->isPFMuon());
+      Muon_isRPCMuon.push_back(RefMuon->isRPCMuon());
       Muon_isStandAloneMuon.push_back(RefMuon->isStandAloneMuon());
       Muon_isTrackerMuon.push_back(RefMuon->isTrackerMuon());
       Muon_isCaloMuon.push_back(RefMuon->isCaloMuon());
@@ -1350,30 +1351,46 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
       Muon_isTimeValid.push_back(RefMuon->isTimeValid());
       Muon_isIsolationValid.push_back(RefMuon->isIsolationValid());
       Muon_numberOfMatchedStations.push_back(RefMuon->numberOfMatchedStations());
-      Muon_numberOfMatches.push_back(RefMuon->numberOfMatches());
+      Muon_numberOfMatches.push_back(RefMuon->numberOfMatches(reco::Muon::SegmentArbitration));
       Muon_charge.push_back(RefMuon->charge());
 
 
+      std::vector<double> iMuon_outerTrack_p4;
+      std::vector<double> iMuon_innerTrack_p4;
       if (RefMuon->isGlobalMuon()) {
 	Muon_normChi2.push_back(RefMuon->globalTrack()->normalizedChi2());
 	Muon_hitPattern_numberOfValidMuonHits.push_back(RefMuon->globalTrack()->hitPattern().numberOfValidMuonHits());
 	Muon_trackerLayersWithMeasurement.push_back(RefMuon->innerTrack()->hitPattern().trackerLayersWithMeasurement());
 	Muon_numberofValidPixelHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfValidPixelHits());
+	
+	iMuon_outerTrack_p4.push_back(RefMuon->outerTrack()->p());
+	iMuon_outerTrack_p4.push_back(RefMuon->outerTrack()->eta());
+	iMuon_outerTrack_p4.push_back(RefMuon->outerTrack()->phi());
+	Muon_prod_inner_outer_charge.push_back(RefMuon->outerTrack()->charge()*RefMuon->innerTrack()->charge());
 
       } else {
 	Muon_normChi2.push_back(0);
 	Muon_hitPattern_numberOfValidMuonHits.push_back(0);
 	Muon_trackerLayersWithMeasurement.push_back(0);
 	Muon_numberofValidPixelHits.push_back(0);
+	Muon_prod_inner_outer_charge.push_back(-999.);
       }
+
       if (RefMuon->isTrackerMuon()) {
 	Muon_innerTrack_numberofValidHits.push_back(RefMuon->innerTrack()->numberOfValidHits());
 	Muon_hitPattern_pixelLayerwithMeas.push_back(RefMuon->innerTrack()->hitPattern().pixelLayersWithMeasurement());
 
+	Muon_innerTrack_quality.push_back(RefMuon->innerTrack()->quality(TrackBase::highPurity));
+	iMuon_innerTrack_p4.push_back(RefMuon->innerTrack()->p());
+	iMuon_innerTrack_p4.push_back(RefMuon->innerTrack()->eta());
+	iMuon_innerTrack_p4.push_back(RefMuon->innerTrack()->phi());
       } else {
+	Muon_innerTrack_quality.push_back(0);
 	Muon_innerTrack_numberofValidHits.push_back(0);
 	Muon_hitPattern_pixelLayerwithMeas.push_back(0);
       }
+      Muon_outerTrack_p4.push_back(iMuon_outerTrack_p4);
+      Muon_innerTrack_p4.push_back(iMuon_innerTrack_p4);
 
 
       if (RefMuon->isIsolationValid()) {
@@ -1464,6 +1481,64 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
       Muon_combinedQuality_globalDeltaEtaPhi.push_back(RefMuon->combinedQuality().globalDeltaEtaPhi);
       Muon_combinedQuality_tightMatch.push_back(RefMuon->combinedQuality().tightMatch);
       Muon_combinedQuality_glbTrackProbability.push_back(RefMuon->combinedQuality().glbTrackProbability);
+
+
+      Muon_calEnergy_em.push_back(RefMuon->calEnergy().em);
+      Muon_calEnergy_emS9.push_back(RefMuon->calEnergy().emS9);
+      Muon_calEnergy_emS25.push_back(RefMuon->calEnergy().emS25);
+      Muon_calEnergy_had.push_back(RefMuon->calEnergy().had);
+      Muon_calEnergy_hadS9.push_back(RefMuon->calEnergy().hadS9);
+
+      Muon_segmentCompatibility.push_back(muon::segmentCompatibility(*RefMuon));
+      Muon_caloCompatibility.push_back(muon::caloCompatibility(*RefMuon));
+      Muon_isGoodMuonTM2DCompatibility.push_back(muon::isGoodMuon(*RefMuon, muon::TM2DCompatibilityTight));
+
+      Muon_ptErrOverPt.push_back(RefMuon->muonBestTrack()->ptError()/RefMuon->muonBestTrack()->pt());
+
+
+
+
+      /*Muon_prod_inner_outer_charge
+Muon_outerTrack_p4
+Muon_innerTrack_p4
+Muon_innerTrack_quality
+Muon_ptErrOverPt
+Muon_calEnergy_hadS9
+Muon_calEnergy_had
+Muon_calEnergy_emS25
+Muon_calEnergy_emS9
+Muon_calEnergy_em*/
+
+
+
+
+
+
+      /*
+      iTvF_reco[i] = mu[i].innerTrack()->validFraction();
+      pLWM_reco[i] = mu[i].innerTrack()->hitPattern().pixelLayersWithMeasurement();
+      nOVTH_reco[i] = mu[i].innerTrack()->hitPattern().numberOfValidTrackerHits();
+      nOLTH_reco[i] = mu[i].innerTrack()->hitPattern().numberOfLostTrackerHits(HitPattern::TRACK_HITS);
+      nOLTHin_reco[i] = mu[i].innerTrack()->hitPattern().numberOfLostTrackerHits(HitPattern::MISSING_INNER_HITS);
+      nOLTHout_reco[i] = mu[i].innerTrack()->hitPattern().numberOfLostTrackerHits(HitPattern::MISSING_OUTER_HITS);
+      iTnC_reco[i] = mu[i].innerTrack()->normalizedChi2();
+      outerchi2_reco[i] = mu[i].outerTrack()->normalizedChi2();
+      mSWVH_reco[i] = mu[i].outerTrack()->hitPattern().muonStationsWithValidHits();
+
+
+      tma_reco[i] = muon::isGoodMuon(mu[i], muon::TrackerMuonArbitrated);
+      tmost_reco[i] = muon::isGoodMuon(mu[i], muon::TMOneStationTight);
+      tmosat_reco[i] = muon::isGoodMuon(mu[i], muon::TMOneStationAngTight);
+      tmlst_reco[i] = muon::isGoodMuon(mu[i], muon::TMLastStationTight);
+      tmlsat_reco[i] = muon::isGoodMuon(mu[i], muon::TMLastStationAngTight);
+      tmlsolpt_reco[i] = muon::isGoodMuon(mu[i], muon::TMLastStationOptimizedLowPtTight);
+      tmlsoblpt_reco[i] = muon::isGoodMuon(mu[i], muon::TMLastStationOptimizedBarrelLowPtTight);
+      timeatipinouterr_reco[i] = mu[i].time().timeAtIpInOutErr;*/
+
+
+
+
+
 
 
 
@@ -1914,6 +1989,7 @@ T3MNtuple::beginJob()
   output_tree->Branch("Muon_numberOfMatches", &Muon_numberOfMatches);
   output_tree->Branch("Muon_numberOfChambers", &Muon_numberOfChambers);
   output_tree->Branch("Muon_isPFMuon", &Muon_isPFMuon);
+  output_tree->Branch("Muon_isRPCMuon", &Muon_isRPCMuon);
   output_tree->Branch("Muon_numberofValidPixelHits", &Muon_numberofValidPixelHits);
   output_tree->Branch("Muon_trackerLayersWithMeasurement", &Muon_trackerLayersWithMeasurement);
 
@@ -1929,10 +2005,20 @@ T3MNtuple::beginJob()
   output_tree->Branch("Muon_combinedQuality_tightMatch",&Muon_combinedQuality_tightMatch);
   output_tree->Branch("Muon_combinedQuality_glbTrackProbability",&Muon_combinedQuality_glbTrackProbability);
 
+  output_tree->Branch("Muon_prod_inner_outer_charge",&Muon_prod_inner_outer_charge);
+  output_tree->Branch("Muon_outerTrack_p4",&Muon_outerTrack_p4);
+  output_tree->Branch("Muon_innerTrack_p4",&Muon_innerTrack_p4);
+  output_tree->Branch("Muon_innerTrack_quality",&Muon_innerTrack_quality);
+  output_tree->Branch("Muon_ptErrOverPt",&Muon_ptErrOverPt);
+  output_tree->Branch("Muon_calEnergy_hadS9",&Muon_calEnergy_hadS9);
+  output_tree->Branch("Muon_calEnergy_had",&Muon_calEnergy_had);
+  output_tree->Branch("Muon_calEnergy_emS25",&Muon_calEnergy_emS25);
+  output_tree->Branch("Muon_calEnergy_emS9",&Muon_calEnergy_emS9);
+  output_tree->Branch("Muon_calEnergy_em",&Muon_calEnergy_em);
 
-
-
-
+  output_tree->Branch("Muon_segmentCompatibility",&Muon_segmentCompatibility);
+  output_tree->Branch("Muon_caloCompatibility",&Muon_caloCompatibility);
+  output_tree->Branch("Muon_isGoodMuonTM2DCompatibility",&Muon_isGoodMuonTM2DCompatibility);
 
   output_tree->Branch("Muon_charge", &Muon_charge);
   output_tree->Branch("Muon_trackCharge", &Muon_trackCharge);
@@ -2027,6 +2113,7 @@ void T3MNtuple::ClearEvent() {
   Muon_Poca.clear();
   Muon_isGlobalMuon.clear();
   Muon_isPFMuon.clear();
+  Muon_isRPCMuon.clear();
   Muon_isStandAloneMuon.clear();
   Muon_isTrackerMuon.clear();
   Muon_isCaloMuon.clear();
@@ -2100,6 +2187,20 @@ void T3MNtuple::ClearEvent() {
   Muon_combinedQuality_tightMatch.clear();
   Muon_combinedQuality_glbTrackProbability.clear();
 
+  Muon_prod_inner_outer_charge.clear();
+  Muon_outerTrack_p4.clear();
+  Muon_innerTrack_p4.clear();
+  Muon_innerTrack_quality.clear();
+  Muon_ptErrOverPt.clear();
+  Muon_calEnergy_hadS9.clear();
+  Muon_calEnergy_had.clear();
+  Muon_calEnergy_emS25.clear();
+  Muon_calEnergy_emS9.clear();
+  Muon_calEnergy_em.clear();
+
+  Muon_segmentCompatibility.clear();
+  Muon_caloCompatibility.clear();
+  Muon_isGoodMuonTM2DCompatibility.clear();
 
 
 }
