@@ -15,6 +15,8 @@
 //
 double T3MNtuple::MuonPtCut_(-1.);
 double T3MNtuple::MuonEtaCut_(999);
+double T3MNtuple::TrackPtCut_(-1.);
+double T3MNtuple::TrackEtaCut_(999);
 //
 // constructors and destructor
 //
@@ -62,6 +64,9 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
   MuonPtCut_ = iConfig.getParameter<double>("MuonPtCut"); //default: 2.0
   MuonEtaCut_ = iConfig.getParameter<double>("MuonEtaCut"); //default: 2.5
 
+  TrackPtCut_ = iConfig.getParameter<double>("TrackPtCut"); //default: 1.0
+  TrackEtaCut_ = iConfig.getParameter<double>("TrackEtaCut"); //default: 2.5
+
 
 }
 
@@ -81,8 +86,8 @@ T3MNtuple::~T3MNtuple()
 
 
 bool T3MNtuple::isGoodTrack(const Track &track) {
-  if(!(track.pt()>1.)){
-    if(!(abs(track.eta())<2.4)){
+  if(!(track.pt()>TrackPtCut_)){
+    if(!(abs(track.eta())<TrackEtaCut_)){
       if(!(track.hitPattern().trackerLayersWithMeasurement()>5)){
 	if(!(track.hitPattern().pixelLayersWithMeasurement()>1)) return false;
       }

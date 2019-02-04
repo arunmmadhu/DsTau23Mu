@@ -314,6 +314,8 @@ private:
 
   static double MuonPtCut_;
   static double MuonEtaCut_;
+  static double TrackPtCut_;
+  static double TrackEtaCut_;
 
 
   TTree *output_tree;
