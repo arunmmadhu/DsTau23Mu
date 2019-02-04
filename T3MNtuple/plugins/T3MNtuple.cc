@@ -1606,10 +1606,12 @@ bool T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& 
   std::vector<unsigned int> preselected_muon_idx;
   for (reco::MuonCollection::const_iterator iMuon = muonCollection->begin(); iMuon != muonCollection->end(); ++iMuon, Muon_index++) {
     reco::MuonRef RefMuon(muonCollection, Muon_index);
-    //    std::cout<<"muon index "<< Muon_index <<std::endl;
     if(!(RefMuon->pt() > MuonPtCut_) || !(abs(RefMuon->eta()) < MuonEtaCut_)) continue;
     if(RefMuon->isPFMuon() && RefMuon->isGlobalMuon())preselected_muon_idx.push_back(Muon_index);
   }
+
+  if(preselected_muon_idx.size() < 3) return false;
+
 
   //  std::cout<<"Good muons size "<< preselected_muon_idx.size() << std::endl;
   return true;
