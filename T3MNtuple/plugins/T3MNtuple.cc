@@ -60,7 +60,7 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
   doMuons_ = iConfig.getParameter<bool>("doMuons");
   do3mutuple_ = iConfig.getParameter<bool>("do3mutuple");
   doL1_ = iConfig.getParameter<bool>("doL1");
-
+  doThreeMuons_=  iConfig.getParameter<bool>("doThreeMuons");
   MuonPtCut_ = iConfig.getParameter<double>("MuonPtCut"); //default: 2.0
   MuonEtaCut_ = iConfig.getParameter<double>("MuonEtaCut"); //default: 2.5
 
@@ -86,14 +86,14 @@ T3MNtuple::~T3MNtuple()
 
 
 bool T3MNtuple::isGoodTrack(const Track &track) {
-  if(!(track.pt()>TrackPtCut_)){
-    if(!(abs(track.eta())<TrackEtaCut_)){
-      if(!(track.hitPattern().trackerLayersWithMeasurement()>5)){
-	if(!(track.hitPattern().pixelLayersWithMeasurement()>1)) return false;
+  if(track.pt()>TrackPtCut_){
+    if(abs(track.eta())<TrackEtaCut_){
+      if(track.hitPattern().trackerLayersWithMeasurement()>5){
+	if(track.hitPattern().pixelLayersWithMeasurement()>1) return true;
       }
     }
   }
-  return true;
+  return false;
 }
 
 
@@ -138,6 +138,8 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     fillMCTruth(iEvent, iSetup);
   if (doL1_)
     fillL1(iEvent, iSetup);
+  if (doThreeMuons_)
+    fillThreeMuons(iEvent, iSetup);
   //  fillDsBranch(iEvent, iSetup); // method by Jian
   //  output_tree->Fill();
   //}
@@ -1305,7 +1307,7 @@ void T3MNtuple::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSet
       std::vector<double> iTrack_p4;
       std::vector<double> iTrack_poca;
       const reco::Track track = (*trIt);
-      if(!isGoodTrack(track)){
+      if(isGoodTrack(track)){
 	iTrack_p4.push_back(sqrt(pow(track.p(),2.0) + pow(PDGInfo::pi_mass(),2.0)));
 	iTrack_p4.push_back(track.px());
 	iTrack_p4.push_back(track.py());
@@ -1593,7 +1595,11 @@ if (!iEvent.isRealData())
   }
 }
 
+bool T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
 
+  return true;
+}
 void T3MNtuple::fillL1(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   gtUtil_->retrieveL1(iEvent, iSetup, algToken_);

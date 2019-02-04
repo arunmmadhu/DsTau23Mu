@@ -124,6 +124,7 @@ private:
   void fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void fillL1(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void fillDsBranch(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  bool fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   bool isGoodTrack(const Track &track);
   bool getTrackMatch(edm::Handle<std::vector<reco::Track> > &trackCollection, reco::TrackRef &refTrack, int &match);
 
@@ -309,7 +310,7 @@ private:
 
 
 
-  bool doMC_, wideSB_, do2mu_, passhlt_, doTracks_, doMuons_, do3mutuple_, doL1_;
+  bool doMC_, wideSB_, do2mu_, passhlt_, doTracks_, doMuons_, do3mutuple_, doL1_, doThreeMuons_;
   size_t mid_, n_reco, n_sv, njet20, ifar, ipv_gen, ipv1, ipv2;
 
   static double MuonPtCut_;
