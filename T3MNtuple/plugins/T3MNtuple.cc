@@ -59,7 +59,7 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
   do3mutuple_ = iConfig.getParameter<bool>("do3mutuple");
   doL1_ = iConfig.getParameter<bool>("doL1");
 
-  MuonPtCut_ = iConfig.getParameter<double>("MuonPtCut"); //default: 3.0
+  MuonPtCut_ = iConfig.getParameter<double>("MuonPtCut"); //default: 2.0
   MuonEtaCut_ = iConfig.getParameter<double>("MuonEtaCut"); //default: 2.5
 
 
@@ -134,17 +134,12 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (doL1_)
     fillL1(iEvent, iSetup);
   //  fillDsBranch(iEvent, iSetup); // method by Jian
-  //output_tree->Fill();
-
-
-
+  //  output_tree->Fill();
+  //}
   //void T3MNtuple::fillDsBranch(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //{
  
   h_step->Fill(0);
-
-
-
 
 
   BeamSpot bs;
@@ -1288,6 +1283,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   output_tree->Fill();
   h_step->Fill(6);
 
+  
 }
 
 
@@ -1303,25 +1299,27 @@ void T3MNtuple::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSet
     {
       std::vector<double> iTrack_p4;
       std::vector<double> iTrack_poca;
-      const reco::Track tr = (*trIt);
-      iTrack_p4.push_back(sqrt(pow(tr.p(),2.0) + pow(PDGInfo::pi_mass(),2.0)));
-      iTrack_p4.push_back(tr.px());
-      iTrack_p4.push_back(tr.py());
-      iTrack_p4.push_back(tr.pz());
-      Track_p4.push_back(iTrack_p4);
-
-      Track_normalizedChi2.push_back(tr.normalizedChi2());
-      Track_numberOfValidHits.push_back(tr.numberOfValidHits());
-      Track_charge.push_back(tr.charge());
-      Track_dxy.push_back(tr.dxy());
-      Track_dz.push_back(tr.dz());
-      iTrack_poca.push_back(tr.vx());
-      iTrack_poca.push_back(tr.vy());
-      iTrack_poca.push_back(tr.vz());
-      Track_poca.push_back(iTrack_poca);
-
-      Track_dxyError.push_back(tr.dxyError());
-      Track_dzError.push_back(tr.dzError());
+      const reco::Track track = (*trIt);
+      if(!isGoodTrack(track)){
+	iTrack_p4.push_back(sqrt(pow(track.p(),2.0) + pow(PDGInfo::pi_mass(),2.0)));
+	iTrack_p4.push_back(track.px());
+	iTrack_p4.push_back(track.py());
+	iTrack_p4.push_back(track.pz());
+	Track_p4.push_back(iTrack_p4);
+	
+	Track_normalizedChi2.push_back(track.normalizedChi2());
+	Track_numberOfValidHits.push_back(track.numberOfValidHits());
+	Track_charge.push_back(track.charge());
+	Track_dxy.push_back(track.dxy());
+	Track_dz.push_back(track.dz());
+	iTrack_poca.push_back(track.vx());
+	iTrack_poca.push_back(track.vy());
+	iTrack_poca.push_back(track.vz());
+	Track_poca.push_back(iTrack_poca);
+	
+	Track_dxyError.push_back(track.dxyError());
+	Track_dzError.push_back(track.dzError());
+      }
     }
 }
 
@@ -1335,6 +1333,7 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
   int Muon_index = 0;
   for (reco::MuonCollection::const_iterator iMuon = muonCollection->begin(); iMuon != muonCollection->end(); ++iMuon, Muon_index++) {
     reco::MuonRef RefMuon(muonCollection, Muon_index);
+    if(!(RefMuon->pt() > MuonPtCut_) || !(abs(RefMuon->eta()) < MuonEtaCut_)){
     //    if (isGoodMuon(RefMuon)) {
       std::vector<double> iMuon_Poca;
       iMuon_Poca.push_back(RefMuon->vx());
@@ -1575,6 +1574,7 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
       int match;
       getTrackMatch(trackCollection, Track, match);
       Muon_Track_idx.push_back(match);
+    }
   }
 }
 
