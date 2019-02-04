@@ -133,10 +133,19 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     fillMCTruth(iEvent, iSetup);
   if (doL1_)
     fillL1(iEvent, iSetup);
+  //  fillDsBranch(iEvent, iSetup); // method by Jian
+  //output_tree->Fill();
 
 
 
+  //void T3MNtuple::fillDsBranch(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+  //{
+ 
   h_step->Fill(0);
+
+
+
+
 
   BeamSpot bs;
   Handle<BeamSpot> beamSpotHandle;
@@ -155,6 +164,13 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<MuonCollection> muons;
   iEvent.getByToken(muonToken_, muons);
   if(muons->size() < (do2mu_?2:3))return;
+  h_step->Fill(1);
+
+
+
+
+
+
   //Handle<ValueMap<MuonShower> > muonShowerInformationValueMapH_;
   //iEvent.getByToken(MuonShowerInformationValueMapToken_, muonShowerInformationValueMapH_);
 
@@ -163,7 +179,10 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 
-  h_step->Fill(1);
+
+
+
+
 
   Handle<TrackCollection> trks;
   iEvent.getByToken(trackToken_, trks);
@@ -808,7 +827,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if(deltaR(eta_reco[i], phi_reco[i], to.eta(), to.phi())<0.03 && abs(pt_reco[i]-to.pt())/pt_reco[i]<0.1)trigmat_reco[i] = to.id();  // was 0.05 and 0.3
     } 
 
-
+  
     // global muon variables
     if(!mu[i].isGlobalMuon()) {
       continue;

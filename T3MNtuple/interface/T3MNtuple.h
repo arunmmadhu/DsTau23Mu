@@ -123,7 +123,7 @@ private:
   void fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void fillL1(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-
+  void fillDsBranch(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   bool isGoodTrack(const Track &track);
   bool getTrackMatch(edm::Handle<std::vector<reco::Track> > &trackCollection, reco::TrackRef &refTrack, int &match);
 
