@@ -241,6 +241,20 @@ private:
   std::vector<int> Muon_numberOfChambers;
   std::vector<unsigned int> Muon_Track_idx;
 
+  std::vector<bool> Muon_combinedQuality_updatedSta;
+  std::vector<double> Muon_combinedQuality_trkKink;
+  std::vector<double> Muon_combinedQuality_glbKink;
+  std::vector<double> Muon_combinedQuality_trkRelChi2;
+  std::vector<double> Muon_combinedQuality_staRelChi2;
+  std::vector<double> Muon_combinedQuality_chi2LocalPosition;
+  std::vector<double> Muon_combinedQuality_chi2LocalMomentum;
+  std::vector<double> Muon_combinedQuality_localDistance;
+  std::vector<double> Muon_combinedQuality_globalDeltaEtaPhi;
+  std::vector<bool>   Muon_combinedQuality_tightMatch;
+  std::vector<double> Muon_combinedQuality_glbTrackProbability;
+
+
+
   std::vector<int> Muon_charge;
   std::vector<int> Muon_trackCharge;
   std::vector<int> Muon_pdgid;

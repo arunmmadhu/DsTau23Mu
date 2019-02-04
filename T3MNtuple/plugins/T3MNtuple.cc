@@ -720,6 +720,12 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
 
 
+
+
+    ///////////////////////////////////// Muon Combined Quality /////////////////////////////////////////////////////////////////////////////////////
+    //   find more about combined Muon quality in http://cmsdoxygen.web.cern.ch/cmsdoxygen/CMSSW_9_4_4/doc/html/d4/d52/structreco_1_1MuonQuality.html
+
+
     charge_reco[i] = mu[i].charge();
     uSta_reco[i] = mu[i].combinedQuality().updatedSta;
     tKink_reco[i] = mu[i].combinedQuality().trkKink;
@@ -1444,6 +1450,23 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	Muon_sumPUPt04.push_back(-1);
       }
 
+
+      ///////////////////////////////////// Muon Combined Quality /////////////////////////////////////////////////////////////////////////////////////
+      //   find more about combined Muon quality in http://cmsdoxygen.web.cern.ch/cmsdoxygen/CMSSW_9_4_4/doc/html/d4/d52/structreco_1_1MuonQuality.html
+      Muon_combinedQuality_updatedSta.push_back(RefMuon->combinedQuality().updatedSta);
+      Muon_combinedQuality_trkKink.push_back(RefMuon->combinedQuality().trkKink);
+      Muon_combinedQuality_glbKink.push_back(RefMuon->combinedQuality().glbKink);
+      Muon_combinedQuality_trkRelChi2.push_back(RefMuon->combinedQuality().trkRelChi2);
+      Muon_combinedQuality_staRelChi2.push_back(RefMuon->combinedQuality().staRelChi2);
+      Muon_combinedQuality_chi2LocalPosition.push_back(RefMuon->combinedQuality().chi2LocalPosition);
+      Muon_combinedQuality_chi2LocalMomentum.push_back(RefMuon->combinedQuality().chi2LocalMomentum);
+      Muon_combinedQuality_localDistance.push_back(RefMuon->combinedQuality().localDistance);
+      Muon_combinedQuality_globalDeltaEtaPhi.push_back(RefMuon->combinedQuality().globalDeltaEtaPhi);
+      Muon_combinedQuality_tightMatch.push_back(RefMuon->combinedQuality().tightMatch);
+      Muon_combinedQuality_glbTrackProbability.push_back(RefMuon->combinedQuality().glbTrackProbability);
+
+
+
       reco::TrackRef Track = RefMuon->track();
       int ntp = Muon_par.size();
       Muon_par.push_back(std::vector<double>());
@@ -1894,6 +1917,23 @@ T3MNtuple::beginJob()
   output_tree->Branch("Muon_numberofValidPixelHits", &Muon_numberofValidPixelHits);
   output_tree->Branch("Muon_trackerLayersWithMeasurement", &Muon_trackerLayersWithMeasurement);
 
+  output_tree->Branch("Muon_combinedQuality_updatedSta",&Muon_combinedQuality_updatedSta);
+  output_tree->Branch("Muon_combinedQuality_trkKink",&Muon_combinedQuality_trkKink);
+  output_tree->Branch("Muon_combinedQuality_glbKink",&Muon_combinedQuality_glbKink);
+  output_tree->Branch("Muon_combinedQuality_trkRelChi2",&Muon_combinedQuality_trkRelChi2);
+  output_tree->Branch("Muon_combinedQuality_staRelChi2",&Muon_combinedQuality_staRelChi2);
+  output_tree->Branch("Muon_combinedQuality_chi2LocalPosition",&Muon_combinedQuality_chi2LocalPosition);
+  output_tree->Branch("Muon_combinedQuality_chi2LocalMomentum",&Muon_combinedQuality_chi2LocalMomentum);
+  output_tree->Branch("Muon_combinedQuality_localDistance",&Muon_combinedQuality_localDistance);
+  output_tree->Branch("Muon_combinedQuality_globalDeltaEtaPhi",&Muon_combinedQuality_globalDeltaEtaPhi);
+  output_tree->Branch("Muon_combinedQuality_tightMatch",&Muon_combinedQuality_tightMatch);
+  output_tree->Branch("Muon_combinedQuality_glbTrackProbability",&Muon_combinedQuality_glbTrackProbability);
+
+
+
+
+
+
   output_tree->Branch("Muon_charge", &Muon_charge);
   output_tree->Branch("Muon_trackCharge", &Muon_trackCharge);
   output_tree->Branch("Muon_pdgid", &Muon_pdgid);
@@ -2047,6 +2087,19 @@ void T3MNtuple::ClearEvent() {
   Muon_numberOfMatches.clear();
   Muon_numberofValidPixelHits.clear();
   Muon_trackerLayersWithMeasurement.clear();
+
+  Muon_combinedQuality_updatedSta.clear();
+  Muon_combinedQuality_trkKink.clear();
+  Muon_combinedQuality_glbKink.clear();
+  Muon_combinedQuality_trkRelChi2.clear();
+  Muon_combinedQuality_staRelChi2.clear();
+  Muon_combinedQuality_chi2LocalPosition.clear();
+  Muon_combinedQuality_chi2LocalMomentum.clear();
+  Muon_combinedQuality_localDistance.clear();
+  Muon_combinedQuality_globalDeltaEtaPhi.clear();
+  Muon_combinedQuality_tightMatch.clear();
+  Muon_combinedQuality_glbTrackProbability.clear();
+
 
 
 }
