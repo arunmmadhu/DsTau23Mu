@@ -61,12 +61,12 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
   do3mutuple_ = iConfig.getParameter<bool>("do3mutuple");
   doL1_ = iConfig.getParameter<bool>("doL1");
   doThreeMuons_=  iConfig.getParameter<bool>("doThreeMuons");
+  doTwoMuonsAndTrack_= iConfig.getParameter<bool>("doTwoMuonsAndTrack");
   MuonPtCut_ = iConfig.getParameter<double>("MuonPtCut"); //default: 2.0
   MuonEtaCut_ = iConfig.getParameter<double>("MuonEtaCut"); //default: 2.5
 
   TrackPtCut_ = iConfig.getParameter<double>("TrackPtCut"); //default: 1.0
   TrackEtaCut_ = iConfig.getParameter<double>("TrackEtaCut"); //default: 2.5
-
 
 }
 
@@ -134,12 +134,16 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     fillTracks(iEvent, iSetup);
   if(doMuons_)
     fillMuons(iEvent, iSetup);
-  if (doMC_)
+  if(doMC_)
     fillMCTruth(iEvent, iSetup);
-  if (doL1_)
+  if(doL1_)
     fillL1(iEvent, iSetup);
-  if (doThreeMuons_)
+  if(doThreeMuons_)
     fillThreeMuons(iEvent, iSetup);
+  if(doTwoMuonsAndTrack_)
+    fillTwoMuonsAndTracks(iEvent, iSetup);
+
+
   //  fillDsBranch(iEvent, iSetup); // method by Jian
   //  output_tree->Fill();
   //}
@@ -1596,6 +1600,13 @@ if (!iEvent.isRealData())
   }
 }
 
+bool
+T3MNtuple::fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+  return true;
+
+}
+
 
 bool 
 T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -1612,15 +1623,18 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByToken(muonToken_, muonCollection);
   int Muon_index = 0;
   std::vector<unsigned int> preselected_muon_idx;
+  std::vector<std::vector<unsigned int> > ThreeMuonsCollection;
   for (reco::MuonCollection::const_iterator iMuon = muonCollection->begin(); iMuon != muonCollection->end(); ++iMuon, Muon_index++) {
     reco::MuonRef RefMuon(muonCollection, Muon_index);
-    if(!(RefMuon->pt() > MuonPtCut_) || !(abs(RefMuon->eta()) < MuonEtaCut_)) continue;
+    //  if(!(RefMuon->pt() > MuonPtCut_) || !(abs(RefMuon->eta()) < MuonEtaCut_)) continue;
     if(RefMuon->isPFMuon() && RefMuon->isGlobalMuon())preselected_muon_idx.push_back(Muon_index);
   }
-
+  //  std::cout<<"-------------------------  size of selected muons  "<< preselected_muon_idx.size() << std::endl;
   if(preselected_muon_idx.size() < 3) return false;
 
+
   for(size_t i = 0; i < preselected_muon_idx.size()-1; ++ i){
+    std::vector<unsigned int> dump_index;
       reco::MuonRef  Muon1(muonCollection, i);
       for(size_t j = i+1; j < preselected_muon_idx.size(); ++ j){
 	reco::MuonRef  Muon2(muonCollection, j);
@@ -1628,8 +1642,8 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	double dz_12 = abs(Muon2->innerTrack()->dz(beamSpotHandle->position())-Muon1->innerTrack()->dz(beamSpotHandle->position()));  //   Check that two muons are 
 	double dr_12 = deltaR(Muon1->eta(), Muon1->phi(), Muon2->eta(), Muon2->phi());                                                //   not far from each other
 
-	if(dz_12>0.5 ||  dr_12>0.8)continue; // - to be checked
-
+	//	if(dz_12>0.5 ||  dr_12>0.8)continue; // - to be checked
+	dump_index.push_back(i);dump_index.push_back(j);
 	if(j<preselected_muon_idx.size()-1){
 	    for(size_t k = j+1; k < preselected_muon_idx.size(); ++ k){
 		reco::MuonRef  Muon3(muonCollection, k);
@@ -1645,15 +1659,23 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		double dr_23 = deltaR(Muon3->eta(), Muon3->phi(), Muon2->eta(), Muon2->phi());
 		double dr_31 = deltaR(Muon3->eta(), Muon3->phi(), Muon1->eta(), Muon1->phi());
 
-		if(dr_23>0.8 || dr_31>0.8)continue; // - to be checked
-		if(dz_23>0.5 || dz_31>0.5)continue; // - to be checked
-		//		if(abs(Muon1.charge()+Muon2.charge()+Muon3.charge())>1.1)continue;
-		std::cout<<"Three Muons charge   "<< Muon1->charge()+Muon2->charge()+Muon3->charge() << std::endl;
+		//		if(dr_23>0.8 || dr_31>0.8)continue; // - to be checked
+		//		if(dz_23>0.5 || dz_31>0.5)continue; // - to be checked
+		if(abs(Muon1->charge()+Muon2->charge()+Muon3->charge())>1.1)continue;
+		dump_index.push_back(k);
+		ThreeMuonsCollection.push_back(dump_index);
+		//		std::cout<<"Three Muons charge   "<< Muon1->charge()+Muon2->charge()+Muon3->charge() << std::endl;
+		std::cout<<"indices  "<< i << " "<< j <<"  " << k <<" "<< "   size:  " <<preselected_muon_idx.size() << std::endl;
+		
 
 	    }
 	}
 	
       }
+  }
+  std::cout<<"ThreeMuonsCollection "<<  ThreeMuonsCollection.size() <<std::endl;
+  if(ThreeMuonsCollection.size() !=0){
+    std::cout<<"   index   "<<ThreeMuonsCollection.at(0).at(0) << "  "<<ThreeMuonsCollection.at(0).at(1)<<"  "<< ThreeMuonsCollection.at(0).at(2)  << std::endl;
   }
   return true;
 }
