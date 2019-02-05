@@ -1585,7 +1585,8 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
 }
 
-void T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void 
+T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 if (!iEvent.isRealData())
   {
@@ -1595,8 +1596,15 @@ if (!iEvent.isRealData())
   }
 }
 
-bool T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+
+bool 
+T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  BeamSpot bs;
+  Handle<BeamSpot> beamSpotHandle;
+  iEvent.getByToken(bsToken_, beamSpotHandle);
+  bs = *beamSpotHandle;
+
   Handle<TrackCollection> trackCollection;
   iEvent.getByToken(trackToken_, trackCollection);
 
@@ -1612,10 +1620,44 @@ bool T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& 
 
   if(preselected_muon_idx.size() < 3) return false;
 
+  for(size_t i = 0; i < preselected_muon_idx.size()-1; ++ i){
+      reco::MuonRef  Muon1(muonCollection, i);
+      for(size_t j = i+1; j < preselected_muon_idx.size(); ++ j){
+	reco::MuonRef  Muon2(muonCollection, j);
+	
+	double dz_12 = abs(Muon2->innerTrack()->dz(beamSpotHandle->position())-Muon1->innerTrack()->dz(beamSpotHandle->position()));  //   Check that two muons are 
+	double dr_12 = deltaR(Muon1->eta(), Muon1->phi(), Muon2->eta(), Muon2->phi());                                                //   not far from each other
 
-  //  std::cout<<"Good muons size "<< preselected_muon_idx.size() << std::endl;
+	if(dz_12>0.5 ||  dr_12>0.8)continue; // - to be checked
+
+	if(j<preselected_muon_idx.size()-1){
+	    for(size_t k = j+1; k < preselected_muon_idx.size(); ++ k){
+		reco::MuonRef  Muon3(muonCollection, k);
+		
+		size_t number_of_muons_pt2p5 = 0;
+		if(Muon1->pt()>2.5)number_of_muons_pt2p5++;
+		if(Muon2->pt()>2.5)number_of_muons_pt2p5++;
+		if(Muon3->pt()>2.5)number_of_muons_pt2p5++;
+		// if(number_of_muons_pt2p5<2)continue;  //  Not sure it is needed; Commented.
+
+		double dz_23 = abs(Muon3->innerTrack()->dz(beamSpotHandle->position())-Muon2->innerTrack()->dz(beamSpotHandle->position()));
+		double dz_31 = abs(Muon3->innerTrack()->dz(beamSpotHandle->position())-Muon1->innerTrack()->dz(beamSpotHandle->position()));
+		double dr_23 = deltaR(Muon3->eta(), Muon3->phi(), Muon2->eta(), Muon2->phi());
+		double dr_31 = deltaR(Muon3->eta(), Muon3->phi(), Muon1->eta(), Muon1->phi());
+
+		if(dr_23>0.8 || dr_31>0.8)continue; // - to be checked
+		if(dz_23>0.5 || dz_31>0.5)continue; // - to be checked
+		//		if(abs(Muon1.charge()+Muon2.charge()+Muon3.charge())>1.1)continue;
+		std::cout<<"Three Muons charge   "<< Muon1->charge()+Muon2->charge()+Muon3->charge() << std::endl;
+
+	    }
+	}
+	
+      }
+  }
   return true;
 }
+
 void T3MNtuple::fillL1(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   gtUtil_->retrieveL1(iEvent, iSetup, algToken_);
