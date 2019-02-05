@@ -126,6 +126,8 @@ private:
   void fillDsBranch(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   bool fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   bool fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  std::vector<std::vector<unsigned int> > findThreeMuonsCandidates(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+
   bool isGoodTrack(const Track &track);
   bool getTrackMatch(edm::Handle<std::vector<reco::Track> > &trackCollection, reco::TrackRef &refTrack, int &match);
 

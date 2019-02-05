@@ -121,7 +121,7 @@ bool T3MNtuple::getTrackMatch(edm::Handle<std::vector<reco::Track> > &trackColle
 void
 T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   
+  std::cout<<"----------->  new event"<< std::endl;
   //Handle<bool> ifilterbadGlbMuon;
   //iEvent.getByToken(BadGlbMuonFilterToken_, ifilterbadGlbMuon);
   //filterbadGlbMuon = *ifilterbadGlbMuon;
@@ -1344,7 +1344,9 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
   int Muon_index = 0;
   for (reco::MuonCollection::const_iterator iMuon = muonCollection->begin(); iMuon != muonCollection->end(); ++iMuon, Muon_index++) {
     reco::MuonRef RefMuon(muonCollection, Muon_index);
-    if(!(RefMuon->pt() > MuonPtCut_) || !(abs(RefMuon->eta()) < MuonEtaCut_)){
+    if((RefMuon->pt() > MuonPtCut_) || (abs(RefMuon->eta()) < MuonEtaCut_))
+    {
+      std::cout<<"index over all muons: "<< Muon_index << "  pt  "<< RefMuon->pt() <<"PF&Gl" <<RefMuon->isPFMuon()<< RefMuon->isGlobalMuon() << std::endl;		
     //    if (isGoodMuon(RefMuon)) {
       std::vector<double> iMuon_Poca;
       iMuon_Poca.push_back(RefMuon->vx());
@@ -1607,9 +1609,20 @@ T3MNtuple::fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup
 
 }
 
-
 bool 
-T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+  if(findThreeMuonsCandidates.size()==0){
+    std::cout<<"No three muons candidate is found! Skip the event" << std::endl; return false;
+  }
+
+
+
+  return true;
+}
+
+
+std::vector<std::vector<unsigned int> > 
+T3MNtuple::findThreeMuonsCandidates(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   BeamSpot bs;
   Handle<BeamSpot> beamSpotHandle;
@@ -1626,59 +1639,51 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
   std::vector<std::vector<unsigned int> > ThreeMuonsCollection;
   for (reco::MuonCollection::const_iterator iMuon = muonCollection->begin(); iMuon != muonCollection->end(); ++iMuon, Muon_index++) {
     reco::MuonRef RefMuon(muonCollection, Muon_index);
-    //  if(!(RefMuon->pt() > MuonPtCut_) || !(abs(RefMuon->eta()) < MuonEtaCut_)) continue;
-    if(RefMuon->isPFMuon() && RefMuon->isGlobalMuon())preselected_muon_idx.push_back(Muon_index);
+    if((RefMuon->pt() < MuonPtCut_) || (abs(RefMuon->eta()) > MuonEtaCut_)) continue;
+    if(RefMuon->isPFMuon() && RefMuon->isGlobalMuon()) preselected_muon_idx.push_back(Muon_index);
   }
-  //  std::cout<<"-------------------------  size of selected muons  "<< preselected_muon_idx.size() << std::endl;
-  if(preselected_muon_idx.size() < 3) return false;
-
-
-  for(size_t i = 0; i < preselected_muon_idx.size()-1; ++ i){
-    std::vector<unsigned int> dump_index;
+  if(preselected_muon_idx.size() > 2){
+    for(size_t i = 0; i < preselected_muon_idx.size()-1; ++ i){
+      std::vector<unsigned int> dump_index;
       reco::MuonRef  Muon1(muonCollection, i);
       for(size_t j = i+1; j < preselected_muon_idx.size(); ++ j){
 	reco::MuonRef  Muon2(muonCollection, j);
 	
 	double dz_12 = abs(Muon2->innerTrack()->dz(beamSpotHandle->position())-Muon1->innerTrack()->dz(beamSpotHandle->position()));  //   Check that two muons are 
 	double dr_12 = deltaR(Muon1->eta(), Muon1->phi(), Muon2->eta(), Muon2->phi());                                                //   not far from each other
-
+	
 	//	if(dz_12>0.5 ||  dr_12>0.8)continue; // - to be checked
 	dump_index.push_back(i);dump_index.push_back(j);
 	if(j<preselected_muon_idx.size()-1){
-	    for(size_t k = j+1; k < preselected_muon_idx.size(); ++ k){
-		reco::MuonRef  Muon3(muonCollection, k);
-		
-		size_t number_of_muons_pt2p5 = 0;
-		if(Muon1->pt()>2.5)number_of_muons_pt2p5++;
-		if(Muon2->pt()>2.5)number_of_muons_pt2p5++;
-		if(Muon3->pt()>2.5)number_of_muons_pt2p5++;
-		// if(number_of_muons_pt2p5<2)continue;  //  Not sure it is needed; Commented.
-
-		double dz_23 = abs(Muon3->innerTrack()->dz(beamSpotHandle->position())-Muon2->innerTrack()->dz(beamSpotHandle->position()));
-		double dz_31 = abs(Muon3->innerTrack()->dz(beamSpotHandle->position())-Muon1->innerTrack()->dz(beamSpotHandle->position()));
-		double dr_23 = deltaR(Muon3->eta(), Muon3->phi(), Muon2->eta(), Muon2->phi());
-		double dr_31 = deltaR(Muon3->eta(), Muon3->phi(), Muon1->eta(), Muon1->phi());
-
-		//		if(dr_23>0.8 || dr_31>0.8)continue; // - to be checked
-		//		if(dz_23>0.5 || dz_31>0.5)continue; // - to be checked
-		if(abs(Muon1->charge()+Muon2->charge()+Muon3->charge())>1.1)continue;
-		dump_index.push_back(k);
-		ThreeMuonsCollection.push_back(dump_index);
-		//		std::cout<<"Three Muons charge   "<< Muon1->charge()+Muon2->charge()+Muon3->charge() << std::endl;
-		std::cout<<"indices  "<< i << " "<< j <<"  " << k <<" "<< "   size:  " <<preselected_muon_idx.size() << std::endl;
-		
-
-	    }
+	  for(size_t k = j+1; k < preselected_muon_idx.size(); ++ k){
+	    reco::MuonRef  Muon3(muonCollection, k);
+	    
+	    size_t number_of_muons_pt2p5 = 0;
+	    if(Muon1->pt()>2.5)number_of_muons_pt2p5++;
+	    if(Muon2->pt()>2.5)number_of_muons_pt2p5++;
+	    if(Muon3->pt()>2.5)number_of_muons_pt2p5++;
+	    // if(number_of_muons_pt2p5<2)continue;  //  Not sure it is needed; Commented.
+	    
+	    double dz_23 = abs(Muon3->innerTrack()->dz(beamSpotHandle->position())-Muon2->innerTrack()->dz(beamSpotHandle->position()));
+	    double dz_31 = abs(Muon3->innerTrack()->dz(beamSpotHandle->position())-Muon1->innerTrack()->dz(beamSpotHandle->position()));
+	    double dr_23 = deltaR(Muon3->eta(), Muon3->phi(), Muon2->eta(), Muon2->phi());
+	    double dr_31 = deltaR(Muon3->eta(), Muon3->phi(), Muon1->eta(), Muon1->phi());
+	    
+	    //		if(dr_23>0.8 || dr_31>0.8)continue; // - to be checked
+	    //		if(dz_23>0.5 || dz_31>0.5)continue; // - to be checked
+	    if(abs(Muon1->charge()+Muon2->charge()+Muon3->charge())>1.1)continue;
+	    dump_index.push_back(k);
+	    ThreeMuonsCollection.push_back(dump_index);
+	  }
 	}
-	
       }
+    }
   }
-  std::cout<<"ThreeMuonsCollection "<<  ThreeMuonsCollection.size() <<std::endl;
-  if(ThreeMuonsCollection.size() !=0){
-    std::cout<<"   index   "<<ThreeMuonsCollection.at(0).at(0) << "  "<<ThreeMuonsCollection.at(0).at(1)<<"  "<< ThreeMuonsCollection.at(0).at(2)  << std::endl;
-  }
-  return true;
+  return ThreeMuonsCollection;
 }
+
+
+
 
 void T3MNtuple::fillL1(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
