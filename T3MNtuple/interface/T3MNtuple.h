@@ -325,6 +325,12 @@ private:
   std::vector<double>   ThreeMuons_SV_Chi2;
   std::vector<double>   ThreeMuons_SV_NDF;
 
+  std::vector<std::vector<unsigned int> > TwoMuonsTrack_idx;
+  std::vector<double>   TwoMuonsTrack_SV_Chi2;
+  std::vector<double>   TwoMuonsTrack_SV_NDF;
+  std::vector<std::vector<float> > TwoMuonsTrack_TriggerMatch_dR;
+
+
 
 
 
@@ -343,6 +349,9 @@ private:
   TTree *output_tree;
   TTree *output_former_tree;
   TH1F *h_n3mu, *h_step;
+  TH1F *h_phimass;
+  TH1F *h_phimassj;
+  TH1F *h_phimassj1;
   InputTag algInputTag_;
   int cnt_;
 
