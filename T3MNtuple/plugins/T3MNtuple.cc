@@ -60,6 +60,7 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
   doMuons_ = iConfig.getParameter<bool>("doMuons");
   do3mutuple_ = iConfig.getParameter<bool>("do3mutuple");
   doL1_ = iConfig.getParameter<bool>("doL1");
+  doBJets_ = iConfig.getParameter<bool>("doBJets");
   doThreeMuons_=  iConfig.getParameter<bool>("doThreeMuons");
   doTwoMuonsAndTrack_= iConfig.getParameter<bool>("doTwoMuonsAndTrack");
   MuonPtCut_ = iConfig.getParameter<double>("MuonPtCut"); //default: 2.0
@@ -132,6 +133,8 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   fillEventInfo(iEvent, iSetup);
   if(doTracks_)
     fillTracks(iEvent, iSetup);
+  if(doBJets_)
+    fillBTagJets(iEvent, iSetup);
   if(doMuons_)
     fillMuons(iEvent, iSetup);
   if(doMC_)
@@ -1360,16 +1363,11 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
       iMuon_p4.push_back(RefMuon->p4().Pz());
       Muon_p4.push_back(iMuon_p4);
 
-
-
-
       const reco::MuonIsolation Iso03 = RefMuon->isolationR03();
       const reco::MuonIsolation Iso05 = RefMuon->isolationR05();
 
       const reco::MuonPFIsolation PFIso03 = RefMuon->pfIsolationR03();
       const reco::MuonPFIsolation PFIso04 = RefMuon->pfIsolationR04();
-
-
 
       Muon_numberOfChambers.push_back(RefMuon->numberOfChambers());
       Muon_isGlobalMuon.push_back(RefMuon->isGlobalMuon());
@@ -1385,7 +1383,6 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
       Muon_numberOfMatches.push_back(RefMuon->numberOfMatches(reco::Muon::SegmentArbitration));
       Muon_charge.push_back(RefMuon->charge());
 
-
       std::vector<double> iMuon_outerTrack_p4;
       std::vector<double> iMuon_innerTrack_p4;
       if (RefMuon->isGlobalMuon()) {
@@ -1400,6 +1397,7 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	Muon_prod_inner_outer_charge.push_back(RefMuon->outerTrack()->charge()*RefMuon->innerTrack()->charge());
 	Muon_outerTrack_normalizedChi2.push_back(RefMuon->outerTrack()->normalizedChi2());
 	Muon_outerTrack_muonStationsWithValidHits.push_back(RefMuon->outerTrack()->hitPattern().muonStationsWithValidHits());
+
 
 
 
@@ -1609,6 +1607,33 @@ T3MNtuple::fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup
 
 }
 
+
+void T3MNtuple::fillBTagJets(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+
+  Handle<JetTagCollection> btagsCvsB;
+  iEvent.getByToken(btagCvsBToken_, btagsCvsB);
+  Handle<JetTagCollection> btagsCSV;
+  iEvent.getByToken(btagCSVToken_, btagsCSV);
+  Handle<JetTagCollection> btagsMVA;
+  iEvent.getByToken(btagMVAToken_, btagsMVA);
+  for(size_t j = 0 ; j < btagsCvsB->size(); j++) {
+    const JetTag & btag1 = (*btagsCvsB)[j];
+    std::vector<double> iJet_p4;
+    iJet_p4.push_back(btag1.first->p4().e());
+    iJet_p4.push_back(btag1.first->p4().px());
+    iJet_p4.push_back(btag1.first->p4().py());
+    iJet_p4.push_back(btag1.first->p4().pz());
+    Jet_p4.push_back(iJet_p4);
+    jet_pt[njet20] = btag1.first->pt();
+    Jet_BTagCVSB.push_back(btag1.second);
+    const JetTag & btag2 = (*btagsMVA)[j];
+    Jet_BTagMVA.push_back(btag2.second);
+    const JetTag & btag3 = (*btagsCSV)[j];
+    Jet_BTagCSV.push_back(btag3.second<0 ? 0:btag3.second);
+  }
+}
+
+
 bool 
 T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 
@@ -1619,7 +1644,7 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
   std::vector<std::vector<unsigned int> > ThreeMuons_idx;
   PreselectedThreeMuonsCollection = findThreeMuonsCandidates(iEvent, iSetup);
   if(PreselectedThreeMuonsCollection.size()==0){
-    std::cout<<"No three muons candidate is found! Skip the event" << std::endl; return false;
+    return false;            //No three muons candidate found! Skip the event
   }
   Handle<MuonCollection> muonCollection;
   iEvent.getByToken(muonToken_, muonCollection);
@@ -2178,7 +2203,6 @@ T3MNtuple::beginJob()
   output_tree->Branch("Muon_caloCompatibility",&Muon_caloCompatibility);
   output_tree->Branch("Muon_isGoodMuon_TM2DCompatibility",&Muon_isGoodMuon_TM2DCompatibility);
 
-
   output_tree->Branch("Muon_innerTrack_validFraction",&Muon_innerTrack_validFraction );
   output_tree->Branch("Muon_innerTrack_pixelLayersWithMeasurement",&Muon_innerTrack_pixelLayersWithMeasurement );
   output_tree->Branch("Muon_innerTrack_numberOfValidTrackerHits",&Muon_innerTrack_numberOfValidTrackerHits );
@@ -2205,6 +2229,10 @@ T3MNtuple::beginJob()
   output_tree->Branch("Muon_par", &Muon_par);
   output_tree->Branch("Muon_cov", &Muon_cov);
 
+  output_tree->Branch("Jet_BTagCVSB", &Jet_BTagCVSB);
+  output_tree->Branch("Jet_BTagMVA", &Jet_BTagMVA);
+  output_tree->Branch("Jet_BTagCSV", &Jet_BTagCSV);
+  output_tree->Branch("Jet_p4",&Jet_p4);
 
   //refitter_.setServices(iSetup);
 }
@@ -2398,6 +2426,10 @@ void T3MNtuple::ClearEvent() {
   Muon_isGoodMuon_TMLastStationOptimizedBarrelLowPtTight.clear();
 
 
+  Jet_BTagCVSB.clear();
+  Jet_BTagMVA.clear();
+  Jet_BTagCSV.clear();
+  Jet_p4.clear();
 
 }
 

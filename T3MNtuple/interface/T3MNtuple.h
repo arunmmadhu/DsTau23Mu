@@ -124,6 +124,7 @@ private:
   void fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void fillL1(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void fillDsBranch(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void fillBTagJets(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   bool fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   bool fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   std::vector<std::vector<unsigned int> > findThreeMuonsCandidates(const edm::Event& iEvent, const edm::EventSetup& iSetup);
@@ -292,8 +293,6 @@ private:
   std::vector<bool>  Muon_segmentCompatibility;
   std::vector<bool>  Muon_caloCompatibility;
 
-
-
   std::vector<double> Muon_innerTrack_validFraction;
   std::vector<double> Muon_innerTrack_pixelLayersWithMeasurement;
   std::vector<double> Muon_innerTrack_numberOfValidTrackerHits;
@@ -313,10 +312,14 @@ private:
   std::vector<bool>   Muon_isGoodMuon_TMLastStationOptimizedLowPtTight;
   std::vector<bool>   Muon_isGoodMuon_TMLastStationOptimizedBarrelLowPtTight;
 
+  //  BTagged Jets
+  std::vector<double>  Jet_BTagCVSB;
+  std::vector<double>  Jet_BTagMVA;
+  std::vector<double>  Jet_BTagCSV;
+  std::vector<std::vector<double> > Jet_p4;
 
-
-
-  bool doMC_, wideSB_, do2mu_, passhlt_, doTracks_, doMuons_, do3mutuple_, doL1_, doThreeMuons_, doTwoMuonsAndTrack_;
+  bool doMC_, wideSB_, do2mu_, passhlt_, doTracks_, doMuons_, 
+    do3mutuple_, doL1_, doThreeMuons_, doTwoMuonsAndTrack_, doBJets_;
   size_t mid_, n_reco, n_sv, njet20, ifar, ipv_gen, ipv1, ipv2;
 
   static double MuonPtCut_;
