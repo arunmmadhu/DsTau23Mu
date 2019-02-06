@@ -52,9 +52,8 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
   MuonPtCut_ = iConfig.getParameter<double>("MuonPtCut"); //default: 2.0
   MuonEtaCut_ = iConfig.getParameter<double>("MuonEtaCut"); //default: 2.5
 
-  TrackPtCut_ = iConfig.getParameter<double>("TrackPtCut"); //default: 1.0
+  TrackPtCut_ = iConfig.getParameter<double>("TrackPtCut"); //default: 1.5
   TrackEtaCut_ = iConfig.getParameter<double>("TrackEtaCut"); //default: 2.5
-
 }
 
 
@@ -435,20 +434,22 @@ void T3MNtuple::fillBTagJets(const edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.getByToken(btagCSVToken_, btagsCSV);
   Handle<JetTagCollection> btagsMVA;
   iEvent.getByToken(btagMVAToken_, btagsMVA);
+
   for(size_t j = 0 ; j < btagsCvsB->size(); j++) {
     const JetTag & btag1 = (*btagsCvsB)[j];
-    std::vector<double> iJet_p4;
-    iJet_p4.push_back(btag1.first->p4().e());
-    iJet_p4.push_back(btag1.first->p4().px());
-    iJet_p4.push_back(btag1.first->p4().py());
-    iJet_p4.push_back(btag1.first->p4().pz());
-    Jet_p4.push_back(iJet_p4);
-    jet_pt[njet20] = btag1.first->pt();
-    Jet_BTagCVSB.push_back(btag1.second);
-    const JetTag & btag2 = (*btagsMVA)[j];
-    Jet_BTagMVA.push_back(btag2.second);
-    const JetTag & btag3 = (*btagsCSV)[j];
-    Jet_BTagCSV.push_back(btag3.second<0 ? 0:btag3.second);
+    if(btag1.first->pt() > 20){
+      std::vector<double> iJet_p4;
+      iJet_p4.push_back(btag1.first->p4().e());
+      iJet_p4.push_back(btag1.first->p4().px());
+      iJet_p4.push_back(btag1.first->p4().py());
+      iJet_p4.push_back(btag1.first->p4().pz());
+      Jet_p4.push_back(iJet_p4);
+      Jet_BTagCVSB.push_back(btag1.second);
+      const JetTag & btag2 = (*btagsMVA)[j];
+      Jet_BTagMVA.push_back(btag2.second);
+      const JetTag & btag3 = (*btagsCSV)[j];
+      Jet_BTagCSV.push_back(btag3.second<0 ? 0:btag3.second);
+    }
   }
 }
 
@@ -460,7 +461,6 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByToken(trigeventToken_, triggerSummary);
 
   std::vector<std::vector<unsigned int> > PreselectedThreeMuonsCollection;
-  std::vector<std::vector<unsigned int> > ThreeMuons_idx;
   PreselectedThreeMuonsCollection = findThreeMuonsCandidates(iEvent, iSetup);
   if(PreselectedThreeMuonsCollection.size()==0){
     return 0;            //No three muons candidate found! Skip the event
@@ -486,14 +486,14 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
     if(fv.isValid()){
       ThreeMuons_idx.push_back(iThreeMuon);
+      ThreeMuons_SV_Chi2.push_back(fv.totalChiSquared());
+      ThreeMuons_SV_NDF.push_back(fv.totalChiSquared());
       for ( auto &iMuon :  iThreeMuon ) {
       	float match;
 	reco::MuonRef MuonTriggMatch(muonCollection, iMuon);
 	TriggerMatch(triggerSummary,  MuonTriggMatch , TriggerMuonMatchingdr_, match);
-	//  fill dr matching here
+	
       }
-      //      ThreeMuons_SV_Chi2.push_back(fv.totalChiSquared());
-      //      ThreeMuons_SV_NDF.push_back(fv.totalChiSquared());
     }
   }
 
@@ -2195,6 +2195,14 @@ T3MNtuple::beginJob()
   output_tree->Branch("Muon_par", &Muon_par);
   output_tree->Branch("Muon_cov", &Muon_cov);
 
+
+  //================  Three Muonss block
+
+
+  output_tree->Branch("ThreeMuons_idx",&ThreeMuons_idx);
+  output_tree->Branch("ThreeMuons_SV_Chi2",&ThreeMuons_SV_Chi2);
+  output_tree->Branch("ThreeMuons_SV_NDF",&ThreeMuons_SV_NDF);
+ 
   output_tree->Branch("Jet_BTagCVSB", &Jet_BTagCVSB);
   output_tree->Branch("Jet_BTagMVA", &Jet_BTagMVA);
   output_tree->Branch("Jet_BTagCSV", &Jet_BTagCSV);
@@ -2390,6 +2398,12 @@ void T3MNtuple::ClearEvent() {
   Muon_isGoodMuon_TMLastStationAngTight.clear();
   Muon_isGoodMuon_TMLastStationOptimizedLowPtTight.clear();
   Muon_isGoodMuon_TMLastStationOptimizedBarrelLowPtTight.clear();
+
+  ThreeMuons_idx.clear();
+  ThreeMuons_SV_Chi2.clear();
+  ThreeMuons_SV_NDF.clear();
+
+
 
 
   Jet_BTagCVSB.clear();

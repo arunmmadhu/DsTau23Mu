@@ -318,6 +318,15 @@ private:
   std::vector<double>  Jet_BTagCSV;
   std::vector<std::vector<double> > Jet_p4;
 
+  //  Three Muons
+
+  std::vector<std::vector<unsigned int> > ThreeMuons_idx;
+  std::vector<double>   ThreeMuons_SV_Chi2;
+  std::vector<double>   ThreeMuons_SV_NDF;
+
+
+
+
   bool doMC_, wideSB_, do2mu_, passhlt_, doTracks_, doMuons_, 
     do3mutuple_, doL1_, doThreeMuons_, doTwoMuonsAndTrack_, doBJets_;
   double TriggerMuonMatchingdr_;
