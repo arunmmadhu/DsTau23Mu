@@ -124,36 +124,607 @@ bool T3MNtuple::getTrackMatch(edm::Handle<std::vector<reco::Track> > &trackColle
 void
 T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  std::cout<<"----------->  new event"<< std::endl;
-  //Handle<bool> ifilterbadGlbMuon;
-  //iEvent.getByToken(BadGlbMuonFilterToken_, ifilterbadGlbMuon);
-  //filterbadGlbMuon = *ifilterbadGlbMuon;
   cnt_++;
   ClearEvent();
-
-
-  fillEventInfo(iEvent, iSetup);
-  if(doTracks_)
-    fillTracks(iEvent, iSetup);
-  if(doBJets_)
-    fillBTagJets(iEvent, iSetup);
-  if(doMuons_)
-    fillMuons(iEvent, iSetup);
-  if(doMC_)
-    fillMCTruth(iEvent, iSetup);
-  if(doL1_)
-    fillL1(iEvent, iSetup);
+  
   if(doThreeMuons_)
-    fillThreeMuons(iEvent, iSetup);
-  if(doTwoMuonsAndTrack_)
-    fillTwoMuonsAndTracks(iEvent, iSetup);
+    Event_nsignal_candidates =   fillThreeMuons(iEvent, iSetup);
+  if(Event_nsignal_candidates==0){
+    if(doTwoMuonsAndTrack_)
+      Event_ndsphipi_candidate = fillTwoMuonsAndTracks(iEvent, iSetup);
+  }
+  
+  if(Event_nsignal_candidates!=0 or Event_ndsphipi_candidate!=0){
+    fillEventInfo(iEvent, iSetup);
+    if(doTracks_)
+      fillTracks(iEvent, iSetup);
+    if(doBJets_)
+      fillBTagJets(iEvent, iSetup);
+    if(doMuons_)
+      fillMuons(iEvent, iSetup);
+    if(doMC_)
+      fillMCTruth(iEvent, iSetup);
+    if(doL1_)
+      fillL1(iEvent, iSetup);
+    output_tree->Fill();
+  }
+  fillDsTree(iEvent, iSetup); // method by Jian
+}
 
 
-  //  fillDsBranch(iEvent, iSetup); // method by Jian
-  //  output_tree->Fill();
-  //}
-  //void T3MNtuple::fillDsBranch(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-  //{
+
+void T3MNtuple::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+  Handle<TrackCollection> trackCollection;
+  iEvent.getByToken(trackToken_, trackCollection);
+  std::vector<reco::Track>::const_iterator trIt  = trackCollection->begin();
+  std::vector<reco::Track>::const_iterator trEnd = trackCollection->end();
+  for (; trIt != trEnd; ++trIt) 
+    {
+      std::vector<double> iTrack_p4;
+      std::vector<double> iTrack_poca;
+      const reco::Track track = (*trIt);
+      if(isGoodTrack(track)){
+	iTrack_p4.push_back(sqrt(pow(track.p(),2.0) + pow(PDGInfo::pi_mass(),2.0)));
+	iTrack_p4.push_back(track.px());
+	iTrack_p4.push_back(track.py());
+	iTrack_p4.push_back(track.pz());
+	Track_p4.push_back(iTrack_p4);
+	
+	Track_normalizedChi2.push_back(track.normalizedChi2());
+	Track_numberOfValidHits.push_back(track.numberOfValidHits());
+	Track_charge.push_back(track.charge());
+	Track_dxy.push_back(track.dxy());
+	Track_dz.push_back(track.dz());
+	iTrack_poca.push_back(track.vx());
+	iTrack_poca.push_back(track.vy());
+	iTrack_poca.push_back(track.vz());
+	Track_poca.push_back(iTrack_poca);
+	
+	Track_dxyError.push_back(track.dxyError());
+	Track_dzError.push_back(track.dzError());
+      }
+    }
+}
+
+void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+  Handle<TrackCollection> trackCollection;
+  iEvent.getByToken(trackToken_, trackCollection);
+
+  Handle<MuonCollection> muonCollection;
+  iEvent.getByToken(muonToken_, muonCollection);
+  int Muon_index = 0;
+  for (reco::MuonCollection::const_iterator iMuon = muonCollection->begin(); iMuon != muonCollection->end(); ++iMuon, Muon_index++) {
+    reco::MuonRef RefMuon(muonCollection, Muon_index);
+    if((RefMuon->pt() > MuonPtCut_) || (abs(RefMuon->eta()) < MuonEtaCut_))
+    {
+      std::vector<double> iMuon_Poca;
+      iMuon_Poca.push_back(RefMuon->vx());
+      iMuon_Poca.push_back(RefMuon->vy());
+      iMuon_Poca.push_back(RefMuon->vz());
+      Muon_Poca.push_back(iMuon_Poca);
+      std::vector<double> iMuon_p4;
+      iMuon_p4.push_back(RefMuon->p4().E());
+      iMuon_p4.push_back(RefMuon->p4().Px());
+      iMuon_p4.push_back(RefMuon->p4().Py());
+      iMuon_p4.push_back(RefMuon->p4().Pz());
+      Muon_p4.push_back(iMuon_p4);
+
+      const reco::MuonIsolation Iso03 = RefMuon->isolationR03();
+      const reco::MuonIsolation Iso05 = RefMuon->isolationR05();
+
+      const reco::MuonPFIsolation PFIso03 = RefMuon->pfIsolationR03();
+      const reco::MuonPFIsolation PFIso04 = RefMuon->pfIsolationR04();
+
+      Muon_numberOfChambers.push_back(RefMuon->numberOfChambers());
+      Muon_isGlobalMuon.push_back(RefMuon->isGlobalMuon());
+      Muon_isPFMuon.push_back(RefMuon->isPFMuon());
+      Muon_isRPCMuon.push_back(RefMuon->isRPCMuon());
+      Muon_isStandAloneMuon.push_back(RefMuon->isStandAloneMuon());
+      Muon_isTrackerMuon.push_back(RefMuon->isTrackerMuon());
+      Muon_isCaloMuon.push_back(RefMuon->isCaloMuon());
+      Muon_isQualityValid.push_back(RefMuon->isQualityValid());
+      Muon_isTimeValid.push_back(RefMuon->isTimeValid());
+      Muon_isIsolationValid.push_back(RefMuon->isIsolationValid());
+      Muon_numberOfMatchedStations.push_back(RefMuon->numberOfMatchedStations());
+      Muon_numberOfMatches.push_back(RefMuon->numberOfMatches(reco::Muon::SegmentArbitration));
+      Muon_charge.push_back(RefMuon->charge());
+
+      std::vector<double> iMuon_outerTrack_p4;
+      std::vector<double> iMuon_innerTrack_p4;
+      if (RefMuon->isGlobalMuon()) {
+	Muon_normChi2.push_back(RefMuon->globalTrack()->normalizedChi2());
+	Muon_hitPattern_numberOfValidMuonHits.push_back(RefMuon->globalTrack()->hitPattern().numberOfValidMuonHits());
+	Muon_trackerLayersWithMeasurement.push_back(RefMuon->innerTrack()->hitPattern().trackerLayersWithMeasurement());
+	Muon_numberofValidPixelHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfValidPixelHits());
+	
+	iMuon_outerTrack_p4.push_back(RefMuon->outerTrack()->p());
+	iMuon_outerTrack_p4.push_back(RefMuon->outerTrack()->eta());
+	iMuon_outerTrack_p4.push_back(RefMuon->outerTrack()->phi());
+	Muon_prod_inner_outer_charge.push_back(RefMuon->outerTrack()->charge()*RefMuon->innerTrack()->charge());
+	Muon_outerTrack_normalizedChi2.push_back(RefMuon->outerTrack()->normalizedChi2());
+	Muon_outerTrack_muonStationsWithValidHits.push_back(RefMuon->outerTrack()->hitPattern().muonStationsWithValidHits());
+
+      } else {
+	Muon_normChi2.push_back(0);
+	Muon_hitPattern_numberOfValidMuonHits.push_back(0);
+	Muon_trackerLayersWithMeasurement.push_back(0);
+	Muon_numberofValidPixelHits.push_back(0);
+	Muon_prod_inner_outer_charge.push_back(0);
+	Muon_outerTrack_normalizedChi2.push_back(0);
+	Muon_outerTrack_muonStationsWithValidHits.push_back(0);
+      }
+
+      if (RefMuon->isTrackerMuon()) {
+	Muon_innerTrack_validFraction.push_back(RefMuon->innerTrack()->validFraction());
+	Muon_innerTrack_pixelLayersWithMeasurement.push_back(RefMuon->innerTrack()->hitPattern().pixelLayersWithMeasurement() );
+	Muon_innerTrack_numberOfValidTrackerHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfValidTrackerHits() );
+	Muon_innerTrack_numberOfLostTrackerHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfLostTrackerHits(HitPattern::TRACK_HITS) );
+	Muon_innerTrack_numberOfLostTrackerInnerHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfLostTrackerHits(HitPattern::MISSING_INNER_HITS) );
+	Muon_innerTrack_numberOfLostTrackerOuterHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfLostTrackerHits(HitPattern::MISSING_OUTER_HITS) );
+	Muon_innerTrack_normalizedChi2.push_back(RefMuon->innerTrack()->normalizedChi2() );
+
+	Muon_innerTrack_numberofValidHits.push_back(RefMuon->innerTrack()->numberOfValidHits());
+	Muon_hitPattern_pixelLayerwithMeas.push_back(RefMuon->innerTrack()->hitPattern().pixelLayersWithMeasurement());
+
+	Muon_innerTrack_quality.push_back(RefMuon->innerTrack()->quality(TrackBase::highPurity));
+	iMuon_innerTrack_p4.push_back(RefMuon->innerTrack()->p());
+	iMuon_innerTrack_p4.push_back(RefMuon->innerTrack()->eta());
+	iMuon_innerTrack_p4.push_back(RefMuon->innerTrack()->phi());
+      } else {
+	Muon_innerTrack_quality.push_back(0);
+	Muon_innerTrack_numberofValidHits.push_back(0);
+	Muon_hitPattern_pixelLayerwithMeas.push_back(0);
+	Muon_innerTrack_validFraction.push_back(0);
+	Muon_innerTrack_pixelLayersWithMeasurement.push_back(0);
+	Muon_innerTrack_numberOfValidTrackerHits.push_back(0);
+	Muon_innerTrack_numberOfLostTrackerHits.push_back(0);
+	Muon_innerTrack_numberOfLostTrackerInnerHits.push_back(0);
+	Muon_innerTrack_numberOfLostTrackerOuterHits.push_back(0);
+	Muon_innerTrack_normalizedChi2.push_back(0);
+      }
+      Muon_outerTrack_p4.push_back(iMuon_outerTrack_p4);
+      Muon_innerTrack_p4.push_back(iMuon_innerTrack_p4);
+
+
+      if (RefMuon->isIsolationValid()) {
+	Muon_emEt03.push_back(Iso03.emEt);
+	Muon_emVetoEt03.push_back(Iso03.emVetoEt);
+	Muon_hadEt03.push_back(Iso03.hadEt);
+	Muon_hadVetoEt03.push_back(Iso03.hadVetoEt);
+	Muon_nJets03.push_back(Iso03.nJets);
+	Muon_nTracks03.push_back(Iso03.nTracks);
+	Muon_sumPt03.push_back(Iso03.sumPt);
+	Muon_trackerVetoPt03.push_back(Iso03.trackerVetoPt);
+
+	Muon_emEt05.push_back(Iso05.emEt);
+	Muon_emVetoEt05.push_back(Iso05.emVetoEt);
+	Muon_hadEt05.push_back(Iso05.hadEt);
+	Muon_hadVetoEt05.push_back(Iso05.hadVetoEt);
+	Muon_nJets05.push_back(Iso05.nJets);
+	Muon_nTracks05.push_back(Iso05.nTracks);
+	Muon_sumPt05.push_back(Iso05.sumPt);
+	Muon_trackerVetoPt05.push_back(Iso05.trackerVetoPt);
+      } else { // if isolation is not valid use -1 as default
+	Muon_emEt03.push_back(-1);
+	Muon_emVetoEt03.push_back(-1);
+	Muon_hadEt03.push_back(-1);
+	Muon_hadVetoEt03.push_back(-1);
+	Muon_nJets03.push_back(-1);
+	Muon_nTracks03.push_back(-1);
+	Muon_sumPt03.push_back(-1);
+	Muon_trackerVetoPt03.push_back(-1);
+
+	Muon_emEt05.push_back(-1);
+	Muon_emVetoEt05.push_back(-1);
+	Muon_hadEt05.push_back(-1);
+	Muon_hadVetoEt05.push_back(-1);
+	Muon_nJets05.push_back(-1);
+	Muon_nTracks05.push_back(-1);
+	Muon_sumPt05.push_back(-1);
+	Muon_trackerVetoPt05.push_back(-1);
+      }
+
+
+      //--- Fill PFMuonIsolation -----
+      if (RefMuon->isPFIsolationValid()) {
+	Muon_sumChargedHadronPt03.push_back(PFIso03.sumChargedHadronPt);
+	Muon_sumChargedParticlePt03.push_back(PFIso03.sumChargedParticlePt);
+	Muon_sumNeutralHadronEt03.push_back(PFIso03.sumNeutralHadronEt);
+	Muon_sumNeutralHadronEtHighThreshold03.push_back(PFIso03.sumNeutralHadronEtHighThreshold);
+	Muon_sumPhotonEt03.push_back(PFIso03.sumPhotonEt);
+	Muon_sumPhotonEtHighThreshold03.push_back(PFIso03.sumPhotonEtHighThreshold);
+	Muon_sumPUPt03.push_back(PFIso03.sumPUPt);
+
+	Muon_sumChargedHadronPt04.push_back(PFIso04.sumChargedHadronPt);
+	Muon_sumChargedParticlePt04.push_back(PFIso04.sumChargedParticlePt);
+	Muon_sumNeutralHadronEt04.push_back(PFIso04.sumNeutralHadronEt);
+	Muon_sumNeutralHadronEtHighThreshold04.push_back(PFIso04.sumNeutralHadronEtHighThreshold);
+	Muon_sumPhotonEt04.push_back(PFIso04.sumPhotonEt);
+	Muon_sumPhotonEtHighThreshold04.push_back(PFIso04.sumPhotonEtHighThreshold);
+	Muon_sumPUPt04.push_back(PFIso04.sumPUPt);
+      } else { // if isolation is not valid use -1 as default
+	Muon_sumChargedHadronPt03.push_back(-1);
+	Muon_sumChargedParticlePt03.push_back(-1);
+	Muon_sumNeutralHadronEt03.push_back(-1);
+	Muon_sumNeutralHadronEtHighThreshold03.push_back(-1);
+	Muon_sumPhotonEt03.push_back(-1);
+	Muon_sumPhotonEtHighThreshold03.push_back(-1);
+	Muon_sumPUPt03.push_back(-1);
+
+	Muon_sumChargedHadronPt04.push_back(-1);
+	Muon_sumChargedParticlePt04.push_back(-1);
+	Muon_sumNeutralHadronEt04.push_back(-1);
+	Muon_sumNeutralHadronEtHighThreshold04.push_back(-1);
+	Muon_sumPhotonEt04.push_back(-1);
+	Muon_sumPhotonEtHighThreshold04.push_back(-1);
+	Muon_sumPUPt04.push_back(-1);
+      }
+
+
+      ///////////////////////////////////// Muon Combined Quality /////////////////////////////////////////////////////////////////////////////////////
+      //   find more about combined Muon quality in http://cmsdoxygen.web.cern.ch/cmsdoxygen/CMSSW_9_4_4/doc/html/d4/d52/structreco_1_1MuonQuality.html
+      Muon_combinedQuality_updatedSta.push_back(RefMuon->combinedQuality().updatedSta);
+      Muon_combinedQuality_trkKink.push_back(RefMuon->combinedQuality().trkKink);
+      Muon_combinedQuality_glbKink.push_back(RefMuon->combinedQuality().glbKink);
+      Muon_combinedQuality_trkRelChi2.push_back(RefMuon->combinedQuality().trkRelChi2);
+      Muon_combinedQuality_staRelChi2.push_back(RefMuon->combinedQuality().staRelChi2);
+      Muon_combinedQuality_chi2LocalPosition.push_back(RefMuon->combinedQuality().chi2LocalPosition);
+      Muon_combinedQuality_chi2LocalMomentum.push_back(RefMuon->combinedQuality().chi2LocalMomentum);
+      Muon_combinedQuality_localDistance.push_back(RefMuon->combinedQuality().localDistance);
+      Muon_combinedQuality_globalDeltaEtaPhi.push_back(RefMuon->combinedQuality().globalDeltaEtaPhi);
+      Muon_combinedQuality_tightMatch.push_back(RefMuon->combinedQuality().tightMatch);
+      Muon_combinedQuality_glbTrackProbability.push_back(RefMuon->combinedQuality().glbTrackProbability);
+
+      Muon_calEnergy_em.push_back(RefMuon->calEnergy().em);
+      Muon_calEnergy_emS9.push_back(RefMuon->calEnergy().emS9);
+      Muon_calEnergy_emS25.push_back(RefMuon->calEnergy().emS25);
+      Muon_calEnergy_had.push_back(RefMuon->calEnergy().had);
+      Muon_calEnergy_hadS9.push_back(RefMuon->calEnergy().hadS9);
+
+      Muon_segmentCompatibility.push_back(muon::segmentCompatibility(*RefMuon));
+      Muon_caloCompatibility.push_back(muon::caloCompatibility(*RefMuon));
+
+      Muon_ptErrOverPt.push_back(RefMuon->muonBestTrack()->ptError()/RefMuon->muonBestTrack()->pt());
+     
+      Muon_isGoodMuon_TM2DCompatibility.push_back(muon::isGoodMuon(*RefMuon, muon::TM2DCompatibilityTight));
+      Muon_isGoodMuon_TrackerMuonArbitrated.push_back(muon::isGoodMuon(*RefMuon,muon::TrackerMuonArbitrated));
+      Muon_isGoodMuon_TMOneStationTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMOneStationTight));
+      Muon_isGoodMuon_TMOneStationAngTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMOneStationAngTight));
+      Muon_isGoodMuon_TMLastStationTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMLastStationTight));
+      Muon_isGoodMuon_TMLastStationAngTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMLastStationAngTight));
+      Muon_isGoodMuon_TMLastStationOptimizedLowPtTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMLastStationOptimizedLowPtTight));
+      Muon_isGoodMuon_TMLastStationOptimizedBarrelLowPtTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMLastStationOptimizedBarrelLowPtTight));
+
+
+      reco::TrackRef Track = RefMuon->track();
+      int ntp = Muon_par.size();
+      Muon_par.push_back(std::vector<double>());
+      Muon_cov.push_back(std::vector<double>());
+      if (Track.isNonnull()) {
+	GlobalPoint pvpoint(Track->vx(), Track->vy(), Track->vz());
+	edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
+	iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transTrackBuilder);
+	reco::TransientTrack transTrk = transTrackBuilder->build(Track);
+	TrackParticle trackparticle = ParticleBuilder::CreateTrackParticle(transTrk, transTrackBuilder, pvpoint, true, true);
+	Muon_trackCharge.push_back(trackparticle.Charge());
+	Muon_pdgid.push_back(trackparticle.PDGID());
+	Muon_B.push_back(trackparticle.BField());
+	Muon_M.push_back(trackparticle.Mass());
+	for (int i = 0; i < trackparticle.NParameters(); i++) {
+	  Muon_par.at(ntp).push_back(trackparticle.Parameter(i));
+	  for (int j = i; j < trackparticle.NParameters(); j++) {
+	    Muon_cov.at(ntp).push_back(trackparticle.Covariance(i, j));
+	  }
+	}
+      } else {
+	Muon_trackCharge.push_back(-999);
+	Muon_pdgid.push_back(-999);
+	Muon_B.push_back(-999);
+	Muon_M.push_back(-999);
+      }
+
+      int match;
+      getTrackMatch(trackCollection, Track, match);
+      Muon_Track_idx.push_back(match);
+    }
+  }
+}
+
+void 
+T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+if (!iEvent.isRealData())
+  {
+  Handle<vector<PileupSummaryInfo> >  PupInfo;
+  iEvent.getByToken(puToken_, PupInfo);
+  puN = PupInfo->begin()->getTrueNumInteractions();
+  }
+}
+
+int
+T3MNtuple::fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+  return 0;
+
+}
+
+
+void T3MNtuple::fillBTagJets(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+
+  Handle<JetTagCollection> btagsCvsB;
+  iEvent.getByToken(btagCvsBToken_, btagsCvsB);
+  Handle<JetTagCollection> btagsCSV;
+  iEvent.getByToken(btagCSVToken_, btagsCSV);
+  Handle<JetTagCollection> btagsMVA;
+  iEvent.getByToken(btagMVAToken_, btagsMVA);
+  for(size_t j = 0 ; j < btagsCvsB->size(); j++) {
+    const JetTag & btag1 = (*btagsCvsB)[j];
+    std::vector<double> iJet_p4;
+    iJet_p4.push_back(btag1.first->p4().e());
+    iJet_p4.push_back(btag1.first->p4().px());
+    iJet_p4.push_back(btag1.first->p4().py());
+    iJet_p4.push_back(btag1.first->p4().pz());
+    Jet_p4.push_back(iJet_p4);
+    jet_pt[njet20] = btag1.first->pt();
+    Jet_BTagCVSB.push_back(btag1.second);
+    const JetTag & btag2 = (*btagsMVA)[j];
+    Jet_BTagMVA.push_back(btag2.second);
+    const JetTag & btag3 = (*btagsCSV)[j];
+    Jet_BTagCSV.push_back(btag3.second<0 ? 0:btag3.second);
+  }
+}
+
+
+int
+T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+
+  Handle<trigger::TriggerEvent> triggerSummary;
+  iEvent.getByToken(trigeventToken_, triggerSummary);
+
+  std::vector<std::vector<unsigned int> > PreselectedThreeMuonsCollection;
+  std::vector<std::vector<unsigned int> > ThreeMuons_idx;
+  PreselectedThreeMuonsCollection = findThreeMuonsCandidates(iEvent, iSetup);
+  if(PreselectedThreeMuonsCollection.size()==0){
+    return 0;            //No three muons candidate found! Skip the event
+  }
+  Handle<MuonCollection> muonCollection;
+  iEvent.getByToken(muonToken_, muonCollection);
+  for ( auto &iThreeMuon :  PreselectedThreeMuonsCollection ) {
+    vector<TransientTrack> t_trks;   
+    ESHandle<TransientTrackBuilder> theB;
+    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+    reco::MuonRef Muon1(muonCollection, iThreeMuon.at(0));
+    reco::MuonRef Muon2(muonCollection, iThreeMuon.at(1));
+    reco::MuonRef Muon3(muonCollection, iThreeMuon.at(2));
+
+    TrackRef track1 = Muon1->globalTrack();
+    TrackRef track2 = Muon2->globalTrack();
+    TrackRef track3 = Muon3->globalTrack();
+    t_trks.push_back(theB->build(track1));
+    t_trks.push_back(theB->build(track2));
+    t_trks.push_back(theB->build(track3));
+    KalmanVertexFitter kvf;
+    TransientVertex fv = kvf.vertex(t_trks);
+
+    if(fv.isValid()){
+      ThreeMuons_idx.push_back(iThreeMuon);
+       for ( auto &iMuon :  iThreeMuon ) {
+      	float match;
+	reco::MuonRef MuonTriggMatch(muonCollection, iMuon);
+	TriggerMatch(triggerSummary,  MuonTriggMatch , TriggerMuonMatchingdr_, match);
+	//  fill dr matching here
+       }
+      //      ThreeMuons_SV_Chi2.push_back(fv.totalChiSquared());
+      //      ThreeMuons_SV_NDF.push_back(fv.totalChiSquared());
+    }
+  }
+
+
+  return ThreeMuons_idx.size();
+}
+
+template<class T>
+void T3MNtuple::TriggerMatch(edm::Handle<trigger::TriggerEvent> &triggerSummary,  T obj, double drmax, float &match) {
+  match = 999.;
+  std::vector<trigger::TriggerObject> trgobjs = triggerSummary->getObjects();
+  edm::InputTag MuonFilterTag = edm::InputTag("hltTau3muTkVertexFilter", "", "HLT"); 
+  size_t MuonFilterIndex = (*triggerSummary).filterIndex(MuonFilterTag); 
+  if(MuonFilterIndex < (*triggerSummary).sizeFilters()) {
+    const trigger::Keys &KEYS = (*triggerSummary).filterKeys(MuonFilterIndex);
+    for (unsigned int ipart = 0; ipart < KEYS.size(); ipart++) {
+      double dr = reco::deltaR(trgobjs.at(KEYS.at(ipart)).eta(), trgobjs.at(KEYS.at(ipart)).phi(), obj->eta(), obj->phi());
+      if (dr < drmax) {
+	match = dr;
+      }
+    }
+  }
+}
+
+
+
+std::vector<std::vector<unsigned int> > 
+T3MNtuple::findThreeMuonsCandidates(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+  BeamSpot bs;
+  Handle<BeamSpot> beamSpotHandle;
+  iEvent.getByToken(bsToken_, beamSpotHandle);
+  bs = *beamSpotHandle;
+
+  Handle<TrackCollection> trackCollection;
+  iEvent.getByToken(trackToken_, trackCollection);
+
+  Handle<MuonCollection> muonCollection;
+  iEvent.getByToken(muonToken_, muonCollection);
+  int Muon_index = 0;
+  std::vector<unsigned int> preselected_muon_idx;
+  std::vector<std::vector<unsigned int> > ThreeMuonsCollection;
+  for (reco::MuonCollection::const_iterator iMuon = muonCollection->begin(); iMuon != muonCollection->end(); ++iMuon, Muon_index++) {
+    reco::MuonRef RefMuon(muonCollection, Muon_index);
+    if((RefMuon->pt() < MuonPtCut_) || (abs(RefMuon->eta()) > MuonEtaCut_)) continue;
+    if(RefMuon->isPFMuon() && RefMuon->isGlobalMuon()) preselected_muon_idx.push_back(Muon_index);
+  }
+  if(preselected_muon_idx.size() > 2){
+    for(size_t i = 0; i < preselected_muon_idx.size()-1; ++ i){
+      std::vector<unsigned int> dump_index;
+      reco::MuonRef  Muon1(muonCollection, i);
+      for(size_t j = i+1; j < preselected_muon_idx.size(); ++ j){
+	reco::MuonRef  Muon2(muonCollection, j);
+	
+	double dz_12 = abs(Muon2->innerTrack()->dz(beamSpotHandle->position())-Muon1->innerTrack()->dz(beamSpotHandle->position()));  //   Check that two muons are 
+	double dr_12 = deltaR(Muon1->eta(), Muon1->phi(), Muon2->eta(), Muon2->phi());                                                //   not far from each other
+	
+	//	if(dz_12>0.5 ||  dr_12>0.8)continue; // - to be checked
+	//	dump_index.push_back(i);dump_index.push_back(j);
+	if(j<preselected_muon_idx.size()-1){
+	  for(size_t k = j+1; k < preselected_muon_idx.size(); ++ k){
+	    reco::MuonRef  Muon3(muonCollection, k);
+	    
+	    size_t number_of_muons_pt2p5 = 0;
+	    if(Muon1->pt()>2.5)number_of_muons_pt2p5++;
+	    if(Muon2->pt()>2.5)number_of_muons_pt2p5++;
+	    if(Muon3->pt()>2.5)number_of_muons_pt2p5++;
+	    // if(number_of_muons_pt2p5<2)continue;  //  Not sure it is needed; Commented.
+	    
+	    double dz_23 = abs(Muon3->innerTrack()->dz(beamSpotHandle->position())-Muon2->innerTrack()->dz(beamSpotHandle->position()));
+	    double dz_31 = abs(Muon3->innerTrack()->dz(beamSpotHandle->position())-Muon1->innerTrack()->dz(beamSpotHandle->position()));
+	    double dr_23 = deltaR(Muon3->eta(), Muon3->phi(), Muon2->eta(), Muon2->phi());
+	    double dr_31 = deltaR(Muon3->eta(), Muon3->phi(), Muon1->eta(), Muon1->phi());
+	    
+	    //		if(dr_23>0.8 || dr_31>0.8)continue; // - to be checked
+	    //		if(dz_23>0.5 || dz_31>0.5)continue; // - to be checked
+	    if(abs(Muon1->charge()+Muon2->charge()+Muon3->charge())>1.1)continue;
+	    dump_index.push_back(i);
+	    dump_index.push_back(j);
+	    dump_index.push_back(k);
+	    ThreeMuonsCollection.push_back(dump_index);
+	    dump_index.clear();
+	  }
+	}
+      }
+    }
+  }
+
+  return ThreeMuonsCollection;
+}
+
+
+
+
+void T3MNtuple::fillL1(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+  gtUtil_->retrieveL1(iEvent, iSetup, algToken_);
+  const vector<pair<string, bool> > initialDecisions = gtUtil_->decisionsInitial();
+
+  if (!iEvent.isRealData())
+    {
+      //      gtUtil_->retrieveL1(iEvent, iSetup, algToken_);
+      //      const vector<pair<string, bool> > initialDecisions = gtUtil_->decisionsInitial();
+      for (size_t i_l1t = 0; i_l1t < initialDecisions.size(); i_l1t++) 
+	{
+    	  string l1tName = (initialDecisions.at(i_l1t)).first;
+	  if( l1tName == "NULL") continue;
+    
+	  if( l1tName == "L1_DoubleMu0" ) 
+	    {
+	      if( initialDecisions.at(i_l1t).second ) l1_doublemu0 = 1;
+	    }
+	  if( l1tName == "L1_TripleMu0" )
+	    {
+	      if( initialDecisions.at(i_l1t).second ) l1_triplemu0 = 1;
+	    }
+	  if( l1tName == "L1_TripleMu_5_0_0" )
+	    {
+	      if( initialDecisions.at(i_l1t).second ) l1_triplemu500 = 1;
+	    }
+	  if( l1tName == "L1_DoubleMu0er1p6_dEta_Max1p8" )
+	    {
+	      if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p6 = 1;
+	    }
+	  if( l1tName == "L1_DoubleMu0er1p6_dEta_Max1p8_OS" )
+	    {
+	      if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p6_os = 1;
+	    }
+	  if( l1tName == "L1_DoubleMu0er1p4_dEta_Max1p8_OS" ) 
+	    {
+	      if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p4_os = 1;
+	    }
+	  if( l1tName == "L1_DoubleMu_10_0_dEta_Max1p8" ) 
+	    {
+	      if( initialDecisions.at(i_l1t).second ) l1_doublemu_10_0 = 1;
+	    }
+	  if( l1tName == "L1_DoubleMu_11_4" ) 
+	    {
+	      if( initialDecisions.at(i_l1t).second ) l1_doublemu_11_4 = 1;
+	    }
+	}
+    }
+  else
+    {  // data 
+      //ESHandle<L1TUtmTriggerMenu> l1GtMenu;
+      //iSetup.get<L1TUtmTriggerMenuRcd>().get(l1GtMenu);
+      ESHandle<L1TGlobalPrescalesVetos> psAndVetos;
+      auto psRcd = iSetup.tryToGet<L1TGlobalPrescalesVetosRcd>();
+      if(psRcd) psRcd->get(psAndVetos);
+      int columnN= gtUtil_->prescaleColumn();
+
+      for (size_t i_l1t = 0; i_l1t < initialDecisions.size(); i_l1t++) {
+
+	string l1tName = (initialDecisions.at(i_l1t)).first;
+	if( l1tName == "NULL") continue;
+
+	if( l1tName == "L1_DoubleMu0" ) {
+	  if( initialDecisions.at(i_l1t).second ) l1_doublemu0 = 1;
+	  //cout<<(psAndVetos->prescale_table_)[columnN][i_l1t]<<endl;
+	}
+	if( l1tName == "L1_TripleMu0" ) {
+	  if( initialDecisions.at(i_l1t).second ) l1_triplemu0 = 1;
+	  prescale_triplemu0 = (psAndVetos->prescale_table_)[columnN][i_l1t];
+	}
+	if( l1tName == "L1_TripleMu_5_0_0" ) {
+	  if( initialDecisions.at(i_l1t).second ) l1_triplemu500 = 1;
+	  prescale_triplemu500 = (psAndVetos->prescale_table_)[columnN][i_l1t];
+	}
+	if( l1tName == "L1_DoubleMu0er1p6_dEta_Max1p8" ) {
+	  if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p6 = 1;
+	  prescale_doublemu0_eta1p6 = (psAndVetos->prescale_table_)[columnN][i_l1t];
+	}
+	if( l1tName == "L1_DoubleMu0er1p6_dEta_Max1p8_OS" ) {
+	  if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p6_os = 1;
+	  prescale_doublemu0_eta1p6_os = (psAndVetos->prescale_table_)[columnN][i_l1t];
+	}
+	if( l1tName == "L1_DoubleMu0er1p4_dEta_Max1p8_OS" ) {
+	  if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p4_os = 1;
+	  prescale_doublemu0_eta1p4_os = (psAndVetos->prescale_table_)[columnN][i_l1t];
+	}
+	if( l1tName == "L1_DoubleMu_10_0_dEta_Max1p8" ) {
+	  if( initialDecisions.at(i_l1t).second ) l1_doublemu_10_0 = 1;
+	  prescale_doublemu_10_0 = (psAndVetos->prescale_table_)[columnN][i_l1t];
+	}
+	if( l1tName == "L1_DoubleMu_11_4" ) {
+	  if( initialDecisions.at(i_l1t).second ) l1_doublemu_11_4 = 1;
+	  prescale_doublemu_11_4 = (psAndVetos->prescale_table_)[columnN][i_l1t];
+	}
+      }
+    } // data
+}
+
+
+void T3MNtuple::fillEventInfo(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+
+  Event_EventNumber = iEvent.id().event();
+  Event_RunNumber = iEvent.id().run();
+  Event_bunchCrossing = iEvent.bunchCrossing();
+  Event_orbitNumber = iEvent.orbitNumber();
+  Event_luminosityBlock = iEvent.luminosityBlock();
+  Event_isRealData = iEvent.isRealData();
+
+}
+
+void T3MNtuple::fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+  {
  
   h_step->Fill(0);
 
@@ -178,21 +749,11 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   h_step->Fill(1);
 
 
-
-
-
-
   //Handle<ValueMap<MuonShower> > muonShowerInformationValueMapH_;
   //iEvent.getByToken(MuonShowerInformationValueMapToken_, muonShowerInformationValueMapH_);
 
   //Handle<MuonCollection> badmuons;
   //iEvent.getByToken(badmuonToken_, badmuons);
-
-
-
-
-
-
 
 
   Handle<TrackCollection> trks;
@@ -1296,591 +1857,12 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     njet20 ++;
   }
 
-  output_tree->Fill();
+  output_former_tree->Fill();
   h_step->Fill(6);
-
-  
-}
-
-
-void T3MNtuple::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-  Handle<TrackCollection> trackCollection;
-  iEvent.getByToken(trackToken_, trackCollection);
-
-  std::vector<reco::Track>::const_iterator trIt  = trackCollection->begin();
-  std::vector<reco::Track>::const_iterator trEnd = trackCollection->end();
-
-  for (; trIt != trEnd; ++trIt) 
-    {
-      std::vector<double> iTrack_p4;
-      std::vector<double> iTrack_poca;
-      const reco::Track track = (*trIt);
-      if(isGoodTrack(track)){
-	iTrack_p4.push_back(sqrt(pow(track.p(),2.0) + pow(PDGInfo::pi_mass(),2.0)));
-	iTrack_p4.push_back(track.px());
-	iTrack_p4.push_back(track.py());
-	iTrack_p4.push_back(track.pz());
-	Track_p4.push_back(iTrack_p4);
-	
-	Track_normalizedChi2.push_back(track.normalizedChi2());
-	Track_numberOfValidHits.push_back(track.numberOfValidHits());
-	Track_charge.push_back(track.charge());
-	Track_dxy.push_back(track.dxy());
-	Track_dz.push_back(track.dz());
-	iTrack_poca.push_back(track.vx());
-	iTrack_poca.push_back(track.vy());
-	iTrack_poca.push_back(track.vz());
-	Track_poca.push_back(iTrack_poca);
-	
-	Track_dxyError.push_back(track.dxyError());
-	Track_dzError.push_back(track.dzError());
-      }
-    }
-}
-
-void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-  Handle<TrackCollection> trackCollection;
-  iEvent.getByToken(trackToken_, trackCollection);
-
-  Handle<MuonCollection> muonCollection;
-  iEvent.getByToken(muonToken_, muonCollection);
-  int Muon_index = 0;
-  for (reco::MuonCollection::const_iterator iMuon = muonCollection->begin(); iMuon != muonCollection->end(); ++iMuon, Muon_index++) {
-    reco::MuonRef RefMuon(muonCollection, Muon_index);
-    if((RefMuon->pt() > MuonPtCut_) || (abs(RefMuon->eta()) < MuonEtaCut_))
-    {
-      //      std::cout<<"index over all muons: "<< Muon_index << "  pt  "<< RefMuon->pt() <<"PF&Gl" <<RefMuon->isPFMuon()<< RefMuon->isGlobalMuon() << std::endl;		
-    //    if (isGoodMuon(RefMuon)) {
-      std::vector<double> iMuon_Poca;
-      iMuon_Poca.push_back(RefMuon->vx());
-      iMuon_Poca.push_back(RefMuon->vy());
-      iMuon_Poca.push_back(RefMuon->vz());
-      Muon_Poca.push_back(iMuon_Poca);
-      std::vector<double> iMuon_p4;
-      iMuon_p4.push_back(RefMuon->p4().E());
-      iMuon_p4.push_back(RefMuon->p4().Px());
-      iMuon_p4.push_back(RefMuon->p4().Py());
-      iMuon_p4.push_back(RefMuon->p4().Pz());
-      Muon_p4.push_back(iMuon_p4);
-
-      const reco::MuonIsolation Iso03 = RefMuon->isolationR03();
-      const reco::MuonIsolation Iso05 = RefMuon->isolationR05();
-
-      const reco::MuonPFIsolation PFIso03 = RefMuon->pfIsolationR03();
-      const reco::MuonPFIsolation PFIso04 = RefMuon->pfIsolationR04();
-
-      Muon_numberOfChambers.push_back(RefMuon->numberOfChambers());
-      Muon_isGlobalMuon.push_back(RefMuon->isGlobalMuon());
-      Muon_isPFMuon.push_back(RefMuon->isPFMuon());
-      Muon_isRPCMuon.push_back(RefMuon->isRPCMuon());
-      Muon_isStandAloneMuon.push_back(RefMuon->isStandAloneMuon());
-      Muon_isTrackerMuon.push_back(RefMuon->isTrackerMuon());
-      Muon_isCaloMuon.push_back(RefMuon->isCaloMuon());
-      Muon_isQualityValid.push_back(RefMuon->isQualityValid());
-      Muon_isTimeValid.push_back(RefMuon->isTimeValid());
-      Muon_isIsolationValid.push_back(RefMuon->isIsolationValid());
-      Muon_numberOfMatchedStations.push_back(RefMuon->numberOfMatchedStations());
-      Muon_numberOfMatches.push_back(RefMuon->numberOfMatches(reco::Muon::SegmentArbitration));
-      Muon_charge.push_back(RefMuon->charge());
-
-      std::vector<double> iMuon_outerTrack_p4;
-      std::vector<double> iMuon_innerTrack_p4;
-      if (RefMuon->isGlobalMuon()) {
-	Muon_normChi2.push_back(RefMuon->globalTrack()->normalizedChi2());
-	Muon_hitPattern_numberOfValidMuonHits.push_back(RefMuon->globalTrack()->hitPattern().numberOfValidMuonHits());
-	Muon_trackerLayersWithMeasurement.push_back(RefMuon->innerTrack()->hitPattern().trackerLayersWithMeasurement());
-	Muon_numberofValidPixelHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfValidPixelHits());
-	
-	iMuon_outerTrack_p4.push_back(RefMuon->outerTrack()->p());
-	iMuon_outerTrack_p4.push_back(RefMuon->outerTrack()->eta());
-	iMuon_outerTrack_p4.push_back(RefMuon->outerTrack()->phi());
-	Muon_prod_inner_outer_charge.push_back(RefMuon->outerTrack()->charge()*RefMuon->innerTrack()->charge());
-	Muon_outerTrack_normalizedChi2.push_back(RefMuon->outerTrack()->normalizedChi2());
-	Muon_outerTrack_muonStationsWithValidHits.push_back(RefMuon->outerTrack()->hitPattern().muonStationsWithValidHits());
-
-
-
-
-      } else {
-	Muon_normChi2.push_back(0);
-	Muon_hitPattern_numberOfValidMuonHits.push_back(0);
-	Muon_trackerLayersWithMeasurement.push_back(0);
-	Muon_numberofValidPixelHits.push_back(0);
-	Muon_prod_inner_outer_charge.push_back(0);
-	Muon_outerTrack_normalizedChi2.push_back(0);
-	Muon_outerTrack_muonStationsWithValidHits.push_back(0);
-      }
-
-      if (RefMuon->isTrackerMuon()) {
-	Muon_innerTrack_validFraction.push_back(RefMuon->innerTrack()->validFraction());
-	Muon_innerTrack_pixelLayersWithMeasurement.push_back(RefMuon->innerTrack()->hitPattern().pixelLayersWithMeasurement() );
-	Muon_innerTrack_numberOfValidTrackerHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfValidTrackerHits() );
-	Muon_innerTrack_numberOfLostTrackerHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfLostTrackerHits(HitPattern::TRACK_HITS) );
-	Muon_innerTrack_numberOfLostTrackerInnerHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfLostTrackerHits(HitPattern::MISSING_INNER_HITS) );
-	Muon_innerTrack_numberOfLostTrackerOuterHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfLostTrackerHits(HitPattern::MISSING_OUTER_HITS) );
-	Muon_innerTrack_normalizedChi2.push_back(RefMuon->innerTrack()->normalizedChi2() );
-
-	Muon_innerTrack_numberofValidHits.push_back(RefMuon->innerTrack()->numberOfValidHits());
-	Muon_hitPattern_pixelLayerwithMeas.push_back(RefMuon->innerTrack()->hitPattern().pixelLayersWithMeasurement());
-
-	Muon_innerTrack_quality.push_back(RefMuon->innerTrack()->quality(TrackBase::highPurity));
-	iMuon_innerTrack_p4.push_back(RefMuon->innerTrack()->p());
-	iMuon_innerTrack_p4.push_back(RefMuon->innerTrack()->eta());
-	iMuon_innerTrack_p4.push_back(RefMuon->innerTrack()->phi());
-      } else {
-	Muon_innerTrack_quality.push_back(0);
-	Muon_innerTrack_numberofValidHits.push_back(0);
-	Muon_hitPattern_pixelLayerwithMeas.push_back(0);
-	Muon_innerTrack_validFraction.push_back(0);
-	Muon_innerTrack_pixelLayersWithMeasurement.push_back(0);
-	Muon_innerTrack_numberOfValidTrackerHits.push_back(0);
-	Muon_innerTrack_numberOfLostTrackerHits.push_back(0);
-	Muon_innerTrack_numberOfLostTrackerInnerHits.push_back(0);
-	Muon_innerTrack_numberOfLostTrackerOuterHits.push_back(0);
-	Muon_innerTrack_normalizedChi2.push_back(0);
-      }
-      Muon_outerTrack_p4.push_back(iMuon_outerTrack_p4);
-      Muon_innerTrack_p4.push_back(iMuon_innerTrack_p4);
-
-
-      if (RefMuon->isIsolationValid()) {
-	Muon_emEt03.push_back(Iso03.emEt);
-	Muon_emVetoEt03.push_back(Iso03.emVetoEt);
-	Muon_hadEt03.push_back(Iso03.hadEt);
-	Muon_hadVetoEt03.push_back(Iso03.hadVetoEt);
-	Muon_nJets03.push_back(Iso03.nJets);
-	Muon_nTracks03.push_back(Iso03.nTracks);
-	Muon_sumPt03.push_back(Iso03.sumPt);
-	Muon_trackerVetoPt03.push_back(Iso03.trackerVetoPt);
-
-	Muon_emEt05.push_back(Iso05.emEt);
-	Muon_emVetoEt05.push_back(Iso05.emVetoEt);
-	Muon_hadEt05.push_back(Iso05.hadEt);
-	Muon_hadVetoEt05.push_back(Iso05.hadVetoEt);
-	Muon_nJets05.push_back(Iso05.nJets);
-	Muon_nTracks05.push_back(Iso05.nTracks);
-	Muon_sumPt05.push_back(Iso05.sumPt);
-	Muon_trackerVetoPt05.push_back(Iso05.trackerVetoPt);
-      } else { // if isolation is not valid use -1 as default
-	Muon_emEt03.push_back(-1);
-	Muon_emVetoEt03.push_back(-1);
-	Muon_hadEt03.push_back(-1);
-	Muon_hadVetoEt03.push_back(-1);
-	Muon_nJets03.push_back(-1);
-	Muon_nTracks03.push_back(-1);
-	Muon_sumPt03.push_back(-1);
-	Muon_trackerVetoPt03.push_back(-1);
-
-	Muon_emEt05.push_back(-1);
-	Muon_emVetoEt05.push_back(-1);
-	Muon_hadEt05.push_back(-1);
-	Muon_hadVetoEt05.push_back(-1);
-	Muon_nJets05.push_back(-1);
-	Muon_nTracks05.push_back(-1);
-	Muon_sumPt05.push_back(-1);
-	Muon_trackerVetoPt05.push_back(-1);
-      }
-
-
-      //--- Fill PFMuonIsolation -----
-      if (RefMuon->isPFIsolationValid()) {
-	Muon_sumChargedHadronPt03.push_back(PFIso03.sumChargedHadronPt);
-	Muon_sumChargedParticlePt03.push_back(PFIso03.sumChargedParticlePt);
-	Muon_sumNeutralHadronEt03.push_back(PFIso03.sumNeutralHadronEt);
-	Muon_sumNeutralHadronEtHighThreshold03.push_back(PFIso03.sumNeutralHadronEtHighThreshold);
-	Muon_sumPhotonEt03.push_back(PFIso03.sumPhotonEt);
-	Muon_sumPhotonEtHighThreshold03.push_back(PFIso03.sumPhotonEtHighThreshold);
-	Muon_sumPUPt03.push_back(PFIso03.sumPUPt);
-
-	Muon_sumChargedHadronPt04.push_back(PFIso04.sumChargedHadronPt);
-	Muon_sumChargedParticlePt04.push_back(PFIso04.sumChargedParticlePt);
-	Muon_sumNeutralHadronEt04.push_back(PFIso04.sumNeutralHadronEt);
-	Muon_sumNeutralHadronEtHighThreshold04.push_back(PFIso04.sumNeutralHadronEtHighThreshold);
-	Muon_sumPhotonEt04.push_back(PFIso04.sumPhotonEt);
-	Muon_sumPhotonEtHighThreshold04.push_back(PFIso04.sumPhotonEtHighThreshold);
-	Muon_sumPUPt04.push_back(PFIso04.sumPUPt);
-      } else { // if isolation is not valid use -1 as default
-	Muon_sumChargedHadronPt03.push_back(-1);
-	Muon_sumChargedParticlePt03.push_back(-1);
-	Muon_sumNeutralHadronEt03.push_back(-1);
-	Muon_sumNeutralHadronEtHighThreshold03.push_back(-1);
-	Muon_sumPhotonEt03.push_back(-1);
-	Muon_sumPhotonEtHighThreshold03.push_back(-1);
-	Muon_sumPUPt03.push_back(-1);
-
-	Muon_sumChargedHadronPt04.push_back(-1);
-	Muon_sumChargedParticlePt04.push_back(-1);
-	Muon_sumNeutralHadronEt04.push_back(-1);
-	Muon_sumNeutralHadronEtHighThreshold04.push_back(-1);
-	Muon_sumPhotonEt04.push_back(-1);
-	Muon_sumPhotonEtHighThreshold04.push_back(-1);
-	Muon_sumPUPt04.push_back(-1);
-      }
-
-
-      ///////////////////////////////////// Muon Combined Quality /////////////////////////////////////////////////////////////////////////////////////
-      //   find more about combined Muon quality in http://cmsdoxygen.web.cern.ch/cmsdoxygen/CMSSW_9_4_4/doc/html/d4/d52/structreco_1_1MuonQuality.html
-      Muon_combinedQuality_updatedSta.push_back(RefMuon->combinedQuality().updatedSta);
-      Muon_combinedQuality_trkKink.push_back(RefMuon->combinedQuality().trkKink);
-      Muon_combinedQuality_glbKink.push_back(RefMuon->combinedQuality().glbKink);
-      Muon_combinedQuality_trkRelChi2.push_back(RefMuon->combinedQuality().trkRelChi2);
-      Muon_combinedQuality_staRelChi2.push_back(RefMuon->combinedQuality().staRelChi2);
-      Muon_combinedQuality_chi2LocalPosition.push_back(RefMuon->combinedQuality().chi2LocalPosition);
-      Muon_combinedQuality_chi2LocalMomentum.push_back(RefMuon->combinedQuality().chi2LocalMomentum);
-      Muon_combinedQuality_localDistance.push_back(RefMuon->combinedQuality().localDistance);
-      Muon_combinedQuality_globalDeltaEtaPhi.push_back(RefMuon->combinedQuality().globalDeltaEtaPhi);
-      Muon_combinedQuality_tightMatch.push_back(RefMuon->combinedQuality().tightMatch);
-      Muon_combinedQuality_glbTrackProbability.push_back(RefMuon->combinedQuality().glbTrackProbability);
-
-
-      Muon_calEnergy_em.push_back(RefMuon->calEnergy().em);
-      Muon_calEnergy_emS9.push_back(RefMuon->calEnergy().emS9);
-      Muon_calEnergy_emS25.push_back(RefMuon->calEnergy().emS25);
-      Muon_calEnergy_had.push_back(RefMuon->calEnergy().had);
-      Muon_calEnergy_hadS9.push_back(RefMuon->calEnergy().hadS9);
-
-      Muon_segmentCompatibility.push_back(muon::segmentCompatibility(*RefMuon));
-      Muon_caloCompatibility.push_back(muon::caloCompatibility(*RefMuon));
-
-
-      Muon_ptErrOverPt.push_back(RefMuon->muonBestTrack()->ptError()/RefMuon->muonBestTrack()->pt());
-     
-      Muon_isGoodMuon_TM2DCompatibility.push_back(muon::isGoodMuon(*RefMuon, muon::TM2DCompatibilityTight));
-      Muon_isGoodMuon_TrackerMuonArbitrated.push_back(muon::isGoodMuon(*RefMuon,muon::TrackerMuonArbitrated));
-      Muon_isGoodMuon_TMOneStationTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMOneStationTight));
-      Muon_isGoodMuon_TMOneStationAngTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMOneStationAngTight));
-      Muon_isGoodMuon_TMLastStationTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMLastStationTight));
-      Muon_isGoodMuon_TMLastStationAngTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMLastStationAngTight));
-      Muon_isGoodMuon_TMLastStationOptimizedLowPtTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMLastStationOptimizedLowPtTight));
-      Muon_isGoodMuon_TMLastStationOptimizedBarrelLowPtTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMLastStationOptimizedBarrelLowPtTight));
-
-
-      reco::TrackRef Track = RefMuon->track();
-      int ntp = Muon_par.size();
-      Muon_par.push_back(std::vector<double>());
-      Muon_cov.push_back(std::vector<double>());
-      if (Track.isNonnull()) {
-	GlobalPoint pvpoint(Track->vx(), Track->vy(), Track->vz());
-	edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
-	iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transTrackBuilder);
-	reco::TransientTrack transTrk = transTrackBuilder->build(Track);
-	TrackParticle trackparticle = ParticleBuilder::CreateTrackParticle(transTrk, transTrackBuilder, pvpoint, true, true);
-	Muon_trackCharge.push_back(trackparticle.Charge());
-	Muon_pdgid.push_back(trackparticle.PDGID());
-	Muon_B.push_back(trackparticle.BField());
-	Muon_M.push_back(trackparticle.Mass());
-	for (int i = 0; i < trackparticle.NParameters(); i++) {
-	  Muon_par.at(ntp).push_back(trackparticle.Parameter(i));
-	  for (int j = i; j < trackparticle.NParameters(); j++) {
-	    Muon_cov.at(ntp).push_back(trackparticle.Covariance(i, j));
-	  }
-	}
-      } else {
-	Muon_trackCharge.push_back(-999);
-	Muon_pdgid.push_back(-999);
-	Muon_B.push_back(-999);
-	Muon_M.push_back(-999);
-      }
-
-      int match;
-      getTrackMatch(trackCollection, Track, match);
-      Muon_Track_idx.push_back(match);
-    }
-  }
-}
-
-void 
-T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-if (!iEvent.isRealData())
-  {
-  Handle<vector<PileupSummaryInfo> >  PupInfo;
-  iEvent.getByToken(puToken_, PupInfo);
-  puN = PupInfo->begin()->getTrueNumInteractions();
-  }
-}
-
-bool
-T3MNtuple::fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-  return true;
-
-}
-
-
-void T3MNtuple::fillBTagJets(const edm::Event& iEvent, const edm::EventSetup& iSetup){
-
-  Handle<JetTagCollection> btagsCvsB;
-  iEvent.getByToken(btagCvsBToken_, btagsCvsB);
-  Handle<JetTagCollection> btagsCSV;
-  iEvent.getByToken(btagCSVToken_, btagsCSV);
-  Handle<JetTagCollection> btagsMVA;
-  iEvent.getByToken(btagMVAToken_, btagsMVA);
-  for(size_t j = 0 ; j < btagsCvsB->size(); j++) {
-    const JetTag & btag1 = (*btagsCvsB)[j];
-    std::vector<double> iJet_p4;
-    iJet_p4.push_back(btag1.first->p4().e());
-    iJet_p4.push_back(btag1.first->p4().px());
-    iJet_p4.push_back(btag1.first->p4().py());
-    iJet_p4.push_back(btag1.first->p4().pz());
-    Jet_p4.push_back(iJet_p4);
-    jet_pt[njet20] = btag1.first->pt();
-    Jet_BTagCVSB.push_back(btag1.second);
-    const JetTag & btag2 = (*btagsMVA)[j];
-    Jet_BTagMVA.push_back(btag2.second);
-    const JetTag & btag3 = (*btagsCSV)[j];
-    Jet_BTagCSV.push_back(btag3.second<0 ? 0:btag3.second);
-  }
-}
-
-
-bool 
-T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup){
-
-  Handle<trigger::TriggerEvent> triggerSummary;
-  iEvent.getByToken(trigeventToken_, triggerSummary);
-
-  std::vector<std::vector<unsigned int> > PreselectedThreeMuonsCollection;
-  std::vector<std::vector<unsigned int> > ThreeMuons_idx;
-  PreselectedThreeMuonsCollection = findThreeMuonsCandidates(iEvent, iSetup);
-  if(PreselectedThreeMuonsCollection.size()==0){
-    return false;            //No three muons candidate found! Skip the event
-  }
-  Handle<MuonCollection> muonCollection;
-  iEvent.getByToken(muonToken_, muonCollection);
-  for ( auto &iThreeMuon :  PreselectedThreeMuonsCollection ) {
-    vector<TransientTrack> t_trks;   
-    ESHandle<TransientTrackBuilder> theB;
-    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
-    reco::MuonRef Muon1(muonCollection, iThreeMuon.at(0));
-    reco::MuonRef Muon2(muonCollection, iThreeMuon.at(1));
-    reco::MuonRef Muon3(muonCollection, iThreeMuon.at(2));
-
-    TrackRef track1 = Muon1->globalTrack();
-    TrackRef track2 = Muon2->globalTrack();
-    TrackRef track3 = Muon3->globalTrack();
-    t_trks.push_back(theB->build(track1));
-    t_trks.push_back(theB->build(track2));
-    t_trks.push_back(theB->build(track3));
-    KalmanVertexFitter kvf;
-    TransientVertex fv = kvf.vertex(t_trks);
-
-    if(fv.isValid()){
-      ThreeMuons_idx.push_back(iThreeMuon);
-       for ( auto &iMuon :  iThreeMuon ) {
-      	float match;
-	reco::MuonRef MuonTriggMatch(muonCollection, iMuon);
-	TriggerMatch(triggerSummary,  MuonTriggMatch , TriggerMuonMatchingdr_, match);
-	//  fill dr matching here
-       }
-      //      ThreeMuons_SV_Chi2.push_back(fv.totalChiSquared());
-      //      ThreeMuons_SV_NDF.push_back(fv.totalChiSquared());
-    }
-  }
-
-
-  return true;
-}
-
-template<class T>
-void T3MNtuple::TriggerMatch(edm::Handle<trigger::TriggerEvent> &triggerSummary,  T obj, double drmax, float &match) {
-  match = 999.;
-  std::vector<trigger::TriggerObject> trgobjs = triggerSummary->getObjects();
-  edm::InputTag MuonFilterTag = edm::InputTag("hltTau3muTkVertexFilter", "", "HLT"); 
-  size_t MuonFilterIndex = (*triggerSummary).filterIndex(MuonFilterTag); 
-  if(MuonFilterIndex < (*triggerSummary).sizeFilters()) {
-    const trigger::Keys &KEYS = (*triggerSummary).filterKeys(MuonFilterIndex);
-    for (unsigned int ipart = 0; ipart < KEYS.size(); ipart++) {
-      double dr = reco::deltaR(trgobjs.at(KEYS.at(ipart)).eta(), trgobjs.at(KEYS.at(ipart)).phi(), obj->eta(), obj->phi());
-      if (dr < drmax) {
-	match = dr;
-      }
-    }
-  }
 }
 
 
 
-std::vector<std::vector<unsigned int> > 
-T3MNtuple::findThreeMuonsCandidates(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-  BeamSpot bs;
-  Handle<BeamSpot> beamSpotHandle;
-  iEvent.getByToken(bsToken_, beamSpotHandle);
-  bs = *beamSpotHandle;
-
-  Handle<TrackCollection> trackCollection;
-  iEvent.getByToken(trackToken_, trackCollection);
-
-  Handle<MuonCollection> muonCollection;
-  iEvent.getByToken(muonToken_, muonCollection);
-  int Muon_index = 0;
-  std::vector<unsigned int> preselected_muon_idx;
-  std::vector<std::vector<unsigned int> > ThreeMuonsCollection;
-  for (reco::MuonCollection::const_iterator iMuon = muonCollection->begin(); iMuon != muonCollection->end(); ++iMuon, Muon_index++) {
-    reco::MuonRef RefMuon(muonCollection, Muon_index);
-    if((RefMuon->pt() < MuonPtCut_) || (abs(RefMuon->eta()) > MuonEtaCut_)) continue;
-    if(RefMuon->isPFMuon() && RefMuon->isGlobalMuon()) preselected_muon_idx.push_back(Muon_index);
-  }
-  if(preselected_muon_idx.size() > 2){
-    for(size_t i = 0; i < preselected_muon_idx.size()-1; ++ i){
-      std::vector<unsigned int> dump_index;
-      reco::MuonRef  Muon1(muonCollection, i);
-      for(size_t j = i+1; j < preselected_muon_idx.size(); ++ j){
-	reco::MuonRef  Muon2(muonCollection, j);
-	
-	double dz_12 = abs(Muon2->innerTrack()->dz(beamSpotHandle->position())-Muon1->innerTrack()->dz(beamSpotHandle->position()));  //   Check that two muons are 
-	double dr_12 = deltaR(Muon1->eta(), Muon1->phi(), Muon2->eta(), Muon2->phi());                                                //   not far from each other
-	
-	//	if(dz_12>0.5 ||  dr_12>0.8)continue; // - to be checked
-	//	dump_index.push_back(i);dump_index.push_back(j);
-	if(j<preselected_muon_idx.size()-1){
-	  for(size_t k = j+1; k < preselected_muon_idx.size(); ++ k){
-	    reco::MuonRef  Muon3(muonCollection, k);
-	    
-	    size_t number_of_muons_pt2p5 = 0;
-	    if(Muon1->pt()>2.5)number_of_muons_pt2p5++;
-	    if(Muon2->pt()>2.5)number_of_muons_pt2p5++;
-	    if(Muon3->pt()>2.5)number_of_muons_pt2p5++;
-	    // if(number_of_muons_pt2p5<2)continue;  //  Not sure it is needed; Commented.
-	    
-	    double dz_23 = abs(Muon3->innerTrack()->dz(beamSpotHandle->position())-Muon2->innerTrack()->dz(beamSpotHandle->position()));
-	    double dz_31 = abs(Muon3->innerTrack()->dz(beamSpotHandle->position())-Muon1->innerTrack()->dz(beamSpotHandle->position()));
-	    double dr_23 = deltaR(Muon3->eta(), Muon3->phi(), Muon2->eta(), Muon2->phi());
-	    double dr_31 = deltaR(Muon3->eta(), Muon3->phi(), Muon1->eta(), Muon1->phi());
-	    
-	    //		if(dr_23>0.8 || dr_31>0.8)continue; // - to be checked
-	    //		if(dz_23>0.5 || dz_31>0.5)continue; // - to be checked
-	    if(abs(Muon1->charge()+Muon2->charge()+Muon3->charge())>1.1)continue;
-	    dump_index.push_back(i);
-	    dump_index.push_back(j);
-	    dump_index.push_back(k);
-	    ThreeMuonsCollection.push_back(dump_index);
-	    dump_index.clear();
-	  }
-	}
-      }
-    }
-  }
-
-  return ThreeMuonsCollection;
-}
-
-
-
-
-void T3MNtuple::fillL1(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-  gtUtil_->retrieveL1(iEvent, iSetup, algToken_);
-  const vector<pair<string, bool> > initialDecisions = gtUtil_->decisionsInitial();
-
-  if (!iEvent.isRealData())
-    {
-      //      gtUtil_->retrieveL1(iEvent, iSetup, algToken_);
-      //      const vector<pair<string, bool> > initialDecisions = gtUtil_->decisionsInitial();
-      for (size_t i_l1t = 0; i_l1t < initialDecisions.size(); i_l1t++) 
-	{
-    	  string l1tName = (initialDecisions.at(i_l1t)).first;
-	  if( l1tName == "NULL") continue;
-    
-	  if( l1tName == "L1_DoubleMu0" ) 
-	    {
-	      if( initialDecisions.at(i_l1t).second ) l1_doublemu0 = 1;
-	    }
-	  if( l1tName == "L1_TripleMu0" )
-	    {
-	      if( initialDecisions.at(i_l1t).second ) l1_triplemu0 = 1;
-	    }
-	  if( l1tName == "L1_TripleMu_5_0_0" )
-	    {
-	      if( initialDecisions.at(i_l1t).second ) l1_triplemu500 = 1;
-	    }
-	  if( l1tName == "L1_DoubleMu0er1p6_dEta_Max1p8" )
-	    {
-	      if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p6 = 1;
-	    }
-	  if( l1tName == "L1_DoubleMu0er1p6_dEta_Max1p8_OS" )
-	    {
-	      if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p6_os = 1;
-	    }
-	  if( l1tName == "L1_DoubleMu0er1p4_dEta_Max1p8_OS" ) 
-	    {
-	      if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p4_os = 1;
-	    }
-	  if( l1tName == "L1_DoubleMu_10_0_dEta_Max1p8" ) 
-	    {
-	      if( initialDecisions.at(i_l1t).second ) l1_doublemu_10_0 = 1;
-	    }
-	  if( l1tName == "L1_DoubleMu_11_4" ) 
-	    {
-	      if( initialDecisions.at(i_l1t).second ) l1_doublemu_11_4 = 1;
-	    }
-	}
-    }
-  else
-    {  // data 
-      //ESHandle<L1TUtmTriggerMenu> l1GtMenu;
-      //iSetup.get<L1TUtmTriggerMenuRcd>().get(l1GtMenu);
-      ESHandle<L1TGlobalPrescalesVetos> psAndVetos;
-      auto psRcd = iSetup.tryToGet<L1TGlobalPrescalesVetosRcd>();
-      if(psRcd) psRcd->get(psAndVetos);
-      int columnN= gtUtil_->prescaleColumn();
-
-      for (size_t i_l1t = 0; i_l1t < initialDecisions.size(); i_l1t++) {
-
-	string l1tName = (initialDecisions.at(i_l1t)).first;
-	if( l1tName == "NULL") continue;
-
-	if( l1tName == "L1_DoubleMu0" ) {
-	  if( initialDecisions.at(i_l1t).second ) l1_doublemu0 = 1;
-	  //cout<<(psAndVetos->prescale_table_)[columnN][i_l1t]<<endl;
-	}
-	if( l1tName == "L1_TripleMu0" ) {
-	  if( initialDecisions.at(i_l1t).second ) l1_triplemu0 = 1;
-	  prescale_triplemu0 = (psAndVetos->prescale_table_)[columnN][i_l1t];
-	}
-	if( l1tName == "L1_TripleMu_5_0_0" ) {
-	  if( initialDecisions.at(i_l1t).second ) l1_triplemu500 = 1;
-	  prescale_triplemu500 = (psAndVetos->prescale_table_)[columnN][i_l1t];
-	}
-	if( l1tName == "L1_DoubleMu0er1p6_dEta_Max1p8" ) {
-	  if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p6 = 1;
-	  prescale_doublemu0_eta1p6 = (psAndVetos->prescale_table_)[columnN][i_l1t];
-	}
-	if( l1tName == "L1_DoubleMu0er1p6_dEta_Max1p8_OS" ) {
-	  if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p6_os = 1;
-	  prescale_doublemu0_eta1p6_os = (psAndVetos->prescale_table_)[columnN][i_l1t];
-	}
-	if( l1tName == "L1_DoubleMu0er1p4_dEta_Max1p8_OS" ) {
-	  if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p4_os = 1;
-	  prescale_doublemu0_eta1p4_os = (psAndVetos->prescale_table_)[columnN][i_l1t];
-	}
-	if( l1tName == "L1_DoubleMu_10_0_dEta_Max1p8" ) {
-	  if( initialDecisions.at(i_l1t).second ) l1_doublemu_10_0 = 1;
-	  prescale_doublemu_10_0 = (psAndVetos->prescale_table_)[columnN][i_l1t];
-	}
-	if( l1tName == "L1_DoubleMu_11_4" ) {
-	  if( initialDecisions.at(i_l1t).second ) l1_doublemu_11_4 = 1;
-	  prescale_doublemu_11_4 = (psAndVetos->prescale_table_)[columnN][i_l1t];
-	}
-      }
-    } // data
-}
-
-
-void T3MNtuple::fillEventInfo(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-
-  Event_EventNumber = iEvent.id().event();
-  Event_RunNumber = iEvent.id().run();
-  Event_bunchCrossing = iEvent.bunchCrossing();
-  Event_orbitNumber = iEvent.orbitNumber();
-  Event_luminosityBlock = iEvent.luminosityBlock();
-  Event_isRealData = iEvent.isRealData();
-
-}
 
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -1894,8 +1876,220 @@ T3MNtuple::beginJob()
   Service<TFileService> fs;
   h_n3mu = fs->make<TH1F>("n3mu", "", 10, 0, 10);
   h_step = fs->make<TH1F>("step", "", 10, 0, 10);
-  output_tree = fs->make<TTree>("data", "");
+  output_former_tree = fs->make<TTree>("ft3mtree", "");
 
+
+  //output_tree->Branch("filterbadGlbMuon", &filterbadGlbMuon, "filterbadGlbMuon/D");
+  output_former_tree->Branch("gen_flavor", &gen_flavor, "gen_flavor/D");
+  output_former_tree->Branch("nmu_mom", &nmu_mom, "nmu_mom/D");
+  output_former_tree->Branch("hlt_doublemu4_lmnrt", &hlt_doublemu4_lmnrt, "hlt_doublemu4_lmnrt/D");
+  output_former_tree->Branch("hlt_doublemu3_tau3mu", &hlt_doublemu3_tau3mu, "hlt_doublemu3_tau3mu/D");
+  output_former_tree->Branch("l1_triplemu0", &l1_triplemu0, "l1_triplemu0/D");
+  output_former_tree->Branch("l1_doublemu0", &l1_doublemu0, "l1_doublemu0/D");
+  output_former_tree->Branch("l1_doublemu0_eta1p6_os", &l1_doublemu0_eta1p6_os, "l1_doublemu0_eta1p6_os/D");
+  output_former_tree->Branch("l1_doublemu0_eta1p4_os", &l1_doublemu0_eta1p4_os, "l1_doublemu0_eta1p4_os/D");
+  output_former_tree->Branch("l1_doublemu0_eta1p6", &l1_doublemu0_eta1p6, "l1_doublemu0_eta1p6/D");
+  output_former_tree->Branch("l1_doublemu_10_0", &l1_doublemu_10_0, "l1_doublemu_10_0/D");
+  output_former_tree->Branch("l1_doublemu_11_4", &l1_doublemu_11_4, "l1_doublemu_11_4/D");
+  output_former_tree->Branch("l1_triplemu500", &l1_triplemu500, "l1_triplemu500/D");
+  output_former_tree->Branch("prescale_triplemu0", &prescale_triplemu0, "prescale_triplemu0/D");
+  output_former_tree->Branch("prescale_doublemu0_eta1p6", &prescale_doublemu0_eta1p6, "prescale_doublemu0_eta1p6/D");
+  output_former_tree->Branch("prescale_doublemu_10_0", &prescale_doublemu_10_0, "prescale_doublemu_10_0/D");
+  output_former_tree->Branch("prescale_triplemu500", &prescale_triplemu500, "prescale_triplemu500/D");
+  output_former_tree->Branch("prescale_doublemu0_eta1p6_os", &prescale_doublemu0_eta1p6_os, "prescale_doublemu0_eta1p6_os/D");
+  output_former_tree->Branch("prescale_doublemu0_eta1p4_os", &prescale_doublemu0_eta1p4_os, "prescale_doublemu0_eta1p4_os/D");
+  output_former_tree->Branch("prescale_doublemu_11_4", &prescale_doublemu_11_4, "prescale_doublemu_11_4/D");
+  output_former_tree->Branch("n_reco", &n_reco, "n_reco/I");
+  output_former_tree->Branch("ifar", &ifar, "ifar/I");
+  output_former_tree->Branch("ipv_gen", &ipv_gen, "ipv_gen/I");
+  output_former_tree->Branch("ipv1", &ipv1, "ipv1/I");
+  output_former_tree->Branch("ipv2", &ipv2, "ipv2/I");
+  output_former_tree->Branch("pdgid_reco", pdgid_reco, "pdgid_reco[3]/D");
+  output_former_tree->Branch("momid_reco", momid_reco, "momid_reco[3]/D");
+  output_former_tree->Branch("vxy_reco", vxy_reco, "vxy_reco[3]/D");
+  output_former_tree->Branch("n_vtx", &n_vtx, "n_vtx/D");
+  output_former_tree->Branch("trigmat_reco", trigmat_reco, "trigmat_reco[3]/D");
+  output_former_tree->Branch("trigmat_new", &trigmat_new, "trigmat_new/D");
+  output_former_tree->Branch("p_reco", p_reco, "p_reco[3]/D");
+  output_former_tree->Branch("pt_reco", pt_reco, "pt_reco[3]/D");
+  output_former_tree->Branch("pt_max", &pt_max, "pt_max/D");
+  output_former_tree->Branch("pt_min", &pt_min, "pt_min/D");
+  output_former_tree->Branch("eta_reco", eta_reco, "eta_reco[3]/D");
+  output_former_tree->Branch("eta_min", &eta_min, "eta_min/D");
+  output_former_tree->Branch("eta_max", &eta_max, "eta_max/D");
+  output_former_tree->Branch("phi_reco", phi_reco, "phi_reco[3]/D");
+  output_former_tree->Branch("p_in", p_in, "p_in[3]/D");
+  output_former_tree->Branch("eta_in", eta_in, "eta_in[3]/D");
+  output_former_tree->Branch("phi_in", phi_in, "phi_in[3]/D");
+  output_former_tree->Branch("p_out", p_out, "p_out[3]/D");
+  output_former_tree->Branch("eta_out", eta_out, "eta_out[3]/D");
+  output_former_tree->Branch("phi_out", phi_out, "phi_out[3]/D");
+  output_former_tree->Branch("p_glb", p_glb, "p_glb[3]/D");
+  output_former_tree->Branch("eta_glb", eta_glb, "eta_glb[3]/D");
+  output_former_tree->Branch("phi_glb", phi_glb, "phi_glb[3]/D");
+  output_former_tree->Branch("pt3mu_reco", &pt3mu_reco, "pt3mu_reco/D");
+  output_former_tree->Branch("pt2mu_12", &pt2mu_12, "pt2mu_12/D");
+  output_former_tree->Branch("p3mu_reco", &p3mu_reco, "p3mu_reco/D");
+  output_former_tree->Branch("eta3mu_reco", &eta3mu_reco, "eta3mu_reco/D");
+  output_former_tree->Branch("m3mu_reco", &m3mu_reco, "m3mu_reco/D");
+  output_former_tree->Branch("m3mu_simp", &m3mu_simp, "m3mu_simp/D");
+  output_former_tree->Branch("m3mu_refit", &m3mu_refit, "m3mu_refit/D");
+  output_former_tree->Branch("pf_reco", pf_reco, "pf_reco[3]/D");
+  output_former_tree->Branch("rpcmu_reco", rpcmu_reco, "rpcmu_reco[3]/D");
+  output_former_tree->Branch("rpchits_reco", rpchits_reco, "rpchits_reco[3]/D");
+  output_former_tree->Branch("comp2d_reco", comp2d_reco, "comp2d_reco[3]/D");
+  output_former_tree->Branch("tma_reco", tma_reco, "tma_reco[3]/D");
+  output_former_tree->Branch("tmost_reco", tmost_reco, "tmost_reco[3]/D");
+  output_former_tree->Branch("tmosat_reco", tmosat_reco, "tmosat_reco[3]/D");
+  output_former_tree->Branch("tmlst_reco", tmlst_reco, "tmlst_reco[3]/D");
+  output_former_tree->Branch("tmlsat_reco", tmlsat_reco, "tmlsat_reco[3]/D");
+  output_former_tree->Branch("tmlsolpt_reco", tmlsolpt_reco, "tmlsolpt_reco[3]/D");
+  output_former_tree->Branch("tmlsoblpt_reco", tmlsoblpt_reco, "tmlsoblpt_reco[3]/D");
+  output_former_tree->Branch("calocomp_reco", calocomp_reco, "calocomp_reco[3]/D");
+  output_former_tree->Branch("segmcomp_reco", segmcomp_reco, "segmcomp_reco[3]/D");
+  output_former_tree->Branch("segmcomp_0", segmcomp_0, "segmcomp_0[3]/D");
+  output_former_tree->Branch("segmcomp_1", segmcomp_1, "segmcomp_1[3]/D");
+  output_former_tree->Branch("segmcomp_2", segmcomp_2, "segmcomp_2[3]/D");
+  output_former_tree->Branch("segmcomp_3", segmcomp_3, "segmcomp_3[3]/D");
+  //output_former_tree->Branch("segmcomp_4", segmcomp_4, "segmcomp_4[3]/D");
+  //output_former_tree->Branch("segmcomp_5", segmcomp_5, "segmcomp_5[3]/D");
+  //output_former_tree->Branch("segmcomp_6", segmcomp_6, "segmcomp_6[3]/D");
+  //output_former_tree->Branch("segmcomp_7", segmcomp_7, "segmcomp_7[3]/D");
+  output_former_tree->Branch("trkhp_reco", trkhp_reco, "trkhp_reco[3]/D");
+  output_former_tree->Branch("glbnC_reco", glbnC_reco, "glbnC_reco[3]/D");
+  output_former_tree->Branch("nOVMH_reco", nOVMH_reco, "nOVMH_reco[3]/D");
+  output_former_tree->Branch("nOVPH_reco", nOVPH_reco, "nOVPH_reco[3]/D");
+  output_former_tree->Branch("nOVTH_reco", nOVTH_reco, "nOVTH_reco[3]/D");
+  output_former_tree->Branch("nOLTH_reco", nOLTH_reco, "nOLTH_reco[3]/D");
+  output_former_tree->Branch("nOLTHin_reco", nOLTHin_reco, "nOLTHin_reco[3]/D");
+  output_former_tree->Branch("nOLTHout_reco", nOLTHout_reco, "nOLTHout_reco[3]/D");
+  //output_former_tree->Branch("nSCH_reco", nSCH_reco, "nSCH_reco[3]/D");
+  output_former_tree->Branch("iTvF_reco", iTvF_reco, "iTvF_reco[3]/D");
+  output_former_tree->Branch("tLWM_reco", tLWM_reco, "tLWM_reco[3]/D");
+  output_former_tree->Branch("pLWM_reco", pLWM_reco, "pLWM_reco[3]/D");
+  output_former_tree->Branch("ggm_reco", ggm_reco, "ggm_reco[3]/D");
+  output_former_tree->Branch("tgm_reco", tgm_reco, "tgm_reco[3]/D");
+  output_former_tree->Branch("pterr_reco", pterr_reco, "pterr_reco[3]/D");
+  output_former_tree->Branch("Iso_sumPt", Iso_sumPt, "Iso_sumPt[3]/D");
+  output_former_tree->Branch("Iso_nTr", Iso_nTr, "Iso_nTr[3]/D");
+  output_former_tree->Branch("Iso_emEt", Iso_emEt, "Iso_emEt[3]/D");
+  output_former_tree->Branch("Iso_hadEt", Iso_hadEt, "Iso_hadEt[3]/D");
+  output_former_tree->Branch("Iso_eVE", Iso_eVE, "Iso_eVE[3]/D");
+  output_former_tree->Branch("Iso_hVE", Iso_hVE, "Iso_hVE[3]/D");
+  output_former_tree->Branch("nOMS_reco", nOMS_reco, "nOMS_reco[3]/D");
+  output_former_tree->Branch("nOM_reco", nOM_reco, "nOM_reco[3]/D");
+  output_former_tree->Branch("mSWVH_reco", mSWVH_reco, "mSWVH_reco[3]/D");
+  output_former_tree->Branch("cschits_sta1", cschits_sta1, "cschits_sta1[3]/D");
+  output_former_tree->Branch("cscchi2_sta1", cscchi2_sta1, "cscchi2_sta1[3]/D");
+  output_former_tree->Branch("cschits_sta2", cschits_sta2, "cschits_sta2[3]/D");
+  output_former_tree->Branch("cscchi2_sta2", cscchi2_sta2, "cscchi2_sta2[3]/D");
+  output_former_tree->Branch("cscdxdz_sta1", cscdxdz_sta1, "cscdxdz_sta1[3]/D");
+  output_former_tree->Branch("cscdxdz_sta2", cscdxdz_sta2, "cscdxdz_sta2[3]/D");
+  output_former_tree->Branch("cscdydz_sta1", cscdydz_sta1, "cscdydz_sta1[3]/D");
+  output_former_tree->Branch("cscdydz_sta2", cscdydz_sta2, "cscdydz_sta2[3]/D");
+  output_former_tree->Branch("cscnsegm_sta1", cscnsegm_sta1, "cscnsegm_sta1[3]/D");
+  output_former_tree->Branch("cscnsegm_sta2", cscnsegm_sta2, "cscnsegm_sta2[3]/D");
+  output_former_tree->Branch("nOMS_min", &nOMS_min, "nOMS_min/D");
+  output_former_tree->Branch("tLWM_min", &tLWM_min, "tLWM_min/D");
+  output_former_tree->Branch("d0_reco", d0_reco, "d0_reco[3]/D");
+  output_former_tree->Branch("d0sig_reco", d0sig_reco, "d0sig_reco[3]/D");
+  output_former_tree->Branch("dz_reco", dz_reco, "dz_reco[3]/D");
+  output_former_tree->Branch("dzpv_reco", dzpv_reco, "dzpv_reco[3]/D");
+  output_former_tree->Branch("dr12_reco", &dr12_reco, "dr12_reco/D");
+  output_former_tree->Branch("dr23_reco", &dr23_reco, "dr23_reco/D");
+  output_former_tree->Branch("dr31_reco", &dr31_reco, "dr31_reco/D");
+  output_former_tree->Branch("dr_min", &dr_min, "dr_min/D");
+  output_former_tree->Branch("drtau_max", &drtau_max, "drtau_max/D");
+  output_former_tree->Branch("charge_reco", charge_reco, "charge_reco[3]/D");
+  output_former_tree->Branch("drtau_reco", drtau_reco, "drtau_reco[3]/D");
+  output_former_tree->Branch("dca12_reco", &dca12_reco, "dca12_reco/D");
+  output_former_tree->Branch("dca23_reco", &dca23_reco, "dca23_reco/D");
+  output_former_tree->Branch("dca31_reco", &dca31_reco, "dca31_reco/D");
+  output_former_tree->Branch("dca_max", &dca_max, "dca_max/D");
+  output_former_tree->Branch("trkrel_reco", trkrel_reco, "trkrel_reco[3]/D");
+  output_former_tree->Branch("trkrel_max", &trkrel_max, "trkrel_max/D");
+  output_former_tree->Branch("trkrel_tau", &trkrel_tau, "trkrel_tau/D");
+  output_former_tree->Branch("trkrel_tau05", &trkrel_tau05, "trkrel_tau05/D");
+  output_former_tree->Branch("ntrk_reco", ntrk_reco, "ntrk_reco[3]/D");
+  output_former_tree->Branch("ntrk_sum", &ntrk_sum, "ntrk_sum/D");
+  output_former_tree->Branch("ntrk_tau", &ntrk_tau, "ntrk_tau/D");
+  output_former_tree->Branch("mindca_iso", &mindca_iso, "mindca_iso/D");
+  output_former_tree->Branch("ntrk_tau05", &ntrk_tau05, "ntrk_tau05/D");
+  output_former_tree->Branch("ntrk_tau_b", &ntrk_tau_b, "ntrk_tau_b/D");
+  output_former_tree->Branch("mindca_iso05", &mindca_iso05, "mindca_iso05/D");
+  output_former_tree->Branch("fv_tC", &fv_tC, "fv_tC/D");
+  output_former_tree->Branch("fv_nC", &fv_nC, "fv_nC/D");
+  output_former_tree->Branch("fvwo_tC", fvwo_tC, "fvwo_tC[3]/D");
+  output_former_tree->Branch("fvwo_nC", fvwo_nC, "fvwo_nC[3]/D");
+  output_former_tree->Branch("fv_Prob", &fv_Prob, "fv_Prob/D");
+  output_former_tree->Branch("fv_dxy", &fv_dxy, "fv_dxy/D");
+  output_former_tree->Branch("fv_dxysig", &fv_dxysig, "fv_dxysig/D");
+  output_former_tree->Branch("fv_ppdl", &fv_ppdl, "fv_ppdl/D");
+  output_former_tree->Branch("fv_cosdphi", &fv_cosdphi, "fv_cosdphi/D");
+  output_former_tree->Branch("fv_d3D", &fv_d3D, "fv_d3D/D");
+  output_former_tree->Branch("fv_d3Dsig", &fv_d3Dsig, "fv_d3Dsig/D");
+  output_former_tree->Branch("fv_ppdl3D", &fv_ppdl3D, "fv_ppdl3D/D");
+  output_former_tree->Branch("fv_cosdphi3D", &fv_cosdphi3D, "fv_cosdphi3D/D");
+  output_former_tree->Branch("iTnC_reco", iTnC_reco, "iTnC1_reco[3]/D");
+  output_former_tree->Branch("cLP_reco", cLP_reco, "cLP_reco[3]/D");
+  output_former_tree->Branch("cLM_reco", cLM_reco, "cLM_reco[3]/D");
+  output_former_tree->Branch("tKink_reco", tKink_reco, "tKink_reco[3]/D");
+  output_former_tree->Branch("gKink_reco", gKink_reco, "gKink_reco[3]/D");
+  output_former_tree->Branch("qprod_reco", qprod_reco, "qprod_reco[3]/D");
+  output_former_tree->Branch("vmuonhitcomb_reco", vmuonhitcomb_reco, "vmuonhitcomb_reco[3]/D");
+  output_former_tree->Branch("outerchi2_reco", outerchi2_reco, "outerchi2_reco[3]/D");
+  output_former_tree->Branch("timeatipinouterr_reco", timeatipinouterr_reco, "timeatipinouterr_reco[3]/D");
+  output_former_tree->Branch("uSta_reco", uSta_reco, "uSta_reco[3]/D");
+  output_former_tree->Branch("tRC2_reco", tRC2_reco, "tRC2_reco[3]/D");
+  output_former_tree->Branch("sRC2_reco", sRC2_reco, "sRC2_reco[3]/D");
+  output_former_tree->Branch("lDist_reco", lDist_reco, "lDist_reco[3]/D");
+  output_former_tree->Branch("gDEP_reco", gDEP_reco, "gDEP_reco[3]/D");
+  output_former_tree->Branch("tMat_reco", tMat_reco, "tMat_reco[3]/D");
+  output_former_tree->Branch("gTP_reco", gTP_reco, "gTP_reco[3]/D");
+  output_former_tree->Branch("calem_reco", calem_reco, "calem_reco[3]/D");
+  output_former_tree->Branch("calemS9_reco", calemS9_reco, "calemS9_reco[3]/D");
+  output_former_tree->Branch("calemS25_reco", calemS25_reco, "calemS25_reco[3]/D");
+  output_former_tree->Branch("calhad_reco", calhad_reco, "calhad_reco[3]/D");
+  output_former_tree->Branch("calhadS9_reco", calhadS9_reco, "calhadS9_reco[3]/D");
+  output_former_tree->Branch("ddz_12", &ddz_12, "ddz_12/D");
+  output_former_tree->Branch("calomuon_3", &calomuon_3, "calomuon_3/D");
+  output_former_tree->Branch("n_sv", &n_sv, "n_sv/I");
+  output_former_tree->Branch("sv_mass", sv_mass, "sv_mass[n_sv]/D");
+  output_former_tree->Branch("sv_nmu", sv_nmu, "sv_nmu[n_sv]/D");
+  output_former_tree->Branch("sv_d3D", sv_d3D, "sv_d3D[n_sv]/D");
+  output_former_tree->Branch("sv_d3Dsig", sv_d3Dsig, "sv_d3Dsig[n_sv]/D");
+  output_former_tree->Branch("sv_ppdl3D", sv_ppdl3D, "sv_ppdl3D[n_sv]/D");
+  output_former_tree->Branch("sv_ntrk", sv_ntrk, "sv_ntrk[n_sv]/D");
+  output_former_tree->Branch("sv_pt", sv_pt, "sv_pt[n_sv]/D");
+  output_former_tree->Branch("sv_dz", sv_dz, "sv_dz[n_sv]/D");
+  output_former_tree->Branch("sv_cosdphi3D", sv_cosdphi3D, "sv_cosdphi3D[n_sv]/D");
+  output_former_tree->Branch("sv_overlap", sv_overlap, "sv_overlap[n_sv]/D");
+  output_former_tree->Branch("pv_nmu", &pv_nmu, "pv_nmu/D");
+  output_former_tree->Branch("pv1_tC", &pv1_tC, "pv1_tC/D");
+  output_former_tree->Branch("pv1_nC", &pv1_nC, "pv1_nC/D");
+  output_former_tree->Branch("pv2_tC", &pv2_tC, "pv2_tC/D");
+  output_former_tree->Branch("pv2_nC", &pv2_nC, "pv2_nC/D");
+  output_former_tree->Branch("ntrk0p1", &ntrk0p1, "ntrk0p1/D");
+  output_former_tree->Branch("ntrk0p2", &ntrk0p2, "ntrk0p2/D");
+  output_former_tree->Branch("ntrk0p5", &ntrk0p5, "ntrk0p5/D");
+  output_former_tree->Branch("maxdxy_pv0", &maxdxy_pv0, "maxdxy_pv0/D");
+  output_former_tree->Branch("njet20", &njet20, "njet20/I");
+  output_former_tree->Branch("jet_pt", jet_pt, "jet_pt[njet20]/D");
+  output_former_tree->Branch("jet_overlap", jet_overlap, "jet_overlap[njet20]/D");
+  output_former_tree->Branch("btagcvsb", btagcvsb, "btagcvsb[njet20]/D");
+  output_former_tree->Branch("btagcsv", btagcsv, "btagcsv[njet20]/D");
+  output_former_tree->Branch("btagmva", btagmva, "btagmva[njet20]/D");
+  output_former_tree->Branch("m2mu_ss", &m2mu_ss, "m2mu_ss/D");
+  output_former_tree->Branch("m2mu_os1", &m2mu_os1, "m2mu_os1/D");
+  output_former_tree->Branch("m2mu_os2", &m2mu_os2, "m2mu_os2/D");
+  output_former_tree->Branch("m2mu_12", &m2mu_12, "m2mu_12/D");
+  output_former_tree->Branch("m2mu_23", &m2mu_23, "m2mu_23/D");
+  output_former_tree->Branch("m2mu_31", &m2mu_31, "m2mu_31/D");
+  output_former_tree->Branch("m2mu_max", &m2mu_max, "m2mu_max/D");
+  output_former_tree->Branch("m2mu_min", &m2mu_min, "m2mu_min/D");
+
+
+  output_tree = fs->make<TTree>("t3mtree", "");
 
   //=============== Event Block ==============
   output_tree->Branch("Event_EventNumber", &Event_EventNumber);
@@ -1904,215 +2098,9 @@ T3MNtuple::beginJob()
   output_tree->Branch("Event_orbitNumber", &Event_orbitNumber);
   output_tree->Branch("Event_luminosityBlock", &Event_luminosityBlock);
   output_tree->Branch("Event_isRealData", &Event_isRealData);
+  output_tree->Branch("Event_nsignal_candidates", &Event_nsignal_candidates);
+  output_tree->Branch("Event_ndsphipi_candidate", &Event_ndsphipi_candidate);
   output_tree->Branch("puN", &puN, "puN/D");
-  //output_tree->Branch("filterbadGlbMuon", &filterbadGlbMuon, "filterbadGlbMuon/D");
-  output_tree->Branch("gen_flavor", &gen_flavor, "gen_flavor/D");
-  output_tree->Branch("nmu_mom", &nmu_mom, "nmu_mom/D");
-  output_tree->Branch("hlt_doublemu4_lmnrt", &hlt_doublemu4_lmnrt, "hlt_doublemu4_lmnrt/D");
-  output_tree->Branch("hlt_doublemu3_tau3mu", &hlt_doublemu3_tau3mu, "hlt_doublemu3_tau3mu/D");
-  output_tree->Branch("l1_triplemu0", &l1_triplemu0, "l1_triplemu0/D");
-  output_tree->Branch("l1_doublemu0", &l1_doublemu0, "l1_doublemu0/D");
-  output_tree->Branch("l1_doublemu0_eta1p6_os", &l1_doublemu0_eta1p6_os, "l1_doublemu0_eta1p6_os/D");
-  output_tree->Branch("l1_doublemu0_eta1p4_os", &l1_doublemu0_eta1p4_os, "l1_doublemu0_eta1p4_os/D");
-  output_tree->Branch("l1_doublemu0_eta1p6", &l1_doublemu0_eta1p6, "l1_doublemu0_eta1p6/D");
-  output_tree->Branch("l1_doublemu_10_0", &l1_doublemu_10_0, "l1_doublemu_10_0/D");
-  output_tree->Branch("l1_doublemu_11_4", &l1_doublemu_11_4, "l1_doublemu_11_4/D");
-  output_tree->Branch("l1_triplemu500", &l1_triplemu500, "l1_triplemu500/D");
-  output_tree->Branch("prescale_triplemu0", &prescale_triplemu0, "prescale_triplemu0/D");
-  output_tree->Branch("prescale_doublemu0_eta1p6", &prescale_doublemu0_eta1p6, "prescale_doublemu0_eta1p6/D");
-  output_tree->Branch("prescale_doublemu_10_0", &prescale_doublemu_10_0, "prescale_doublemu_10_0/D");
-  output_tree->Branch("prescale_triplemu500", &prescale_triplemu500, "prescale_triplemu500/D");
-  output_tree->Branch("prescale_doublemu0_eta1p6_os", &prescale_doublemu0_eta1p6_os, "prescale_doublemu0_eta1p6_os/D");
-  output_tree->Branch("prescale_doublemu0_eta1p4_os", &prescale_doublemu0_eta1p4_os, "prescale_doublemu0_eta1p4_os/D");
-  output_tree->Branch("prescale_doublemu_11_4", &prescale_doublemu_11_4, "prescale_doublemu_11_4/D");
-  output_tree->Branch("n_reco", &n_reco, "n_reco/I");
-  output_tree->Branch("ifar", &ifar, "ifar/I");
-  output_tree->Branch("ipv_gen", &ipv_gen, "ipv_gen/I");
-  output_tree->Branch("ipv1", &ipv1, "ipv1/I");
-  output_tree->Branch("ipv2", &ipv2, "ipv2/I");
-  output_tree->Branch("pdgid_reco", pdgid_reco, "pdgid_reco[3]/D");
-  output_tree->Branch("momid_reco", momid_reco, "momid_reco[3]/D");
-  output_tree->Branch("vxy_reco", vxy_reco, "vxy_reco[3]/D");
-  output_tree->Branch("n_vtx", &n_vtx, "n_vtx/D");
-  output_tree->Branch("trigmat_reco", trigmat_reco, "trigmat_reco[3]/D");
-  output_tree->Branch("trigmat_new", &trigmat_new, "trigmat_new/D");
-  output_tree->Branch("p_reco", p_reco, "p_reco[3]/D");
-  output_tree->Branch("pt_reco", pt_reco, "pt_reco[3]/D");
-  output_tree->Branch("pt_max", &pt_max, "pt_max/D");
-  output_tree->Branch("pt_min", &pt_min, "pt_min/D");
-  output_tree->Branch("eta_reco", eta_reco, "eta_reco[3]/D");
-  output_tree->Branch("eta_min", &eta_min, "eta_min/D");
-  output_tree->Branch("eta_max", &eta_max, "eta_max/D");
-  output_tree->Branch("phi_reco", phi_reco, "phi_reco[3]/D");
-  output_tree->Branch("p_in", p_in, "p_in[3]/D");
-  output_tree->Branch("eta_in", eta_in, "eta_in[3]/D");
-  output_tree->Branch("phi_in", phi_in, "phi_in[3]/D");
-  output_tree->Branch("p_out", p_out, "p_out[3]/D");
-  output_tree->Branch("eta_out", eta_out, "eta_out[3]/D");
-  output_tree->Branch("phi_out", phi_out, "phi_out[3]/D");
-  output_tree->Branch("p_glb", p_glb, "p_glb[3]/D");
-  output_tree->Branch("eta_glb", eta_glb, "eta_glb[3]/D");
-  output_tree->Branch("phi_glb", phi_glb, "phi_glb[3]/D");
-  output_tree->Branch("pt3mu_reco", &pt3mu_reco, "pt3mu_reco/D");
-  output_tree->Branch("pt2mu_12", &pt2mu_12, "pt2mu_12/D");
-  output_tree->Branch("p3mu_reco", &p3mu_reco, "p3mu_reco/D");
-  output_tree->Branch("eta3mu_reco", &eta3mu_reco, "eta3mu_reco/D");
-  output_tree->Branch("m3mu_reco", &m3mu_reco, "m3mu_reco/D");
-  output_tree->Branch("m3mu_simp", &m3mu_simp, "m3mu_simp/D");
-  output_tree->Branch("m3mu_refit", &m3mu_refit, "m3mu_refit/D");
-  output_tree->Branch("pf_reco", pf_reco, "pf_reco[3]/D");
-  output_tree->Branch("rpcmu_reco", rpcmu_reco, "rpcmu_reco[3]/D");
-  output_tree->Branch("rpchits_reco", rpchits_reco, "rpchits_reco[3]/D");
-  output_tree->Branch("comp2d_reco", comp2d_reco, "comp2d_reco[3]/D");
-  output_tree->Branch("tma_reco", tma_reco, "tma_reco[3]/D");
-  output_tree->Branch("tmost_reco", tmost_reco, "tmost_reco[3]/D");
-  output_tree->Branch("tmosat_reco", tmosat_reco, "tmosat_reco[3]/D");
-  output_tree->Branch("tmlst_reco", tmlst_reco, "tmlst_reco[3]/D");
-  output_tree->Branch("tmlsat_reco", tmlsat_reco, "tmlsat_reco[3]/D");
-  output_tree->Branch("tmlsolpt_reco", tmlsolpt_reco, "tmlsolpt_reco[3]/D");
-  output_tree->Branch("tmlsoblpt_reco", tmlsoblpt_reco, "tmlsoblpt_reco[3]/D");
-  output_tree->Branch("calocomp_reco", calocomp_reco, "calocomp_reco[3]/D");
-  output_tree->Branch("segmcomp_reco", segmcomp_reco, "segmcomp_reco[3]/D");
-  output_tree->Branch("segmcomp_0", segmcomp_0, "segmcomp_0[3]/D");
-  output_tree->Branch("segmcomp_1", segmcomp_1, "segmcomp_1[3]/D");
-  output_tree->Branch("segmcomp_2", segmcomp_2, "segmcomp_2[3]/D");
-  output_tree->Branch("segmcomp_3", segmcomp_3, "segmcomp_3[3]/D");
-  //output_tree->Branch("segmcomp_4", segmcomp_4, "segmcomp_4[3]/D");
-  //output_tree->Branch("segmcomp_5", segmcomp_5, "segmcomp_5[3]/D");
-  //output_tree->Branch("segmcomp_6", segmcomp_6, "segmcomp_6[3]/D");
-  //output_tree->Branch("segmcomp_7", segmcomp_7, "segmcomp_7[3]/D");
-  output_tree->Branch("trkhp_reco", trkhp_reco, "trkhp_reco[3]/D");
-  output_tree->Branch("glbnC_reco", glbnC_reco, "glbnC_reco[3]/D");
-  output_tree->Branch("nOVMH_reco", nOVMH_reco, "nOVMH_reco[3]/D");
-  output_tree->Branch("nOVPH_reco", nOVPH_reco, "nOVPH_reco[3]/D");
-  output_tree->Branch("nOVTH_reco", nOVTH_reco, "nOVTH_reco[3]/D");
-  output_tree->Branch("nOLTH_reco", nOLTH_reco, "nOLTH_reco[3]/D");
-  output_tree->Branch("nOLTHin_reco", nOLTHin_reco, "nOLTHin_reco[3]/D");
-  output_tree->Branch("nOLTHout_reco", nOLTHout_reco, "nOLTHout_reco[3]/D");
-  //output_tree->Branch("nSCH_reco", nSCH_reco, "nSCH_reco[3]/D");
-  output_tree->Branch("iTvF_reco", iTvF_reco, "iTvF_reco[3]/D");
-  output_tree->Branch("tLWM_reco", tLWM_reco, "tLWM_reco[3]/D");
-  output_tree->Branch("pLWM_reco", pLWM_reco, "pLWM_reco[3]/D");
-  output_tree->Branch("ggm_reco", ggm_reco, "ggm_reco[3]/D");
-  output_tree->Branch("tgm_reco", tgm_reco, "tgm_reco[3]/D");
-  output_tree->Branch("pterr_reco", pterr_reco, "pterr_reco[3]/D");
-  output_tree->Branch("Iso_sumPt", Iso_sumPt, "Iso_sumPt[3]/D");
-  output_tree->Branch("Iso_nTr", Iso_nTr, "Iso_nTr[3]/D");
-  output_tree->Branch("Iso_emEt", Iso_emEt, "Iso_emEt[3]/D");
-  output_tree->Branch("Iso_hadEt", Iso_hadEt, "Iso_hadEt[3]/D");
-  output_tree->Branch("Iso_eVE", Iso_eVE, "Iso_eVE[3]/D");
-  output_tree->Branch("Iso_hVE", Iso_hVE, "Iso_hVE[3]/D");
-  output_tree->Branch("nOMS_reco", nOMS_reco, "nOMS_reco[3]/D");
-  output_tree->Branch("nOM_reco", nOM_reco, "nOM_reco[3]/D");
-  output_tree->Branch("mSWVH_reco", mSWVH_reco, "mSWVH_reco[3]/D");
-  output_tree->Branch("cschits_sta1", cschits_sta1, "cschits_sta1[3]/D");
-  output_tree->Branch("cscchi2_sta1", cscchi2_sta1, "cscchi2_sta1[3]/D");
-  output_tree->Branch("cschits_sta2", cschits_sta2, "cschits_sta2[3]/D");
-  output_tree->Branch("cscchi2_sta2", cscchi2_sta2, "cscchi2_sta2[3]/D");
-  output_tree->Branch("cscdxdz_sta1", cscdxdz_sta1, "cscdxdz_sta1[3]/D");
-  output_tree->Branch("cscdxdz_sta2", cscdxdz_sta2, "cscdxdz_sta2[3]/D");
-  output_tree->Branch("cscdydz_sta1", cscdydz_sta1, "cscdydz_sta1[3]/D");
-  output_tree->Branch("cscdydz_sta2", cscdydz_sta2, "cscdydz_sta2[3]/D");
-  output_tree->Branch("cscnsegm_sta1", cscnsegm_sta1, "cscnsegm_sta1[3]/D");
-  output_tree->Branch("cscnsegm_sta2", cscnsegm_sta2, "cscnsegm_sta2[3]/D");
-  output_tree->Branch("nOMS_min", &nOMS_min, "nOMS_min/D");
-  output_tree->Branch("tLWM_min", &tLWM_min, "tLWM_min/D");
-  output_tree->Branch("d0_reco", d0_reco, "d0_reco[3]/D");
-  output_tree->Branch("d0sig_reco", d0sig_reco, "d0sig_reco[3]/D");
-  output_tree->Branch("dz_reco", dz_reco, "dz_reco[3]/D");
-  output_tree->Branch("dzpv_reco", dzpv_reco, "dzpv_reco[3]/D");
-  output_tree->Branch("dr12_reco", &dr12_reco, "dr12_reco/D");
-  output_tree->Branch("dr23_reco", &dr23_reco, "dr23_reco/D");
-  output_tree->Branch("dr31_reco", &dr31_reco, "dr31_reco/D");
-  output_tree->Branch("dr_min", &dr_min, "dr_min/D");
-  output_tree->Branch("drtau_max", &drtau_max, "drtau_max/D");
-  output_tree->Branch("charge_reco", charge_reco, "charge_reco[3]/D");
-  output_tree->Branch("drtau_reco", drtau_reco, "drtau_reco[3]/D");
-  output_tree->Branch("dca12_reco", &dca12_reco, "dca12_reco/D");
-  output_tree->Branch("dca23_reco", &dca23_reco, "dca23_reco/D");
-  output_tree->Branch("dca31_reco", &dca31_reco, "dca31_reco/D");
-  output_tree->Branch("dca_max", &dca_max, "dca_max/D");
-  output_tree->Branch("trkrel_reco", trkrel_reco, "trkrel_reco[3]/D");
-  output_tree->Branch("trkrel_max", &trkrel_max, "trkrel_max/D");
-  output_tree->Branch("trkrel_tau", &trkrel_tau, "trkrel_tau/D");
-  output_tree->Branch("trkrel_tau05", &trkrel_tau05, "trkrel_tau05/D");
-  output_tree->Branch("ntrk_reco", ntrk_reco, "ntrk_reco[3]/D");
-  output_tree->Branch("ntrk_sum", &ntrk_sum, "ntrk_sum/D");
-  output_tree->Branch("ntrk_tau", &ntrk_tau, "ntrk_tau/D");
-  output_tree->Branch("mindca_iso", &mindca_iso, "mindca_iso/D");
-  output_tree->Branch("ntrk_tau05", &ntrk_tau05, "ntrk_tau05/D");
-  output_tree->Branch("ntrk_tau_b", &ntrk_tau_b, "ntrk_tau_b/D");
-  output_tree->Branch("mindca_iso05", &mindca_iso05, "mindca_iso05/D");
-  output_tree->Branch("fv_tC", &fv_tC, "fv_tC/D");
-  output_tree->Branch("fv_nC", &fv_nC, "fv_nC/D");
-  output_tree->Branch("fvwo_tC", fvwo_tC, "fvwo_tC[3]/D");
-  output_tree->Branch("fvwo_nC", fvwo_nC, "fvwo_nC[3]/D");
-  output_tree->Branch("fv_Prob", &fv_Prob, "fv_Prob/D");
-  output_tree->Branch("fv_dxy", &fv_dxy, "fv_dxy/D");
-  output_tree->Branch("fv_dxysig", &fv_dxysig, "fv_dxysig/D");
-  output_tree->Branch("fv_ppdl", &fv_ppdl, "fv_ppdl/D");
-  output_tree->Branch("fv_cosdphi", &fv_cosdphi, "fv_cosdphi/D");
-  output_tree->Branch("fv_d3D", &fv_d3D, "fv_d3D/D");
-  output_tree->Branch("fv_d3Dsig", &fv_d3Dsig, "fv_d3Dsig/D");
-  output_tree->Branch("fv_ppdl3D", &fv_ppdl3D, "fv_ppdl3D/D");
-  output_tree->Branch("fv_cosdphi3D", &fv_cosdphi3D, "fv_cosdphi3D/D");
-  output_tree->Branch("iTnC_reco", iTnC_reco, "iTnC1_reco[3]/D");
-  output_tree->Branch("cLP_reco", cLP_reco, "cLP_reco[3]/D");
-  output_tree->Branch("cLM_reco", cLM_reco, "cLM_reco[3]/D");
-  output_tree->Branch("tKink_reco", tKink_reco, "tKink_reco[3]/D");
-  output_tree->Branch("gKink_reco", gKink_reco, "gKink_reco[3]/D");
-  output_tree->Branch("qprod_reco", qprod_reco, "qprod_reco[3]/D");
-  output_tree->Branch("vmuonhitcomb_reco", vmuonhitcomb_reco, "vmuonhitcomb_reco[3]/D");
-  output_tree->Branch("outerchi2_reco", outerchi2_reco, "outerchi2_reco[3]/D");
-  output_tree->Branch("timeatipinouterr_reco", timeatipinouterr_reco, "timeatipinouterr_reco[3]/D");
-  output_tree->Branch("uSta_reco", uSta_reco, "uSta_reco[3]/D");
-  output_tree->Branch("tRC2_reco", tRC2_reco, "tRC2_reco[3]/D");
-  output_tree->Branch("sRC2_reco", sRC2_reco, "sRC2_reco[3]/D");
-  output_tree->Branch("lDist_reco", lDist_reco, "lDist_reco[3]/D");
-  output_tree->Branch("gDEP_reco", gDEP_reco, "gDEP_reco[3]/D");
-  output_tree->Branch("tMat_reco", tMat_reco, "tMat_reco[3]/D");
-  output_tree->Branch("gTP_reco", gTP_reco, "gTP_reco[3]/D");
-  output_tree->Branch("calem_reco", calem_reco, "calem_reco[3]/D");
-  output_tree->Branch("calemS9_reco", calemS9_reco, "calemS9_reco[3]/D");
-  output_tree->Branch("calemS25_reco", calemS25_reco, "calemS25_reco[3]/D");
-  output_tree->Branch("calhad_reco", calhad_reco, "calhad_reco[3]/D");
-  output_tree->Branch("calhadS9_reco", calhadS9_reco, "calhadS9_reco[3]/D");
-  output_tree->Branch("ddz_12", &ddz_12, "ddz_12/D");
-  output_tree->Branch("calomuon_3", &calomuon_3, "calomuon_3/D");
-  output_tree->Branch("n_sv", &n_sv, "n_sv/I");
-  output_tree->Branch("sv_mass", sv_mass, "sv_mass[n_sv]/D");
-  output_tree->Branch("sv_nmu", sv_nmu, "sv_nmu[n_sv]/D");
-  output_tree->Branch("sv_d3D", sv_d3D, "sv_d3D[n_sv]/D");
-  output_tree->Branch("sv_d3Dsig", sv_d3Dsig, "sv_d3Dsig[n_sv]/D");
-  output_tree->Branch("sv_ppdl3D", sv_ppdl3D, "sv_ppdl3D[n_sv]/D");
-  output_tree->Branch("sv_ntrk", sv_ntrk, "sv_ntrk[n_sv]/D");
-  output_tree->Branch("sv_pt", sv_pt, "sv_pt[n_sv]/D");
-  output_tree->Branch("sv_dz", sv_dz, "sv_dz[n_sv]/D");
-  output_tree->Branch("sv_cosdphi3D", sv_cosdphi3D, "sv_cosdphi3D[n_sv]/D");
-  output_tree->Branch("sv_overlap", sv_overlap, "sv_overlap[n_sv]/D");
-  output_tree->Branch("pv_nmu", &pv_nmu, "pv_nmu/D");
-  output_tree->Branch("pv1_tC", &pv1_tC, "pv1_tC/D");
-  output_tree->Branch("pv1_nC", &pv1_nC, "pv1_nC/D");
-  output_tree->Branch("pv2_tC", &pv2_tC, "pv2_tC/D");
-  output_tree->Branch("pv2_nC", &pv2_nC, "pv2_nC/D");
-  output_tree->Branch("ntrk0p1", &ntrk0p1, "ntrk0p1/D");
-  output_tree->Branch("ntrk0p2", &ntrk0p2, "ntrk0p2/D");
-  output_tree->Branch("ntrk0p5", &ntrk0p5, "ntrk0p5/D");
-  output_tree->Branch("maxdxy_pv0", &maxdxy_pv0, "maxdxy_pv0/D");
-  output_tree->Branch("njet20", &njet20, "njet20/I");
-  output_tree->Branch("jet_pt", jet_pt, "jet_pt[njet20]/D");
-  output_tree->Branch("jet_overlap", jet_overlap, "jet_overlap[njet20]/D");
-  output_tree->Branch("btagcvsb", btagcvsb, "btagcvsb[njet20]/D");
-  output_tree->Branch("btagcsv", btagcsv, "btagcsv[njet20]/D");
-  output_tree->Branch("btagmva", btagmva, "btagmva[njet20]/D");
-  output_tree->Branch("m2mu_ss", &m2mu_ss, "m2mu_ss/D");
-  output_tree->Branch("m2mu_os1", &m2mu_os1, "m2mu_os1/D");
-  output_tree->Branch("m2mu_os2", &m2mu_os2, "m2mu_os2/D");
-  output_tree->Branch("m2mu_12", &m2mu_12, "m2mu_12/D");
-  output_tree->Branch("m2mu_23", &m2mu_23, "m2mu_23/D");
-  output_tree->Branch("m2mu_31", &m2mu_31, "m2mu_31/D");
-  output_tree->Branch("m2mu_max", &m2mu_max, "m2mu_max/D");
-  output_tree->Branch("m2mu_min", &m2mu_min, "m2mu_min/D");
 
   output_tree->Branch("Track_p4", &Track_p4);
   output_tree->Branch("Track_normalizedChi2", &Track_normalizedChi2);

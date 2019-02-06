@@ -123,10 +123,10 @@ private:
   void fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void fillL1(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  void fillDsBranch(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void fillBTagJets(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  bool fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  bool fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  int fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  int fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   std::vector<std::vector<unsigned int> > findThreeMuonsCandidates(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
   template<class T>
@@ -185,8 +185,8 @@ private:
   int Event_orbitNumber;
   unsigned int Event_luminosityBlock;
   bool Event_isRealData;
-
-
+  unsigned int Event_nsignal_candidates;
+  unsigned int Event_ndsphipi_candidate;
   //=======  Tracks === 
   std::vector<std::vector<double> > Track_p4;
   std::vector<double> Track_normalizedChi2;
@@ -331,6 +331,7 @@ private:
 
 
   TTree *output_tree;
+  TTree *output_former_tree;
   TH1F *h_n3mu, *h_step;
   InputTag algInputTag_;
   int cnt_;
