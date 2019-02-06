@@ -99,6 +99,7 @@ bool T3MNtuple::getTrackMatch(edm::Handle<std::vector<reco::Track> > &trackColle
 void
 T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  std::cout<<" ========================  new event =============== "<< std::endl;
   cnt_++;
   ClearEvent();
   
@@ -421,8 +422,57 @@ T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 int
 T3MNtuple::fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  return 0;
+  Handle<trigger::TriggerEvent> triggerSummary;
+  iEvent.getByToken(trigeventToken_, triggerSummary);
 
+  std::vector<std::vector<unsigned int> > PreselectedTwoMuonsTrackCollection  = findTwoMuonsAndTrackCandidates(iEvent, iSetup);
+  if(PreselectedTwoMuonsTrackCollection.size()==0){
+    return 0;            //No two muons + track candidate found!
+  }
+
+
+  Handle<TrackCollection> trackCollection;
+  iEvent.getByToken(trackToken_, trackCollection);
+
+  Handle<MuonCollection> muonCollection;
+  iEvent.getByToken(muonToken_, muonCollection);
+  std::cout<<"Number of mumu+ tr candidates  "<<  PreselectedTwoMuonsTrackCollection.size() <<std::endl;
+  for ( auto &iTwoMuTr :  PreselectedTwoMuonsTrackCollection ) {
+    vector<TransientTrack> t_trks;
+    TransientVertex transVtx;
+    ESHandle<TransientTrackBuilder> theB;
+    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+    reco::MuonRef Muon1(muonCollection, iTwoMuTr.at(0));
+    reco::MuonRef Muon2(muonCollection, iTwoMuTr.at(1));
+    TrackRef track1 = Muon1->globalTrack();
+    TrackRef track2 = Muon2->globalTrack();
+    TrackRef track3 = TrackRef(trackCollection, iTwoMuTr.at(2));
+    t_trks.push_back(theB->build(track1));
+    t_trks.push_back(theB->build(track2));
+    t_trks.push_back(theB->build(track3));
+    KalmanVertexFitter kvf(true);
+    bool FitOk(true);
+    try {
+      transVtx = kvf.vertex(t_trks); //KalmanVertexFitter
+    } catch (...) {
+      FitOk = false;
+    }
+    if (!transVtx.hasRefittedTracks())
+      FitOk = false;
+    if (transVtx.refittedTracks().size() != t_trks.size())
+      FitOk = false;
+
+    std::cout<<"2mu + track vertex is valid   "<< transVtx.isValid() << "   Fit Ok   " << FitOk <<std::endl;
+
+    //    if(!fv.isValid()) continue;
+    //    double fv_tC = fv.totalChiSquared();
+    //    double fv_dOF = fv.degreesOfFreedom();
+    //    double fv_nC = fv_tC/fv_dOF;
+    //    if(fv_nC > 5) continue;  // why 5 ?
+  }
+
+
+  return 0;
 }
 
 
@@ -460,8 +510,7 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
   Handle<trigger::TriggerEvent> triggerSummary;
   iEvent.getByToken(trigeventToken_, triggerSummary);
 
-  std::vector<std::vector<unsigned int> > PreselectedThreeMuonsCollection;
-  PreselectedThreeMuonsCollection = findThreeMuonsCandidates(iEvent, iSetup);
+  std::vector<std::vector<unsigned int> > PreselectedThreeMuonsCollection = findThreeMuonsCandidates(iEvent, iSetup);
   if(PreselectedThreeMuonsCollection.size()==0){
     return 0;            //No three muons candidate found! Skip the event
   }
@@ -469,6 +518,7 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByToken(muonToken_, muonCollection);
   for ( auto &iThreeMuon :  PreselectedThreeMuonsCollection ) {
     vector<TransientTrack> t_trks;   
+    TransientVertex transVtx;
     ESHandle<TransientTrackBuilder> theB;
     iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
     reco::MuonRef Muon1(muonCollection, iThreeMuon.at(0));
@@ -481,23 +531,34 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
     t_trks.push_back(theB->build(track1));
     t_trks.push_back(theB->build(track2));
     t_trks.push_back(theB->build(track3));
-    KalmanVertexFitter kvf;
-    TransientVertex fv = kvf.vertex(t_trks);
 
-    if(fv.isValid()){
+    KalmanVertexFitter kvf(true);
+    bool FitOk(true);
+    try {
+      transVtx = kvf.vertex(t_trks); //KalmanVertexFitter
+    } catch (...) {
+      FitOk = false;
+    }
+    if (!transVtx.hasRefittedTracks())
+      FitOk = false;
+    if (transVtx.refittedTracks().size() != t_trks.size())
+      FitOk = false;
+
+    std::cout<<"2mu + track vertex is valid   "<< transVtx.isValid() << "   Fit Ok   " << FitOk <<std::endl;
+    if(transVtx.isValid()){
       ThreeMuons_idx.push_back(iThreeMuon);
-      ThreeMuons_SV_Chi2.push_back(fv.totalChiSquared());
-      ThreeMuons_SV_NDF.push_back(fv.totalChiSquared());
+      ThreeMuons_SV_Chi2.push_back(transVtx.totalChiSquared());
+      ThreeMuons_SV_NDF.push_back(transVtx.degreesOfFreedom());
+      std::vector<float> iTrigMatchdR;
       for ( auto &iMuon :  iThreeMuon ) {
       	float match;
 	reco::MuonRef MuonTriggMatch(muonCollection, iMuon);
 	TriggerMatch(triggerSummary,  MuonTriggMatch , TriggerMuonMatchingdr_, match);
-	
+	iTrigMatchdR.push_back(match);
       }
+      ThreeMuons_TriggerMatch_dR.push_back(iTrigMatchdR);
     }
   }
-
-
   return ThreeMuons_idx.size();
 }
 
@@ -517,6 +578,76 @@ void T3MNtuple::TriggerMatch(edm::Handle<trigger::TriggerEvent> &triggerSummary,
     }
   }
 }
+
+
+
+
+std::vector<std::vector<unsigned int> > 
+T3MNtuple::findTwoMuonsAndTrackCandidates(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+  BeamSpot bs;
+  Handle<BeamSpot> beamSpotHandle;
+  iEvent.getByToken(bsToken_, beamSpotHandle);
+  bs = *beamSpotHandle;
+
+  Handle<TrackCollection> trackCollection;
+  iEvent.getByToken(trackToken_, trackCollection);
+
+  Handle<MuonCollection> muonCollection;
+  iEvent.getByToken(muonToken_, muonCollection);
+  int Muon_index = 0;
+  int Track_index = 0;
+  std::vector<unsigned int> preselected_muon_idx;
+  std::vector<std::vector<unsigned int> > TwoMuonsPlusTrackCollection; // note that the track index goes last
+  for (reco::MuonCollection::const_iterator iMuon = muonCollection->begin(); iMuon != muonCollection->end(); ++iMuon, Muon_index++) {
+    reco::MuonRef RefMuon(muonCollection, Muon_index);
+    if((RefMuon->pt() < MuonPtCut_) || (abs(RefMuon->eta()) > MuonEtaCut_)) continue;
+    if(RefMuon->isPFMuon() && RefMuon->isGlobalMuon()) preselected_muon_idx.push_back(Muon_index);
+  }
+  if(preselected_muon_idx.size() > 1){
+    for(size_t i = 0; i < preselected_muon_idx.size()-1; ++ i){
+      std::vector<unsigned int> dump_index;
+      reco::MuonRef  Muon1(muonCollection, i);
+      for(size_t j = i+1; j < preselected_muon_idx.size(); ++ j){
+	reco::MuonRef  Muon2(muonCollection, j);
+
+        double dz_12 = abs(Muon2->innerTrack()->dz(beamSpotHandle->position())-Muon1->innerTrack()->dz(beamSpotHandle->position()));  //   Check that two muons are
+        double dr_12 = deltaR(Muon1->eta(), Muon1->phi(), Muon2->eta(), Muon2->phi());                                                //   not far from each other
+
+        //      if(dz_12>0.5 ||  dr_12>0.8)continue; // - to be checked
+	for (reco::TrackCollection::const_iterator iTrack = trackCollection->begin(); iTrack != trackCollection->end(); ++iTrack, Track_index++)
+	  {
+	    std::vector<double> iTrack_p4;
+	    std::vector<double> iTrack_poca;
+	    const reco::Track track = (*iTrack);
+	    if(isGoodTrack(track)){
+	      if(!(abs(track.dxy(beamSpotHandle->position())) < .3)  ||  !(abs(track.dz(beamSpotHandle->position())) < 20)) continue;   // check if the tracks is far from the BS.   
+	          
+	      double dz23 = abs(track.dz(beamSpotHandle->position())-Muon2->innerTrack()->dz(beamSpotHandle->position()));  // if the POCA of the track candidate is far from the muons - continue
+	      double dz31 = abs(track.dz(beamSpotHandle->position())-Muon1->innerTrack()->dz(beamSpotHandle->position()));
+
+	      if(dz23 > 0.5 || dz31 > 0.5)  continue;
+
+	      double dr23 = deltaR(track.eta(), track.phi(), Muon2->eta(), Muon2->phi());
+	      double dr31 = deltaR(track.eta(), track.phi(), Muon1->eta(), Muon1->phi());
+
+	      if(dr23 > 1.2 || dr31 > 1.2)    continue;
+	      if(dr23 < 0.02 || dr31 < 0.02)  continue;
+	      
+	      if( abs(Muon1->charge() + Muon2->charge() + track.charge())>1.1 ) continue;  // check the charge
+	      dump_index.push_back(i);
+	      dump_index.push_back(j);
+	      dump_index.push_back(Track_index);
+	      TwoMuonsPlusTrackCollection.push_back(dump_index);
+	      dump_index.clear();
+	    }
+	  }
+      }
+    }
+  }
+  return TwoMuonsPlusTrackCollection;
+}
+
 
 
 
@@ -2202,7 +2333,7 @@ T3MNtuple::beginJob()
   output_tree->Branch("ThreeMuons_idx",&ThreeMuons_idx);
   output_tree->Branch("ThreeMuons_SV_Chi2",&ThreeMuons_SV_Chi2);
   output_tree->Branch("ThreeMuons_SV_NDF",&ThreeMuons_SV_NDF);
- 
+  output_tree->Branch("ThreeMuons_TriggerMatch_dR",&ThreeMuons_TriggerMatch_dR);
   output_tree->Branch("Jet_BTagCVSB", &Jet_BTagCVSB);
   output_tree->Branch("Jet_BTagMVA", &Jet_BTagMVA);
   output_tree->Branch("Jet_BTagCSV", &Jet_BTagCSV);
@@ -2402,7 +2533,7 @@ void T3MNtuple::ClearEvent() {
   ThreeMuons_idx.clear();
   ThreeMuons_SV_Chi2.clear();
   ThreeMuons_SV_NDF.clear();
-
+  ThreeMuons_TriggerMatch_dR.clear();
 
 
 

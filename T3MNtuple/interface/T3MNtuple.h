@@ -128,7 +128,7 @@ private:
   int fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   int fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   std::vector<std::vector<unsigned int> > findThreeMuonsCandidates(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-
+  std::vector<std::vector<unsigned int> > findTwoMuonsAndTrackCandidates(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   template<class T>
   void TriggerMatch(edm::Handle<trigger::TriggerEvent> &triggerSummary,  T obj, double drmax, float &match);
  
@@ -321,6 +321,7 @@ private:
   //  Three Muons
 
   std::vector<std::vector<unsigned int> > ThreeMuons_idx;
+  std::vector<std::vector<float> > ThreeMuons_TriggerMatch_dR;
   std::vector<double>   ThreeMuons_SV_Chi2;
   std::vector<double>   ThreeMuons_SV_NDF;
 
