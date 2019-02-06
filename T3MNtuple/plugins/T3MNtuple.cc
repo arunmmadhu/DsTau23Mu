@@ -21,6 +21,7 @@ double T3MNtuple::TrackEtaCut_(999);
 // constructors and destructor
 //
 T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
+  TriggerMuonMatchingdr_(iConfig.getUntrackedParameter("TriggerMuonMatchingdr", (double) 0.3)),
   muonToken_(consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
   //badmuonToken_(consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("badmuons"))),
   //jetToken_(consumes<reco::JetCollection>(iConfig.getParameter<edm::InputTag>("ak4PFJetsCHS"))),
@@ -37,6 +38,7 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
   bsToken_(consumes<BeamSpot>(iConfig.getParameter<InputTag>("beamSpotHandle"))),
   puToken_(consumes<vector<PileupSummaryInfo> >(iConfig.getParameter<InputTag>("pileupSummary"))),
   genToken_(consumes<GenParticleCollection>(iConfig.getParameter<InputTag>("genParticles")))
+
   //BadGlbMuonFilterToken_(consumes<bool>(iConfig.getParameter<edm::InputTag>("BadGlbMuonFilter")))
   //refitter_(iConfig)
 {
@@ -1670,7 +1672,7 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
        for ( auto &iMuon :  iThreeMuon ) {
       	float match;
 	reco::MuonRef MuonTriggMatch(muonCollection, iMuon);
-	TriggerMatch(triggerSummary,  MuonTriggMatch , 999., match);
+	TriggerMatch(triggerSummary,  MuonTriggMatch , TriggerMuonMatchingdr_, match);
 	//  fill dr matching here
        }
       //      ThreeMuons_SV_Chi2.push_back(fv.totalChiSquared());
