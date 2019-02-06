@@ -111,19 +111,19 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   if(Event_nsignal_candidates!=0 or Event_ndsphipi_candidate!=0)
     {
-    fillEventInfo(iEvent, iSetup);
-    if(doTracks_)
-      fillTracks(iEvent, iSetup);
-    if(doBJets_)
-      fillBTagJets(iEvent, iSetup);
-    if(doMuons_)
-      fillMuons(iEvent, iSetup);
-    if(doMC_)
-      fillMCTruth(iEvent, iSetup);
-    if(doL1_)
-      fillL1(iEvent, iSetup);
-    output_tree->Fill();
-  }
+      fillEventInfo(iEvent, iSetup);
+      if(doTracks_)
+	fillTracks(iEvent, iSetup);
+      if(doBJets_)
+	fillBTagJets(iEvent, iSetup);
+      if(doMuons_)
+	fillMuons(iEvent, iSetup);
+      if(doMC_)
+	fillMCTruth(iEvent, iSetup);
+      if(doL1_)
+	fillL1(iEvent, iSetup);
+      output_tree->Fill();
+    }
   fillDsTree(iEvent, iSetup); // method by Jian
 }
 
@@ -172,249 +172,251 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
   for (reco::MuonCollection::const_iterator iMuon = muonCollection->begin(); iMuon != muonCollection->end(); ++iMuon, Muon_index++) {
     reco::MuonRef RefMuon(muonCollection, Muon_index);
     if((RefMuon->pt() > MuonPtCut_) || (abs(RefMuon->eta()) < MuonEtaCut_))
-    {
-      std::vector<double> iMuon_Poca;
-      iMuon_Poca.push_back(RefMuon->vx());
-      iMuon_Poca.push_back(RefMuon->vy());
-      iMuon_Poca.push_back(RefMuon->vz());
-      Muon_Poca.push_back(iMuon_Poca);
-      std::vector<double> iMuon_p4;
-      iMuon_p4.push_back(RefMuon->p4().E());
-      iMuon_p4.push_back(RefMuon->p4().Px());
-      iMuon_p4.push_back(RefMuon->p4().Py());
-      iMuon_p4.push_back(RefMuon->p4().Pz());
-      Muon_p4.push_back(iMuon_p4);
+      {
+	if(RefMuon->isPFMuon() && RefMuon->isGlobalMuon()){
+	  std::vector<double> iMuon_Poca;
+	  iMuon_Poca.push_back(RefMuon->vx());
+	  iMuon_Poca.push_back(RefMuon->vy());
+	  iMuon_Poca.push_back(RefMuon->vz());
+	  Muon_Poca.push_back(iMuon_Poca);
+	  std::vector<double> iMuon_p4;
+	  iMuon_p4.push_back(RefMuon->p4().E());
+	  iMuon_p4.push_back(RefMuon->p4().Px());
+	  iMuon_p4.push_back(RefMuon->p4().Py());
+	  iMuon_p4.push_back(RefMuon->p4().Pz());
+	  Muon_p4.push_back(iMuon_p4);
 
-      const reco::MuonIsolation Iso03 = RefMuon->isolationR03();
-      const reco::MuonIsolation Iso05 = RefMuon->isolationR05();
+	  const reco::MuonIsolation Iso03 = RefMuon->isolationR03();
+	  const reco::MuonIsolation Iso05 = RefMuon->isolationR05();
 
-      const reco::MuonPFIsolation PFIso03 = RefMuon->pfIsolationR03();
-      const reco::MuonPFIsolation PFIso04 = RefMuon->pfIsolationR04();
+	  const reco::MuonPFIsolation PFIso03 = RefMuon->pfIsolationR03();
+	  const reco::MuonPFIsolation PFIso04 = RefMuon->pfIsolationR04();
 
-      Muon_numberOfChambers.push_back(RefMuon->numberOfChambers());
-      Muon_isGlobalMuon.push_back(RefMuon->isGlobalMuon());
-      Muon_isPFMuon.push_back(RefMuon->isPFMuon());
-      Muon_isRPCMuon.push_back(RefMuon->isRPCMuon());
-      Muon_isStandAloneMuon.push_back(RefMuon->isStandAloneMuon());
-      Muon_isTrackerMuon.push_back(RefMuon->isTrackerMuon());
-      Muon_isCaloMuon.push_back(RefMuon->isCaloMuon());
-      Muon_isQualityValid.push_back(RefMuon->isQualityValid());
-      Muon_isTimeValid.push_back(RefMuon->isTimeValid());
-      Muon_isIsolationValid.push_back(RefMuon->isIsolationValid());
-      Muon_numberOfMatchedStations.push_back(RefMuon->numberOfMatchedStations());
-      Muon_numberOfMatches.push_back(RefMuon->numberOfMatches(reco::Muon::SegmentArbitration));
-      Muon_charge.push_back(RefMuon->charge());
+	  Muon_numberOfChambers.push_back(RefMuon->numberOfChambers());
+	  Muon_isGlobalMuon.push_back(RefMuon->isGlobalMuon());
+	  Muon_isPFMuon.push_back(RefMuon->isPFMuon());
+	  Muon_isRPCMuon.push_back(RefMuon->isRPCMuon());
+	  Muon_isStandAloneMuon.push_back(RefMuon->isStandAloneMuon());
+	  Muon_isTrackerMuon.push_back(RefMuon->isTrackerMuon());
+	  Muon_isCaloMuon.push_back(RefMuon->isCaloMuon());
+	  Muon_isQualityValid.push_back(RefMuon->isQualityValid());
+	  Muon_isTimeValid.push_back(RefMuon->isTimeValid());
+	  Muon_isIsolationValid.push_back(RefMuon->isIsolationValid());
+	  Muon_numberOfMatchedStations.push_back(RefMuon->numberOfMatchedStations());
+	  Muon_numberOfMatches.push_back(RefMuon->numberOfMatches(reco::Muon::SegmentArbitration));
+	  Muon_charge.push_back(RefMuon->charge());
 
-      std::vector<double> iMuon_outerTrack_p4;
-      std::vector<double> iMuon_innerTrack_p4;
-      if (RefMuon->isGlobalMuon()) {
-	Muon_normChi2.push_back(RefMuon->globalTrack()->normalizedChi2());
-	Muon_hitPattern_numberOfValidMuonHits.push_back(RefMuon->globalTrack()->hitPattern().numberOfValidMuonHits());
-	Muon_trackerLayersWithMeasurement.push_back(RefMuon->innerTrack()->hitPattern().trackerLayersWithMeasurement());
-	Muon_numberofValidPixelHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfValidPixelHits());
+	  std::vector<double> iMuon_outerTrack_p4;
+	  std::vector<double> iMuon_innerTrack_p4;
+	  if (RefMuon->isGlobalMuon()) {
+	    Muon_normChi2.push_back(RefMuon->globalTrack()->normalizedChi2());
+	    Muon_hitPattern_numberOfValidMuonHits.push_back(RefMuon->globalTrack()->hitPattern().numberOfValidMuonHits());
+	    Muon_trackerLayersWithMeasurement.push_back(RefMuon->innerTrack()->hitPattern().trackerLayersWithMeasurement());
+	    Muon_numberofValidPixelHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfValidPixelHits());
 	
-	iMuon_outerTrack_p4.push_back(RefMuon->outerTrack()->p());
-	iMuon_outerTrack_p4.push_back(RefMuon->outerTrack()->eta());
-	iMuon_outerTrack_p4.push_back(RefMuon->outerTrack()->phi());
-	Muon_prod_inner_outer_charge.push_back(RefMuon->outerTrack()->charge()*RefMuon->innerTrack()->charge());
-	Muon_outerTrack_normalizedChi2.push_back(RefMuon->outerTrack()->normalizedChi2());
-	Muon_outerTrack_muonStationsWithValidHits.push_back(RefMuon->outerTrack()->hitPattern().muonStationsWithValidHits());
+	    iMuon_outerTrack_p4.push_back(RefMuon->outerTrack()->p());
+	    iMuon_outerTrack_p4.push_back(RefMuon->outerTrack()->eta());
+	    iMuon_outerTrack_p4.push_back(RefMuon->outerTrack()->phi());
+	    Muon_prod_inner_outer_charge.push_back(RefMuon->outerTrack()->charge()*RefMuon->innerTrack()->charge());
+	    Muon_outerTrack_normalizedChi2.push_back(RefMuon->outerTrack()->normalizedChi2());
+	    Muon_outerTrack_muonStationsWithValidHits.push_back(RefMuon->outerTrack()->hitPattern().muonStationsWithValidHits());
 
-      } else {
-	Muon_normChi2.push_back(0);
-	Muon_hitPattern_numberOfValidMuonHits.push_back(0);
-	Muon_trackerLayersWithMeasurement.push_back(0);
-	Muon_numberofValidPixelHits.push_back(0);
-	Muon_prod_inner_outer_charge.push_back(0);
-	Muon_outerTrack_normalizedChi2.push_back(0);
-	Muon_outerTrack_muonStationsWithValidHits.push_back(0);
-      }
-
-      if (RefMuon->isTrackerMuon()) {
-	Muon_innerTrack_validFraction.push_back(RefMuon->innerTrack()->validFraction());
-	Muon_innerTrack_pixelLayersWithMeasurement.push_back(RefMuon->innerTrack()->hitPattern().pixelLayersWithMeasurement() );
-	Muon_innerTrack_numberOfValidTrackerHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfValidTrackerHits() );
-	Muon_innerTrack_numberOfLostTrackerHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfLostTrackerHits(HitPattern::TRACK_HITS) );
-	Muon_innerTrack_numberOfLostTrackerInnerHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfLostTrackerHits(HitPattern::MISSING_INNER_HITS) );
-	Muon_innerTrack_numberOfLostTrackerOuterHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfLostTrackerHits(HitPattern::MISSING_OUTER_HITS) );
-	Muon_innerTrack_normalizedChi2.push_back(RefMuon->innerTrack()->normalizedChi2() );
-
-	Muon_innerTrack_numberofValidHits.push_back(RefMuon->innerTrack()->numberOfValidHits());
-	Muon_hitPattern_pixelLayerwithMeas.push_back(RefMuon->innerTrack()->hitPattern().pixelLayersWithMeasurement());
-
-	Muon_innerTrack_quality.push_back(RefMuon->innerTrack()->quality(TrackBase::highPurity));
-	iMuon_innerTrack_p4.push_back(RefMuon->innerTrack()->p());
-	iMuon_innerTrack_p4.push_back(RefMuon->innerTrack()->eta());
-	iMuon_innerTrack_p4.push_back(RefMuon->innerTrack()->phi());
-      } else {
-	Muon_innerTrack_quality.push_back(0);
-	Muon_innerTrack_numberofValidHits.push_back(0);
-	Muon_hitPattern_pixelLayerwithMeas.push_back(0);
-	Muon_innerTrack_validFraction.push_back(0);
-	Muon_innerTrack_pixelLayersWithMeasurement.push_back(0);
-	Muon_innerTrack_numberOfValidTrackerHits.push_back(0);
-	Muon_innerTrack_numberOfLostTrackerHits.push_back(0);
-	Muon_innerTrack_numberOfLostTrackerInnerHits.push_back(0);
-	Muon_innerTrack_numberOfLostTrackerOuterHits.push_back(0);
-	Muon_innerTrack_normalizedChi2.push_back(0);
-      }
-      Muon_outerTrack_p4.push_back(iMuon_outerTrack_p4);
-      Muon_innerTrack_p4.push_back(iMuon_innerTrack_p4);
-
-
-      if (RefMuon->isIsolationValid()) {
-	Muon_emEt03.push_back(Iso03.emEt);
-	Muon_emVetoEt03.push_back(Iso03.emVetoEt);
-	Muon_hadEt03.push_back(Iso03.hadEt);
-	Muon_hadVetoEt03.push_back(Iso03.hadVetoEt);
-	Muon_nJets03.push_back(Iso03.nJets);
-	Muon_nTracks03.push_back(Iso03.nTracks);
-	Muon_sumPt03.push_back(Iso03.sumPt);
-	Muon_trackerVetoPt03.push_back(Iso03.trackerVetoPt);
-
-	Muon_emEt05.push_back(Iso05.emEt);
-	Muon_emVetoEt05.push_back(Iso05.emVetoEt);
-	Muon_hadEt05.push_back(Iso05.hadEt);
-	Muon_hadVetoEt05.push_back(Iso05.hadVetoEt);
-	Muon_nJets05.push_back(Iso05.nJets);
-	Muon_nTracks05.push_back(Iso05.nTracks);
-	Muon_sumPt05.push_back(Iso05.sumPt);
-	Muon_trackerVetoPt05.push_back(Iso05.trackerVetoPt);
-      } else { // if isolation is not valid use -1 as default
-	Muon_emEt03.push_back(-1);
-	Muon_emVetoEt03.push_back(-1);
-	Muon_hadEt03.push_back(-1);
-	Muon_hadVetoEt03.push_back(-1);
-	Muon_nJets03.push_back(-1);
-	Muon_nTracks03.push_back(-1);
-	Muon_sumPt03.push_back(-1);
-	Muon_trackerVetoPt03.push_back(-1);
-
-	Muon_emEt05.push_back(-1);
-	Muon_emVetoEt05.push_back(-1);
-	Muon_hadEt05.push_back(-1);
-	Muon_hadVetoEt05.push_back(-1);
-	Muon_nJets05.push_back(-1);
-	Muon_nTracks05.push_back(-1);
-	Muon_sumPt05.push_back(-1);
-	Muon_trackerVetoPt05.push_back(-1);
-      }
-
-
-      //--- Fill PFMuonIsolation -----
-      if (RefMuon->isPFIsolationValid()) {
-	Muon_sumChargedHadronPt03.push_back(PFIso03.sumChargedHadronPt);
-	Muon_sumChargedParticlePt03.push_back(PFIso03.sumChargedParticlePt);
-	Muon_sumNeutralHadronEt03.push_back(PFIso03.sumNeutralHadronEt);
-	Muon_sumNeutralHadronEtHighThreshold03.push_back(PFIso03.sumNeutralHadronEtHighThreshold);
-	Muon_sumPhotonEt03.push_back(PFIso03.sumPhotonEt);
-	Muon_sumPhotonEtHighThreshold03.push_back(PFIso03.sumPhotonEtHighThreshold);
-	Muon_sumPUPt03.push_back(PFIso03.sumPUPt);
-
-	Muon_sumChargedHadronPt04.push_back(PFIso04.sumChargedHadronPt);
-	Muon_sumChargedParticlePt04.push_back(PFIso04.sumChargedParticlePt);
-	Muon_sumNeutralHadronEt04.push_back(PFIso04.sumNeutralHadronEt);
-	Muon_sumNeutralHadronEtHighThreshold04.push_back(PFIso04.sumNeutralHadronEtHighThreshold);
-	Muon_sumPhotonEt04.push_back(PFIso04.sumPhotonEt);
-	Muon_sumPhotonEtHighThreshold04.push_back(PFIso04.sumPhotonEtHighThreshold);
-	Muon_sumPUPt04.push_back(PFIso04.sumPUPt);
-      } else { // if isolation is not valid use -1 as default
-	Muon_sumChargedHadronPt03.push_back(-1);
-	Muon_sumChargedParticlePt03.push_back(-1);
-	Muon_sumNeutralHadronEt03.push_back(-1);
-	Muon_sumNeutralHadronEtHighThreshold03.push_back(-1);
-	Muon_sumPhotonEt03.push_back(-1);
-	Muon_sumPhotonEtHighThreshold03.push_back(-1);
-	Muon_sumPUPt03.push_back(-1);
-
-	Muon_sumChargedHadronPt04.push_back(-1);
-	Muon_sumChargedParticlePt04.push_back(-1);
-	Muon_sumNeutralHadronEt04.push_back(-1);
-	Muon_sumNeutralHadronEtHighThreshold04.push_back(-1);
-	Muon_sumPhotonEt04.push_back(-1);
-	Muon_sumPhotonEtHighThreshold04.push_back(-1);
-	Muon_sumPUPt04.push_back(-1);
-      }
-
-
-      ///////////////////////////////////// Muon Combined Quality /////////////////////////////////////////////////////////////////////////////////////
-      //   find more about combined Muon quality in http://cmsdoxygen.web.cern.ch/cmsdoxygen/CMSSW_9_4_4/doc/html/d4/d52/structreco_1_1MuonQuality.html
-      Muon_combinedQuality_updatedSta.push_back(RefMuon->combinedQuality().updatedSta);
-      Muon_combinedQuality_trkKink.push_back(RefMuon->combinedQuality().trkKink);
-      Muon_combinedQuality_glbKink.push_back(RefMuon->combinedQuality().glbKink);
-      Muon_combinedQuality_trkRelChi2.push_back(RefMuon->combinedQuality().trkRelChi2);
-      Muon_combinedQuality_staRelChi2.push_back(RefMuon->combinedQuality().staRelChi2);
-      Muon_combinedQuality_chi2LocalPosition.push_back(RefMuon->combinedQuality().chi2LocalPosition);
-      Muon_combinedQuality_chi2LocalMomentum.push_back(RefMuon->combinedQuality().chi2LocalMomentum);
-      Muon_combinedQuality_localDistance.push_back(RefMuon->combinedQuality().localDistance);
-      Muon_combinedQuality_globalDeltaEtaPhi.push_back(RefMuon->combinedQuality().globalDeltaEtaPhi);
-      Muon_combinedQuality_tightMatch.push_back(RefMuon->combinedQuality().tightMatch);
-      Muon_combinedQuality_glbTrackProbability.push_back(RefMuon->combinedQuality().glbTrackProbability);
-
-      Muon_calEnergy_em.push_back(RefMuon->calEnergy().em);
-      Muon_calEnergy_emS9.push_back(RefMuon->calEnergy().emS9);
-      Muon_calEnergy_emS25.push_back(RefMuon->calEnergy().emS25);
-      Muon_calEnergy_had.push_back(RefMuon->calEnergy().had);
-      Muon_calEnergy_hadS9.push_back(RefMuon->calEnergy().hadS9);
-
-      Muon_segmentCompatibility.push_back(muon::segmentCompatibility(*RefMuon));
-      Muon_caloCompatibility.push_back(muon::caloCompatibility(*RefMuon));
-
-      Muon_ptErrOverPt.push_back(RefMuon->muonBestTrack()->ptError()/RefMuon->muonBestTrack()->pt());
-     
-      Muon_isGoodMuon_TM2DCompatibility.push_back(muon::isGoodMuon(*RefMuon, muon::TM2DCompatibilityTight));
-      Muon_isGoodMuon_TrackerMuonArbitrated.push_back(muon::isGoodMuon(*RefMuon,muon::TrackerMuonArbitrated));
-      Muon_isGoodMuon_TMOneStationTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMOneStationTight));
-      Muon_isGoodMuon_TMOneStationAngTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMOneStationAngTight));
-      Muon_isGoodMuon_TMLastStationTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMLastStationTight));
-      Muon_isGoodMuon_TMLastStationAngTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMLastStationAngTight));
-      Muon_isGoodMuon_TMLastStationOptimizedLowPtTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMLastStationOptimizedLowPtTight));
-      Muon_isGoodMuon_TMLastStationOptimizedBarrelLowPtTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMLastStationOptimizedBarrelLowPtTight));
-
-
-      reco::TrackRef Track = RefMuon->track();
-      int ntp = Muon_par.size();
-      Muon_par.push_back(std::vector<double>());
-      Muon_cov.push_back(std::vector<double>());
-      if (Track.isNonnull()) {
-	GlobalPoint pvpoint(Track->vx(), Track->vy(), Track->vz());
-	edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
-	iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transTrackBuilder);
-	reco::TransientTrack transTrk = transTrackBuilder->build(Track);
-	TrackParticle trackparticle = ParticleBuilder::CreateTrackParticle(transTrk, transTrackBuilder, pvpoint, true, true);
-	Muon_trackCharge.push_back(trackparticle.Charge());
-	Muon_pdgid.push_back(trackparticle.PDGID());
-	Muon_B.push_back(trackparticle.BField());
-	Muon_M.push_back(trackparticle.Mass());
-	for (int i = 0; i < trackparticle.NParameters(); i++) {
-	  Muon_par.at(ntp).push_back(trackparticle.Parameter(i));
-	  for (int j = i; j < trackparticle.NParameters(); j++) {
-	    Muon_cov.at(ntp).push_back(trackparticle.Covariance(i, j));
+	  } else {
+	    Muon_normChi2.push_back(0);
+	    Muon_hitPattern_numberOfValidMuonHits.push_back(0);
+	    Muon_trackerLayersWithMeasurement.push_back(0);
+	    Muon_numberofValidPixelHits.push_back(0);
+	    Muon_prod_inner_outer_charge.push_back(0);
+	    Muon_outerTrack_normalizedChi2.push_back(0);
+	    Muon_outerTrack_muonStationsWithValidHits.push_back(0);
 	  }
-	}
-      } else {
-	Muon_trackCharge.push_back(-999);
-	Muon_pdgid.push_back(-999);
-	Muon_B.push_back(-999);
-	Muon_M.push_back(-999);
-      }
 
-      int match;
-      getTrackMatch(trackCollection, Track, match);
-      Muon_Track_idx.push_back(match);
-    }
+	  if (RefMuon->isTrackerMuon()) {
+	    Muon_innerTrack_validFraction.push_back(RefMuon->innerTrack()->validFraction());
+	    Muon_innerTrack_pixelLayersWithMeasurement.push_back(RefMuon->innerTrack()->hitPattern().pixelLayersWithMeasurement() );
+	    Muon_innerTrack_numberOfValidTrackerHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfValidTrackerHits() );
+	    Muon_innerTrack_numberOfLostTrackerHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfLostTrackerHits(HitPattern::TRACK_HITS) );
+	    Muon_innerTrack_numberOfLostTrackerInnerHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfLostTrackerHits(HitPattern::MISSING_INNER_HITS) );
+	    Muon_innerTrack_numberOfLostTrackerOuterHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfLostTrackerHits(HitPattern::MISSING_OUTER_HITS) );
+	    Muon_innerTrack_normalizedChi2.push_back(RefMuon->innerTrack()->normalizedChi2() );
+
+	    Muon_innerTrack_numberofValidHits.push_back(RefMuon->innerTrack()->numberOfValidHits());
+	    Muon_hitPattern_pixelLayerwithMeas.push_back(RefMuon->innerTrack()->hitPattern().pixelLayersWithMeasurement());
+
+	    Muon_innerTrack_quality.push_back(RefMuon->innerTrack()->quality(TrackBase::highPurity));
+	    iMuon_innerTrack_p4.push_back(RefMuon->innerTrack()->p());
+	    iMuon_innerTrack_p4.push_back(RefMuon->innerTrack()->eta());
+	    iMuon_innerTrack_p4.push_back(RefMuon->innerTrack()->phi());
+	  } else {
+	    Muon_innerTrack_quality.push_back(0);
+	    Muon_innerTrack_numberofValidHits.push_back(0);
+	    Muon_hitPattern_pixelLayerwithMeas.push_back(0);
+	    Muon_innerTrack_validFraction.push_back(0);
+	    Muon_innerTrack_pixelLayersWithMeasurement.push_back(0);
+	    Muon_innerTrack_numberOfValidTrackerHits.push_back(0);
+	    Muon_innerTrack_numberOfLostTrackerHits.push_back(0);
+	    Muon_innerTrack_numberOfLostTrackerInnerHits.push_back(0);
+	    Muon_innerTrack_numberOfLostTrackerOuterHits.push_back(0);
+	    Muon_innerTrack_normalizedChi2.push_back(0);
+	  }
+	  Muon_outerTrack_p4.push_back(iMuon_outerTrack_p4);
+	  Muon_innerTrack_p4.push_back(iMuon_innerTrack_p4);
+
+
+	  if (RefMuon->isIsolationValid()) {
+	    Muon_emEt03.push_back(Iso03.emEt);
+	    Muon_emVetoEt03.push_back(Iso03.emVetoEt);
+	    Muon_hadEt03.push_back(Iso03.hadEt);
+	    Muon_hadVetoEt03.push_back(Iso03.hadVetoEt);
+	    Muon_nJets03.push_back(Iso03.nJets);
+	    Muon_nTracks03.push_back(Iso03.nTracks);
+	    Muon_sumPt03.push_back(Iso03.sumPt);
+	    Muon_trackerVetoPt03.push_back(Iso03.trackerVetoPt);
+
+	    Muon_emEt05.push_back(Iso05.emEt);
+	    Muon_emVetoEt05.push_back(Iso05.emVetoEt);
+	    Muon_hadEt05.push_back(Iso05.hadEt);
+	    Muon_hadVetoEt05.push_back(Iso05.hadVetoEt);
+	    Muon_nJets05.push_back(Iso05.nJets);
+	    Muon_nTracks05.push_back(Iso05.nTracks);
+	    Muon_sumPt05.push_back(Iso05.sumPt);
+	    Muon_trackerVetoPt05.push_back(Iso05.trackerVetoPt);
+	  } else { // if isolation is not valid use -1 as default
+	    Muon_emEt03.push_back(-1);
+	    Muon_emVetoEt03.push_back(-1);
+	    Muon_hadEt03.push_back(-1);
+	    Muon_hadVetoEt03.push_back(-1);
+	    Muon_nJets03.push_back(-1);
+	    Muon_nTracks03.push_back(-1);
+	    Muon_sumPt03.push_back(-1);
+	    Muon_trackerVetoPt03.push_back(-1);
+
+	    Muon_emEt05.push_back(-1);
+	    Muon_emVetoEt05.push_back(-1);
+	    Muon_hadEt05.push_back(-1);
+	    Muon_hadVetoEt05.push_back(-1);
+	    Muon_nJets05.push_back(-1);
+	    Muon_nTracks05.push_back(-1);
+	    Muon_sumPt05.push_back(-1);
+	    Muon_trackerVetoPt05.push_back(-1);
+	  }
+
+
+	  //--- Fill PFMuonIsolation -----
+	  if (RefMuon->isPFIsolationValid()) {
+	    Muon_sumChargedHadronPt03.push_back(PFIso03.sumChargedHadronPt);
+	    Muon_sumChargedParticlePt03.push_back(PFIso03.sumChargedParticlePt);
+	    Muon_sumNeutralHadronEt03.push_back(PFIso03.sumNeutralHadronEt);
+	    Muon_sumNeutralHadronEtHighThreshold03.push_back(PFIso03.sumNeutralHadronEtHighThreshold);
+	    Muon_sumPhotonEt03.push_back(PFIso03.sumPhotonEt);
+	    Muon_sumPhotonEtHighThreshold03.push_back(PFIso03.sumPhotonEtHighThreshold);
+	    Muon_sumPUPt03.push_back(PFIso03.sumPUPt);
+
+	    Muon_sumChargedHadronPt04.push_back(PFIso04.sumChargedHadronPt);
+	    Muon_sumChargedParticlePt04.push_back(PFIso04.sumChargedParticlePt);
+	    Muon_sumNeutralHadronEt04.push_back(PFIso04.sumNeutralHadronEt);
+	    Muon_sumNeutralHadronEtHighThreshold04.push_back(PFIso04.sumNeutralHadronEtHighThreshold);
+	    Muon_sumPhotonEt04.push_back(PFIso04.sumPhotonEt);
+	    Muon_sumPhotonEtHighThreshold04.push_back(PFIso04.sumPhotonEtHighThreshold);
+	    Muon_sumPUPt04.push_back(PFIso04.sumPUPt);
+	  } else { // if isolation is not valid use -1 as default
+	    Muon_sumChargedHadronPt03.push_back(-1);
+	    Muon_sumChargedParticlePt03.push_back(-1);
+	    Muon_sumNeutralHadronEt03.push_back(-1);
+	    Muon_sumNeutralHadronEtHighThreshold03.push_back(-1);
+	    Muon_sumPhotonEt03.push_back(-1);
+	    Muon_sumPhotonEtHighThreshold03.push_back(-1);
+	    Muon_sumPUPt03.push_back(-1);
+
+	    Muon_sumChargedHadronPt04.push_back(-1);
+	    Muon_sumChargedParticlePt04.push_back(-1);
+	    Muon_sumNeutralHadronEt04.push_back(-1);
+	    Muon_sumNeutralHadronEtHighThreshold04.push_back(-1);
+	    Muon_sumPhotonEt04.push_back(-1);
+	    Muon_sumPhotonEtHighThreshold04.push_back(-1);
+	    Muon_sumPUPt04.push_back(-1);
+	  }
+
+
+	  ///////////////////////////////////// Muon Combined Quality /////////////////////////////////////////////////////////////////////////////////////
+	  //   find more about combined Muon quality in http://cmsdoxygen.web.cern.ch/cmsdoxygen/CMSSW_9_4_4/doc/html/d4/d52/structreco_1_1MuonQuality.html
+	  Muon_combinedQuality_updatedSta.push_back(RefMuon->combinedQuality().updatedSta);
+	  Muon_combinedQuality_trkKink.push_back(RefMuon->combinedQuality().trkKink);
+	  Muon_combinedQuality_glbKink.push_back(RefMuon->combinedQuality().glbKink);
+	  Muon_combinedQuality_trkRelChi2.push_back(RefMuon->combinedQuality().trkRelChi2);
+	  Muon_combinedQuality_staRelChi2.push_back(RefMuon->combinedQuality().staRelChi2);
+	  Muon_combinedQuality_chi2LocalPosition.push_back(RefMuon->combinedQuality().chi2LocalPosition);
+	  Muon_combinedQuality_chi2LocalMomentum.push_back(RefMuon->combinedQuality().chi2LocalMomentum);
+	  Muon_combinedQuality_localDistance.push_back(RefMuon->combinedQuality().localDistance);
+	  Muon_combinedQuality_globalDeltaEtaPhi.push_back(RefMuon->combinedQuality().globalDeltaEtaPhi);
+	  Muon_combinedQuality_tightMatch.push_back(RefMuon->combinedQuality().tightMatch);
+	  Muon_combinedQuality_glbTrackProbability.push_back(RefMuon->combinedQuality().glbTrackProbability);
+
+	  Muon_calEnergy_em.push_back(RefMuon->calEnergy().em);
+	  Muon_calEnergy_emS9.push_back(RefMuon->calEnergy().emS9);
+	  Muon_calEnergy_emS25.push_back(RefMuon->calEnergy().emS25);
+	  Muon_calEnergy_had.push_back(RefMuon->calEnergy().had);
+	  Muon_calEnergy_hadS9.push_back(RefMuon->calEnergy().hadS9);
+
+	  Muon_segmentCompatibility.push_back(muon::segmentCompatibility(*RefMuon));
+	  Muon_caloCompatibility.push_back(muon::caloCompatibility(*RefMuon));
+
+	  Muon_ptErrOverPt.push_back(RefMuon->muonBestTrack()->ptError()/RefMuon->muonBestTrack()->pt());
+     
+	  Muon_isGoodMuon_TM2DCompatibility.push_back(muon::isGoodMuon(*RefMuon, muon::TM2DCompatibilityTight));
+	  Muon_isGoodMuon_TrackerMuonArbitrated.push_back(muon::isGoodMuon(*RefMuon,muon::TrackerMuonArbitrated));
+	  Muon_isGoodMuon_TMOneStationTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMOneStationTight));
+	  Muon_isGoodMuon_TMOneStationAngTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMOneStationAngTight));
+	  Muon_isGoodMuon_TMLastStationTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMLastStationTight));
+	  Muon_isGoodMuon_TMLastStationAngTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMLastStationAngTight));
+	  Muon_isGoodMuon_TMLastStationOptimizedLowPtTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMLastStationOptimizedLowPtTight));
+	  Muon_isGoodMuon_TMLastStationOptimizedBarrelLowPtTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMLastStationOptimizedBarrelLowPtTight));
+
+
+	  reco::TrackRef Track = RefMuon->track();
+	  int ntp = Muon_par.size();
+	  Muon_par.push_back(std::vector<double>());
+	  Muon_cov.push_back(std::vector<double>());
+	  if (Track.isNonnull()) {
+	    GlobalPoint pvpoint(Track->vx(), Track->vy(), Track->vz());
+	    edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
+	    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transTrackBuilder);
+	    reco::TransientTrack transTrk = transTrackBuilder->build(Track);
+	    TrackParticle trackparticle = ParticleBuilder::CreateTrackParticle(transTrk, transTrackBuilder, pvpoint, true, true);
+	    Muon_trackCharge.push_back(trackparticle.Charge());
+	    Muon_pdgid.push_back(trackparticle.PDGID());
+	    Muon_B.push_back(trackparticle.BField());
+	    Muon_M.push_back(trackparticle.Mass());
+	    for (int i = 0; i < trackparticle.NParameters(); i++) {
+	      Muon_par.at(ntp).push_back(trackparticle.Parameter(i));
+	      for (int j = i; j < trackparticle.NParameters(); j++) {
+		Muon_cov.at(ntp).push_back(trackparticle.Covariance(i, j));
+	      }
+	    }
+	  } else {
+	    Muon_trackCharge.push_back(-999);
+	    Muon_pdgid.push_back(-999);
+	    Muon_B.push_back(-999);
+	    Muon_M.push_back(-999);
+	  }
+
+	  int match;
+	  getTrackMatch(trackCollection, Track, match);
+	  Muon_Track_idx.push_back(match);
+	}
+      }
   }
 }
 
 void 
 T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-if (!iEvent.isRealData())
-  {
-  Handle<vector<PileupSummaryInfo> >  PupInfo;
-  iEvent.getByToken(puToken_, PupInfo);
-  puN = PupInfo->begin()->getTrueNumInteractions();
-  }
+  if (!iEvent.isRealData())
+    {
+      Handle<vector<PileupSummaryInfo> >  PupInfo;
+      iEvent.getByToken(puToken_, PupInfo);
+      puN = PupInfo->begin()->getTrueNumInteractions();
+    }
 }
 
 int
@@ -484,12 +486,12 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
     if(fv.isValid()){
       ThreeMuons_idx.push_back(iThreeMuon);
-       for ( auto &iMuon :  iThreeMuon ) {
+      for ( auto &iMuon :  iThreeMuon ) {
       	float match;
 	reco::MuonRef MuonTriggMatch(muonCollection, iMuon);
 	TriggerMatch(triggerSummary,  MuonTriggMatch , TriggerMuonMatchingdr_, match);
 	//  fill dr matching here
-       }
+      }
       //      ThreeMuons_SV_Chi2.push_back(fv.totalChiSquared());
       //      ThreeMuons_SV_NDF.push_back(fv.totalChiSquared());
     }
@@ -698,7 +700,7 @@ void T3MNtuple::fillEventInfo(const edm::Event& iEvent, const edm::EventSetup& i
 }
 
 void T3MNtuple::fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-  {
+{
  
   h_step->Fill(0);
 
@@ -776,8 +778,8 @@ void T3MNtuple::fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSet
   h_step->Fill(2);
 
 
-    //////////////////////
-    // b, c origin ?
+  //////////////////////
+  // b, c origin ?
   gen_flavor=1; nmu_mom=0;
   double gen_pv = 0;
   size_t ndsgen = 0;
@@ -852,171 +854,171 @@ void T3MNtuple::fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   for(size_t i = 0; i < kinematic_muon_index.size()-1; ++ i)      //  loop over muons passed kinematic cuts
     {
-    const Muon & m_1 = (*muons)[kinematic_muon_index[i]];
+      const Muon & m_1 = (*muons)[kinematic_muon_index[i]];
 
 
-    for(size_t j = i+1; j < kinematic_muon_index.size(); ++ j)   // second loop to find a muon pair
-      {
-      const Muon & m_2 = (*muons)[kinematic_muon_index[j]];
-
-      double dz12 = abs(m_2.innerTrack()->dz(beamSpotHandle->position())-m_1.innerTrack()->dz(beamSpotHandle->position()));  //   DeltaZ
-      double dr12 = deltaR(m_1.eta(), m_1.phi(), m_2.eta(), m_2.phi());                                                      //   DeltaR
-
-      if(dz12>0.5 ||  dr12>0.8)continue; // if Delta POCA_Z of two muon candiadate  > 0.5 cm or large deltaR  - skip the pair  candidate
-      if(j<kinematic_muon_index.size()-1) 
+      for(size_t j = i+1; j < kinematic_muon_index.size(); ++ j)   // second loop to find a muon pair
 	{
-	for(size_t k = j+1; k < kinematic_muon_index.size(); ++ k) 
-	  {
-	  const Muon & m_3 = (*muons)[kinematic_muon_index[k]];
+	  const Muon & m_2 = (*muons)[kinematic_muon_index[j]];
 
-	  size_t n_muons_pt2p5 = 0;
-	  if(m_1.pt()>2.5)n_muons_pt2p5++;
-	  if(m_2.pt()>2.5)n_muons_pt2p5++;
-	  if(m_3.pt()>2.5)n_muons_pt2p5++;
-	  if(n_muons_pt2p5<2)continue;  //  ?? only to reduce the ntuple size ?
+	  double dz12 = abs(m_2.innerTrack()->dz(beamSpotHandle->position())-m_1.innerTrack()->dz(beamSpotHandle->position()));  //   DeltaZ
+	  double dr12 = deltaR(m_1.eta(), m_1.phi(), m_2.eta(), m_2.phi());                                                      //   DeltaR
 
-	  double dz23 = abs(m_3.innerTrack()->dz(beamSpotHandle->position())-m_2.innerTrack()->dz(beamSpotHandle->position()));
-	  double dz31 = abs(m_3.innerTrack()->dz(beamSpotHandle->position())-m_1.innerTrack()->dz(beamSpotHandle->position()));
-	  if(dz23>0.5 || dz31>0.5)continue;
-	  double dr23 = deltaR(m_3.eta(), m_3.phi(), m_2.eta(), m_2.phi());
-	  double dr31 = deltaR(m_3.eta(), m_3.phi(), m_1.eta(), m_1.phi());
-	  if(dr23>0.8 || dr31>0.8)continue;
-
-
-
-	  if(abs(m_1.charge()+m_2.charge()+m_3.charge())>1.1)continue;
-
-	  vector<TransientTrack> t_trks;   
-	  ESHandle<TransientTrackBuilder> theB;
-	  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
-	  TrackRef trk1 = m_1.innerTrack();
-	  TrackRef trk2 = m_2.innerTrack();
-	  TrackRef trk3 = m_3.innerTrack();
-	  t_trks.push_back(theB->build(trk1));
-	  t_trks.push_back(theB->build(trk2));
-	  t_trks.push_back(theB->build(trk3));
-	  KalmanVertexFitter kvf;
-	  TransientVertex fv = kvf.vertex(t_trks);
-
-	  if(!fv.isValid()) continue; // eff ? 
-	  double fvnC_tmp = fv.totalChiSquared()/fv.degreesOfFreedom();
-
-	  //vtau.SetPxPyPzE(m_1.px()+m_2.px()+m_3.px(), m_1.py()+m_2.py()+m_3.py(), m_1.pz()+m_2.pz()+m_3.pz(), m_1.energy()+m_2.energy()+m_3.energy());
-	  
-	  if(n_reco==0)n_reco=3;
-	  else {n_reco++;}
-
-	  
-	  //if(vtau.M() >  max_mtau){ // keep the max mass
-	  if(fvnC_tmp < min_fvnC)  // check the loose quality of the SV
+	  if(dz12>0.5 ||  dr12>0.8)continue; // if Delta POCA_Z of two muon candiadate  > 0.5 cm or large deltaR  - skip the pair  candidate
+	  if(j<kinematic_muon_index.size()-1) 
 	    {
-	      if(m_1.p()>m_2.p())  // sort muons by momentum
+	      for(size_t k = j+1; k < kinematic_muon_index.size(); ++ k) 
 		{
-		  if(m_2.p()>m_3.p())
+		  const Muon & m_3 = (*muons)[kinematic_muon_index[k]];
+
+		  size_t n_muons_pt2p5 = 0;
+		  if(m_1.pt()>2.5)n_muons_pt2p5++;
+		  if(m_2.pt()>2.5)n_muons_pt2p5++;
+		  if(m_3.pt()>2.5)n_muons_pt2p5++;
+		  if(n_muons_pt2p5<2)continue;  //  ?? only to reduce the ntuple size ?
+
+		  double dz23 = abs(m_3.innerTrack()->dz(beamSpotHandle->position())-m_2.innerTrack()->dz(beamSpotHandle->position()));
+		  double dz31 = abs(m_3.innerTrack()->dz(beamSpotHandle->position())-m_1.innerTrack()->dz(beamSpotHandle->position()));
+		  if(dz23>0.5 || dz31>0.5)continue;
+		  double dr23 = deltaR(m_3.eta(), m_3.phi(), m_2.eta(), m_2.phi());
+		  double dr31 = deltaR(m_3.eta(), m_3.phi(), m_1.eta(), m_1.phi());
+		  if(dr23>0.8 || dr31>0.8)continue;
+
+
+
+		  if(abs(m_1.charge()+m_2.charge()+m_3.charge())>1.1)continue;
+
+		  vector<TransientTrack> t_trks;   
+		  ESHandle<TransientTrackBuilder> theB;
+		  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+		  TrackRef trk1 = m_1.innerTrack();
+		  TrackRef trk2 = m_2.innerTrack();
+		  TrackRef trk3 = m_3.innerTrack();
+		  t_trks.push_back(theB->build(trk1));
+		  t_trks.push_back(theB->build(trk2));
+		  t_trks.push_back(theB->build(trk3));
+		  KalmanVertexFitter kvf;
+		  TransientVertex fv = kvf.vertex(t_trks);
+
+		  if(!fv.isValid()) continue; // eff ? 
+		  double fvnC_tmp = fv.totalChiSquared()/fv.degreesOfFreedom();
+
+		  //vtau.SetPxPyPzE(m_1.px()+m_2.px()+m_3.px(), m_1.py()+m_2.py()+m_3.py(), m_1.pz()+m_2.pz()+m_3.pz(), m_1.energy()+m_2.energy()+m_3.energy());
+	  
+		  if(n_reco==0)n_reco=3;
+		  else {n_reco++;}
+
+	  
+		  //if(vtau.M() >  max_mtau){ // keep the max mass
+		  if(fvnC_tmp < min_fvnC)  // check the loose quality of the SV
 		    {
-		      j1=kinematic_muon_index[i]; j2=kinematic_muon_index[j]; j3=kinematic_muon_index[k];
-		    }
-		  else if(m_1.p()>m_3.p())
-		    {
-		      j1=kinematic_muon_index[i]; j2=kinematic_muon_index[k]; j3=kinematic_muon_index[j];
-		    }
-		  else
-		    {
-		      j1=kinematic_muon_index[k]; j2=kinematic_muon_index[i]; j3=kinematic_muon_index[j];
-		    }
-		}
-	      else 
-		{
-		  if(m_1.p()>m_3.p())
-		    {
-		      j1=kinematic_muon_index[j]; j2=kinematic_muon_index[i]; j3=kinematic_muon_index[k];
-		    }
-		  else if(m_2.p()>m_3.p())
-		    {
-		      j1=kinematic_muon_index[j]; j2=kinematic_muon_index[k]; j3=kinematic_muon_index[i];
-		    }
-		  else 
-		    {
-		      j1=kinematic_muon_index[k]; j2=kinematic_muon_index[j]; j3=kinematic_muon_index[i];
-		    }
-		}
+		      if(m_1.p()>m_2.p())  // sort muons by momentum
+			{
+			  if(m_2.p()>m_3.p())
+			    {
+			      j1=kinematic_muon_index[i]; j2=kinematic_muon_index[j]; j3=kinematic_muon_index[k];
+			    }
+			  else if(m_1.p()>m_3.p())
+			    {
+			      j1=kinematic_muon_index[i]; j2=kinematic_muon_index[k]; j3=kinematic_muon_index[j];
+			    }
+			  else
+			    {
+			      j1=kinematic_muon_index[k]; j2=kinematic_muon_index[i]; j3=kinematic_muon_index[j];
+			    }
+			}
+		      else 
+			{
+			  if(m_1.p()>m_3.p())
+			    {
+			      j1=kinematic_muon_index[j]; j2=kinematic_muon_index[i]; j3=kinematic_muon_index[k];
+			    }
+			  else if(m_2.p()>m_3.p())
+			    {
+			      j1=kinematic_muon_index[j]; j2=kinematic_muon_index[k]; j3=kinematic_muon_index[i];
+			    }
+			  else 
+			    {
+			      j1=kinematic_muon_index[k]; j2=kinematic_muon_index[j]; j3=kinematic_muon_index[i];
+			    }
+			}
 	      
-	      min_fvnC = fvnC_tmp; // select finally the three_muon candidate by the best vertex;
+		      min_fvnC = fvnC_tmp; // select finally the three_muon candidate by the best vertex;
+		    }
+		}
 	    }
-	  }
-	}
       
-      if(n_reco<3 && do2mu_ && m_1.pt() > 2.5 && m_2.pt() > 2.5)  ////////// if do 2mu+1trk
-	{
-	  for(size_t itk = 0; itk < trks->size(); itk++)
-	  {
-	    const Track & t = (*trks)[itk];
-
-	    if(!isGoodTrack(t)) continue;
-	    if(!(abs(t.dxy(beamSpotHandle->position())) < .3)  ||  !(abs(t.dz(beamSpotHandle->position())) < 20)) continue;   // check if the tracks is far from the BS.
-
-
-	    
-	    double dz23 = abs(t.dz(beamSpotHandle->position())-m_2.innerTrack()->dz(beamSpotHandle->position()));  // if the POCA of the track candidate is far from the muons - continue
-	    double dz31 = abs(t.dz(beamSpotHandle->position())-m_1.innerTrack()->dz(beamSpotHandle->position()));
-
-	    if(dz23 > 0.5 || dz31 > 0.5)  continue;
-
-	    double dr23 = deltaR(t.eta(), t.phi(), m_2.eta(), m_2.phi());
-	    double dr31 = deltaR(t.eta(), t.phi(), m_1.eta(), m_1.phi());
-
-	    if(dr23 > 1.2 || dr31 > 1.2)    continue;
-	    if(dr23 < 0.02 || dr31 < 0.02)  continue;
-
-	    if( abs(m_1.charge()+m_2.charge()+t.charge())>1.1 ) continue;  // check the charge
-	    
-	    vector<TransientTrack> t_trks;
-	    ESHandle<TransientTrackBuilder> theB;
-	    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
-	    TrackRef trk1 = m_1.innerTrack();
-	    TrackRef trk2 = m_2.innerTrack();
-	    TrackRef trk3 = TrackRef(trks, itk);
-	    t_trks.push_back(theB->build(trk1));
-	    t_trks.push_back(theB->build(trk2));
-	    t_trks.push_back(theB->build(trk3));
-	    KalmanVertexFitter kvf;
-	    TransientVertex fv = kvf.vertex(t_trks);
-	    if(!fv.isValid()) continue;
-	    double fv_tC = fv.totalChiSquared();
-	    double fv_dOF = fv.degreesOfFreedom();
-	    double fv_nC = fv_tC/fv_dOF;
-	    if(fv_nC > 5) continue;  // why 5 ?
-	    if(fv_nC < min_fvnC_2mu1tk){
-	      
-	      //double t_energy = sqrt(0.140*0.140 + t.p()*t.p()); // pion mass
-	      //vtau.SetPxPyPzE(m_1.px()+m_2.px()+t.px(), m_1.py()+m_2.py()+t.py(), m_1.pz()+m_2.pz()+t.pz(), m_1.energy()+m_2.energy()+t_energy);
-	      //vm12.SetPxPyPzE(m_1.px()+m_2.px(), m_1.py()+m_2.py(), m_1.pz()+m_2.pz(), m_1.energy()+m_2.energy());
-	      //if(min_fvnC_2mu1tk>9.99)cout<<endl;
-	      //cout<<eventN<<"\t"<<fv_nC<<"\t"<<vm12.M()<<"\t"<<vtau.M()<<endl;
-	      //if(vtau.M() >  max_mtau_2mu[0]t) // keep the max mass
-	      
-	      iTrk=itk; // index of the survived candidate
-	      n_reco=2; //  2mu + track category
-	      
-	      if(m_1.p()>m_2.p()) // sort muons by p
+	  if(n_reco<3 && do2mu_ && m_1.pt() > 2.5 && m_2.pt() > 2.5)  ////////// if do 2mu+1trk
+	    {
+	      for(size_t itk = 0; itk < trks->size(); itk++)
 		{
-		  j1=kinematic_muon_index[i]; j2=kinematic_muon_index[j];
-		}
-	      else 
-		{
-		  j1=kinematic_muon_index[j]; j2=kinematic_muon_index[i];
-		}
+		  const Track & t = (*trks)[itk];
 
-	      //max_mtau_2mu[0]t = vtau.M();
-	      min_fvnC_2mu1tk = fv_nC;
-	      
-	    }
+		  if(!isGoodTrack(t)) continue;
+		  if(!(abs(t.dxy(beamSpotHandle->position())) < .3)  ||  !(abs(t.dz(beamSpotHandle->position())) < 20)) continue;   // check if the tracks is far from the BS.
+
+
 	    
-	  } // loop of tracks
+		  double dz23 = abs(t.dz(beamSpotHandle->position())-m_2.innerTrack()->dz(beamSpotHandle->position()));  // if the POCA of the track candidate is far from the muons - continue
+		  double dz31 = abs(t.dz(beamSpotHandle->position())-m_1.innerTrack()->dz(beamSpotHandle->position()));
+
+		  if(dz23 > 0.5 || dz31 > 0.5)  continue;
+
+		  double dr23 = deltaR(t.eta(), t.phi(), m_2.eta(), m_2.phi());
+		  double dr31 = deltaR(t.eta(), t.phi(), m_1.eta(), m_1.phi());
+
+		  if(dr23 > 1.2 || dr31 > 1.2)    continue;
+		  if(dr23 < 0.02 || dr31 < 0.02)  continue;
+
+		  if( abs(m_1.charge()+m_2.charge()+t.charge())>1.1 ) continue;  // check the charge
+	    
+		  vector<TransientTrack> t_trks;
+		  ESHandle<TransientTrackBuilder> theB;
+		  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+		  TrackRef trk1 = m_1.innerTrack();
+		  TrackRef trk2 = m_2.innerTrack();
+		  TrackRef trk3 = TrackRef(trks, itk);
+		  t_trks.push_back(theB->build(trk1));
+		  t_trks.push_back(theB->build(trk2));
+		  t_trks.push_back(theB->build(trk3));
+		  KalmanVertexFitter kvf;
+		  TransientVertex fv = kvf.vertex(t_trks);
+		  if(!fv.isValid()) continue;
+		  double fv_tC = fv.totalChiSquared();
+		  double fv_dOF = fv.degreesOfFreedom();
+		  double fv_nC = fv_tC/fv_dOF;
+		  if(fv_nC > 5) continue;  // why 5 ?
+		  if(fv_nC < min_fvnC_2mu1tk){
+	      
+		    //double t_energy = sqrt(0.140*0.140 + t.p()*t.p()); // pion mass
+		    //vtau.SetPxPyPzE(m_1.px()+m_2.px()+t.px(), m_1.py()+m_2.py()+t.py(), m_1.pz()+m_2.pz()+t.pz(), m_1.energy()+m_2.energy()+t_energy);
+		    //vm12.SetPxPyPzE(m_1.px()+m_2.px(), m_1.py()+m_2.py(), m_1.pz()+m_2.pz(), m_1.energy()+m_2.energy());
+		    //if(min_fvnC_2mu1tk>9.99)cout<<endl;
+		    //cout<<eventN<<"\t"<<fv_nC<<"\t"<<vm12.M()<<"\t"<<vtau.M()<<endl;
+		    //if(vtau.M() >  max_mtau_2mu[0]t) // keep the max mass
+	      
+		    iTrk=itk; // index of the survived candidate
+		    n_reco=2; //  2mu + track category
+	      
+		    if(m_1.p()>m_2.p()) // sort muons by p
+		      {
+			j1=kinematic_muon_index[i]; j2=kinematic_muon_index[j];
+		      }
+		    else 
+		      {
+			j1=kinematic_muon_index[j]; j2=kinematic_muon_index[i];
+		      }
+
+		    //max_mtau_2mu[0]t = vtau.M();
+		    min_fvnC_2mu1tk = fv_nC;
+	      
+		  }
+	    
+		} // loop of tracks
 	
-	} // if (n_reco<3)
+	    } // if (n_reco<3)
       
-      }
+	}
     
     }
 
