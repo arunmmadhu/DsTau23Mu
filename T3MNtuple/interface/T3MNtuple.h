@@ -128,6 +128,9 @@ private:
   bool fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   std::vector<std::vector<unsigned int> > findThreeMuonsCandidates(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
+  template<class T>
+  void TriggerMatch(edm::Handle<trigger::TriggerEvent> &triggerSummary,  T obj, double drmax, float &match);
+ 
   bool isGoodTrack(const Track &track);
   bool getTrackMatch(edm::Handle<std::vector<reco::Track> > &trackCollection, reco::TrackRef &refTrack, int &match);
 

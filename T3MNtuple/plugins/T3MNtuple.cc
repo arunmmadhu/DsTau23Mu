@@ -1346,7 +1346,7 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
     reco::MuonRef RefMuon(muonCollection, Muon_index);
     if((RefMuon->pt() > MuonPtCut_) || (abs(RefMuon->eta()) < MuonEtaCut_))
     {
-      std::cout<<"index over all muons: "<< Muon_index << "  pt  "<< RefMuon->pt() <<"PF&Gl" <<RefMuon->isPFMuon()<< RefMuon->isGlobalMuon() << std::endl;		
+      //      std::cout<<"index over all muons: "<< Muon_index << "  pt  "<< RefMuon->pt() <<"PF&Gl" <<RefMuon->isPFMuon()<< RefMuon->isGlobalMuon() << std::endl;		
     //    if (isGoodMuon(RefMuon)) {
       std::vector<double> iMuon_Poca;
       iMuon_Poca.push_back(RefMuon->vx());
@@ -1611,14 +1611,69 @@ T3MNtuple::fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup
 
 bool 
 T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup){
-  if(findThreeMuonsCandidates.size()==0){
+
+  Handle<trigger::TriggerEvent> triggerSummary;
+  iEvent.getByToken(trigeventToken_, triggerSummary);
+
+  std::vector<std::vector<unsigned int> > PreselectedThreeMuonsCollection;
+  std::vector<std::vector<unsigned int> > ThreeMuons_idx;
+  PreselectedThreeMuonsCollection = findThreeMuonsCandidates(iEvent, iSetup);
+  if(PreselectedThreeMuonsCollection.size()==0){
     std::cout<<"No three muons candidate is found! Skip the event" << std::endl; return false;
   }
+  Handle<MuonCollection> muonCollection;
+  iEvent.getByToken(muonToken_, muonCollection);
+  for ( auto &iThreeMuon :  PreselectedThreeMuonsCollection ) {
+    vector<TransientTrack> t_trks;   
+    ESHandle<TransientTrackBuilder> theB;
+    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+    reco::MuonRef Muon1(muonCollection, iThreeMuon.at(0));
+    reco::MuonRef Muon2(muonCollection, iThreeMuon.at(1));
+    reco::MuonRef Muon3(muonCollection, iThreeMuon.at(2));
 
+    TrackRef track1 = Muon1->globalTrack();
+    TrackRef track2 = Muon2->globalTrack();
+    TrackRef track3 = Muon3->globalTrack();
+    t_trks.push_back(theB->build(track1));
+    t_trks.push_back(theB->build(track2));
+    t_trks.push_back(theB->build(track3));
+    KalmanVertexFitter kvf;
+    TransientVertex fv = kvf.vertex(t_trks);
+
+    if(fv.isValid()){
+      ThreeMuons_idx.push_back(iThreeMuon);
+       for ( auto &iMuon :  iThreeMuon ) {
+      	float match;
+	reco::MuonRef MuonTriggMatch(muonCollection, iMuon);
+	TriggerMatch(triggerSummary,  MuonTriggMatch , 999., match);
+	//  fill dr matching here
+       }
+      //      ThreeMuons_SV_Chi2.push_back(fv.totalChiSquared());
+      //      ThreeMuons_SV_NDF.push_back(fv.totalChiSquared());
+    }
+  }
 
 
   return true;
 }
+
+template<class T>
+void T3MNtuple::TriggerMatch(edm::Handle<trigger::TriggerEvent> &triggerSummary,  T obj, double drmax, float &match) {
+  match = 999.;
+  std::vector<trigger::TriggerObject> trgobjs = triggerSummary->getObjects();
+  edm::InputTag MuonFilterTag = edm::InputTag("hltTau3muTkVertexFilter", "", "HLT"); 
+  size_t MuonFilterIndex = (*triggerSummary).filterIndex(MuonFilterTag); 
+  if(MuonFilterIndex < (*triggerSummary).sizeFilters()) {
+    const trigger::Keys &KEYS = (*triggerSummary).filterKeys(MuonFilterIndex);
+    for (unsigned int ipart = 0; ipart < KEYS.size(); ipart++) {
+      double dr = reco::deltaR(trgobjs.at(KEYS.at(ipart)).eta(), trgobjs.at(KEYS.at(ipart)).phi(), obj->eta(), obj->phi());
+      if (dr < drmax) {
+	match = dr;
+      }
+    }
+  }
+}
+
 
 
 std::vector<std::vector<unsigned int> > 
@@ -1653,7 +1708,7 @@ T3MNtuple::findThreeMuonsCandidates(const edm::Event& iEvent, const edm::EventSe
 	double dr_12 = deltaR(Muon1->eta(), Muon1->phi(), Muon2->eta(), Muon2->phi());                                                //   not far from each other
 	
 	//	if(dz_12>0.5 ||  dr_12>0.8)continue; // - to be checked
-	dump_index.push_back(i);dump_index.push_back(j);
+	//	dump_index.push_back(i);dump_index.push_back(j);
 	if(j<preselected_muon_idx.size()-1){
 	  for(size_t k = j+1; k < preselected_muon_idx.size(); ++ k){
 	    reco::MuonRef  Muon3(muonCollection, k);
@@ -1672,13 +1727,17 @@ T3MNtuple::findThreeMuonsCandidates(const edm::Event& iEvent, const edm::EventSe
 	    //		if(dr_23>0.8 || dr_31>0.8)continue; // - to be checked
 	    //		if(dz_23>0.5 || dz_31>0.5)continue; // - to be checked
 	    if(abs(Muon1->charge()+Muon2->charge()+Muon3->charge())>1.1)continue;
+	    dump_index.push_back(i);
+	    dump_index.push_back(j);
 	    dump_index.push_back(k);
 	    ThreeMuonsCollection.push_back(dump_index);
+	    dump_index.clear();
 	  }
 	}
       }
     }
   }
+
   return ThreeMuonsCollection;
 }
 
