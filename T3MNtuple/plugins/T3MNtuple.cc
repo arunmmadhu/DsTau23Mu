@@ -470,8 +470,9 @@ T3MNtuple::fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup
     std::cout<<"2mu + track vertex is valid   "<< transVtx.isValid() << "   Fit Ok   " << FitOk <<std::endl;
 
     if(FitOk){
-      //      if(transVtx.totalChiSquared() < 15){
-      if(transVtx.totalChiSquared() < 15 && Muon1->charge()*Muon2->charge()!=1){
+      if(transVtx.totalChiSquared() < 15){
+      //      if(transVtx.totalChiSquared() < 15 && Muon1->charge()*Muon2->charge()!=1){
+
 	std::cout<<"  muons charge   "<<  Muon1->charge() <<"  "<< Muon2->charge() <<std::endl;
 	std::cout<<"  -------- Phi mass "<< (mv1 + mv2).M()  << std::endl;
 
