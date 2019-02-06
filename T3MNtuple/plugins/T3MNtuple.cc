@@ -23,8 +23,6 @@ double T3MNtuple::TrackEtaCut_(999);
 T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
   TriggerMuonMatchingdr_(iConfig.getUntrackedParameter("TriggerMuonMatchingdr", (double) 0.3)),
   muonToken_(consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
-  //badmuonToken_(consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("badmuons"))),
-  //jetToken_(consumes<reco::JetCollection>(iConfig.getParameter<edm::InputTag>("ak4PFJetsCHS"))),
   btagCvsBToken_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("btagsCvsB"))),
   btagCSVToken_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("btagsCSV"))),
   btagMVAToken_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("btagsMVA"))),
@@ -34,25 +32,11 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
   triggerToken_(consumes<TriggerResults>(iConfig.getParameter<InputTag>("triggerBitsH"))),
   trigeventToken_(consumes<trigger::TriggerEvent>(iConfig.getParameter<InputTag>("triggerSummary"))),
   algToken_(consumes<BXVector<GlobalAlgBlk>>(iConfig.getParameter<InputTag>("AlgInputTag"))),
-  //level1Token_(consumes<L1GlobalTriggerReadoutRecord>(iConfig.getParameter<InputTag>("gtRecards"))),
   bsToken_(consumes<BeamSpot>(iConfig.getParameter<InputTag>("beamSpotHandle"))),
   puToken_(consumes<vector<PileupSummaryInfo> >(iConfig.getParameter<InputTag>("pileupSummary"))),
   genToken_(consumes<GenParticleCollection>(iConfig.getParameter<InputTag>("genParticles")))
-
-  //BadGlbMuonFilterToken_(consumes<bool>(iConfig.getParameter<edm::InputTag>("BadGlbMuonFilter")))
-  //refitter_(iConfig)
 {
-
   gtUtil_ = new L1TGlobalUtil(iConfig, consumesCollector(), *this, algInputTag_, algInputTag_);
-  //ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("PFCaloCompatibility");
-  //muonCaloCompatibility_.configure( parameters );
-
-  //ParameterSet parameters2 = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
-  //ConsumesCollector iC = consumesCollector();
-  //parameters_.loadParameters( parameters2, iC );
-
-  //trackAssociator_.useDefaultPropagator();
-
   doMC_ = iConfig.getParameter<bool>("doMC");
   wideSB_ = iConfig.getParameter<bool>("wideSB");
   do2mu_ = iConfig.getParameter<bool>("do2mu");
@@ -99,14 +83,6 @@ bool T3MNtuple::isGoodTrack(const Track &track) {
   return false;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// bool TauNtuple::getTrackMatch(edm::Handle< std::vector<reco::Track>  > &trackCollection, reco::TrackRef &refTrack, int &match)
-//
-// finds track match for a given TrackRef
-// returns true  if the matching track is found in the collection and sets match to the index of the found track
-// retruns false if on match is found in the collection and match is set to -1.
 bool T3MNtuple::getTrackMatch(edm::Handle<std::vector<reco::Track> > &trackCollection, reco::TrackRef &refTrack, int &match) {
   match = -1;
   for (unsigned int iTrack = 0; iTrack < trackCollection->size(); iTrack++) {
@@ -127,14 +103,14 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   cnt_++;
   ClearEvent();
   
-  if(doThreeMuons_)
-    Event_nsignal_candidates =   fillThreeMuons(iEvent, iSetup);
-  if(Event_nsignal_candidates==0){
-    if(doTwoMuonsAndTrack_)
-      Event_ndsphipi_candidate = fillTwoMuonsAndTracks(iEvent, iSetup);
-  }
+  if(doThreeMuons_) Event_nsignal_candidates =   fillThreeMuons(iEvent, iSetup);
+  if(Event_nsignal_candidates==0)
+    {
+      if(doTwoMuonsAndTrack_) Event_ndsphipi_candidate = fillTwoMuonsAndTracks(iEvent, iSetup);
+    }
   
-  if(Event_nsignal_candidates!=0 or Event_ndsphipi_candidate!=0){
+  if(Event_nsignal_candidates!=0 or Event_ndsphipi_candidate!=0)
+    {
     fillEventInfo(iEvent, iSetup);
     if(doTracks_)
       fillTracks(iEvent, iSetup);
@@ -150,8 +126,6 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   fillDsTree(iEvent, iSetup); // method by Jian
 }
-
-
 
 void T3MNtuple::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
