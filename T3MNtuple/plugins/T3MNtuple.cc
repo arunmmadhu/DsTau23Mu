@@ -99,16 +99,15 @@ bool T3MNtuple::getTrackMatch(edm::Handle<std::vector<reco::Track> > &trackColle
 void
 T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  std::cout<<" ========================  new event =============== "<< std::endl;
+  //  std::cout<<" ========================  new event =============== "<< std::endl;
   cnt_++;
   ClearEvent();
   
   if(doThreeMuons_) Event_nsignal_candidates =   fillThreeMuons(iEvent, iSetup);
   if(Event_nsignal_candidates==0)
     {
-      //      if(doTwoMuonsAndTrack_) Event_ndsphipi_candidate = fillTwoMuonsAndTracks(iEvent, iSetup);
+      if(doTwoMuonsAndTrack_) Event_ndsphipi_candidate = fillTwoMuonsAndTracks(iEvent, iSetup);
     }
-  if(doTwoMuonsAndTrack_) Event_ndsphipi_candidate = fillTwoMuonsAndTracks(iEvent, iSetup);
   if(Event_nsignal_candidates!=0 or Event_ndsphipi_candidate!=0)
     {
       fillEventInfo(iEvent, iSetup);
@@ -131,9 +130,10 @@ void T3MNtuple::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSet
 {
   Handle<TrackCollection> trackCollection;
   iEvent.getByToken(trackToken_, trackCollection);
+  unsigned int index(0);
   std::vector<reco::Track>::const_iterator trIt  = trackCollection->begin();
   std::vector<reco::Track>::const_iterator trEnd = trackCollection->end();
-  for (; trIt != trEnd; ++trIt) 
+  for (; trIt != trEnd; ++trIt, index++) 
     {
       std::vector<double> iTrack_p4;
       std::vector<double> iTrack_poca;
@@ -144,7 +144,6 @@ void T3MNtuple::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSet
 	iTrack_p4.push_back(track.py());
 	iTrack_p4.push_back(track.pz());
 	Track_p4.push_back(iTrack_p4);
-	
 	Track_normalizedChi2.push_back(track.normalizedChi2());
 	Track_numberOfValidHits.push_back(track.numberOfValidHits());
 	Track_charge.push_back(track.charge());
@@ -436,7 +435,6 @@ T3MNtuple::fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup
 
   Handle<MuonCollection> muonCollection;
   iEvent.getByToken(muonToken_, muonCollection);
-  std::cout<<"2mu+trak cands:  "<<PreselectedTwoMuonsTrackCollection.size()<<std::endl;
   for ( auto &iTwoMuTr :  PreselectedTwoMuonsTrackCollection ) {
     vector<TransientTrack> t_trks;
     TransientVertex transVtx;
@@ -456,7 +454,6 @@ T3MNtuple::fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup
     t_trks.push_back(theB->build(track1));
     t_trks.push_back(theB->build(track2));
     t_trks.push_back(theB->build(track3));
-    std::cout<<"tracks pt before fitting "<<track1->pt() <<"  "<< track2->pt()<<"  "<< track3->pt() <<"  "<< track33.pt() <<std::endl;
     KalmanVertexFitter kvf(true);
     bool FitOk(true);
     try {
@@ -470,14 +467,8 @@ T3MNtuple::fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup
       FitOk = false;
 
     if(FitOk){
-      if(transVtx.totalChiSquared() < 15){
+      if(transVtx.totalChiSquared() < 10){
       //if(transVtx.totalChiSquared() < 15 && Muon1->charge()*Muon2->charge()!=1){
-
-	std::cout<<"mu 1 pt  "<< Muon1->pt() <<std::endl;
-	std::cout<<"mu 2 pt  "<< Muon2->pt() <<std::endl;
-	std::cout<<"tr   pt  "<< track3->pt() <<std::endl;
-	std::cout<<"  -------- Phi mass "<< (mv1 + mv2).M()  << std::endl;
-
 
 	h_phimass->Fill((mv1 + mv2).M());
 	TwoMuonsTrack_idx.push_back(iTwoMuTr);
@@ -574,7 +565,7 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
       FitOk = false;
 
     if(FitOk){
-      if(transVtx.totalChiSquared() <15){
+      if(transVtx.totalChiSquared() <10){
 	ThreeMuons_idx.push_back(iThreeMuon);
 	ThreeMuons_SV_Chi2.push_back(transVtx.totalChiSquared());
 	ThreeMuons_SV_NDF.push_back(transVtx.degreesOfFreedom());
@@ -626,13 +617,12 @@ T3MNtuple::findTwoMuonsAndTrackCandidates(const edm::Event& iEvent, const edm::E
   Handle<MuonCollection> muonCollection;
   iEvent.getByToken(muonToken_, muonCollection);
   int Muon_index = 0;
-  int Track_index = 0;
+
   std::vector<unsigned int> preselected_muon_idx;
   std::vector<std::vector<unsigned int> > TwoMuonsPlusTrackCollection; // note that the track index goes last
 
   for (reco::MuonCollection::const_iterator iMuon = muonCollection->begin(); iMuon != muonCollection->end(); ++iMuon, Muon_index++) {
     reco::MuonRef RefMuon(muonCollection, Muon_index);
-    std::cout<<":::  pt  "<<RefMuon->pt() <<  "   eta  "<< RefMuon->eta()  <<"    " << RefMuon->isPFMuon() << RefMuon->isGlobalMuon()<<std::endl;
     if((RefMuon->pt() < MuonPtCut_) || (std::fabs(RefMuon->eta()) > MuonEtaCut_)) continue;
     if(RefMuon->isPFMuon() && RefMuon->isGlobalMuon()) preselected_muon_idx.push_back(Muon_index);
   }
@@ -646,8 +636,9 @@ T3MNtuple::findTwoMuonsAndTrackCandidates(const edm::Event& iEvent, const edm::E
 
         double dz_12 = abs(Muon2->innerTrack()->dz(beamSpotHandle->position())-Muon1->innerTrack()->dz(beamSpotHandle->position()));  //   Check that two muons are
         double dr_12 = deltaR(Muon1->eta(), Muon1->phi(), Muon2->eta(), Muon2->phi());                                                //   not far from each othe
-	//	std::cout<<"finding trakcs: mu and mu pt   "<< Muon1->pt() <<"   "<< Muon2->pt() << std::endl;
-        //      if(dz_12>0.5 ||  dr_12>0.8)continue; // - to be checked
+
+	if(dz_12>0.5 ||  dr_12>0.8)continue; // - to be checked
+	unsigned int Track_index = 0;
 	for (reco::TrackCollection::const_iterator iTrack = trackCollection->begin(); iTrack != trackCollection->end(); ++iTrack, Track_index++)
 	  {
 	    const reco::Track track = (*iTrack);
@@ -667,9 +658,6 @@ T3MNtuple::findTwoMuonsAndTrackCandidates(const edm::Event& iEvent, const edm::E
 	      
 	      if( abs(Muon1->charge() + Muon2->charge() + track.charge())>1.1 ) continue;  // check the charge
 
-	      //	      std::cout<<" charge  "<<  abs(Muon1->charge() + Muon2->charge() + track.charge()) << std::endl;
-	      std::cout<<" indixes  "<< preselected_muon_idx.at(i) <<"  "<< preselected_muon_idx.at(j) <<"   " <<Track_index <<"   Track Pt  " << track.pt() <<std::endl;
-	      std::cout<<"check TrackPt   "<< (*trackCollection)[Track_index].pt() << std::endl;
 	      dump_index.push_back(preselected_muon_idx.at(i));
 	      dump_index.push_back(preselected_muon_idx.at(j));
 	      dump_index.push_back(Track_index);
@@ -717,8 +705,7 @@ T3MNtuple::findThreeMuonsCandidates(const edm::Event& iEvent, const edm::EventSe
 	double dz_12 = abs(Muon2->innerTrack()->dz(beamSpotHandle->position())-Muon1->innerTrack()->dz(beamSpotHandle->position()));  //   Check that two muons are 
 	double dr_12 = deltaR(Muon1->eta(), Muon1->phi(), Muon2->eta(), Muon2->phi());                                                //   not far from each other
 	
-	//      if(dz_12>0.5 ||  dr_12>0.8)continue; // - to be checked  -  this is previsou req.
-	if(dz_12>0.8 ||  dr_12> 1.)continue; // - to be checked
+	if(dz_12>0.5 ||  dr_12>0.8)continue; // - to be checked  -  this is previsou req.
 	if(j<preselected_muon_idx.size()-1){
 	  for(size_t k = j+1; k < preselected_muon_idx.size(); ++ k){
 	    reco::MuonRef  Muon3(muonCollection, preselected_muon_idx.at(k));
@@ -734,11 +721,9 @@ T3MNtuple::findThreeMuonsCandidates(const edm::Event& iEvent, const edm::EventSe
 	    double dr_23 = deltaR(Muon3->eta(), Muon3->phi(), Muon2->eta(), Muon2->phi());
 	    double dr_31 = deltaR(Muon3->eta(), Muon3->phi(), Muon1->eta(), Muon1->phi());
 	    
-	    //		if(dr_23>0.8 || dr_31>0.8)continue; // - to be checked  -  this is previsou req.
-	    //		if(dz_23>0.5 || dz_31>0.5)continue; // - to be checked  -  this is previsou req.
+	    if(dr_23>0.8 || dr_31>0.8)continue; // - to be checked  -  this is previsou req.
+	    if(dz_23>0.5 || dz_31>0.5)continue; // - to be checked  -  this is previsou req.
 
-	    if(dr_23>1. || dr_31>1.)continue; // - to be checked
-	    if(dz_23>0.8 || dz_31>0.8)continue; // - to be checked
 	    if(abs(Muon1->charge()+Muon2->charge()+Muon3->charge())>1.1)continue;
 	    dump_index.push_back(preselected_muon_idx.at(i));
 	    dump_index.push_back(preselected_muon_idx.at(j));
@@ -1290,11 +1275,6 @@ void T3MNtuple::fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSet
   mv2.SetPtEtaPhiM(mu[1].pt(), mu[1].eta(), mu[1].phi(), 0.106);
   mv3.SetPtEtaPhiM(t3->pt(), t3->eta(), t3->phi(), n_reco>2?0.106:0.140);
   m2mu_12 = (mv1+mv2).M();
-  h_phimassj->Fill(m2mu_12);
-  std::cout<<"-------------------- Jian Mass "<< m2mu_12 <<std::endl;
-  std::cout<<"mu1 pt "<< mv1.Pt() <<std::endl;
-  std::cout<<"mu2 pt "<< mv2.Pt() <<std::endl;
-  std::cout<<"trk pt "<< mv3.Pt() <<std::endl;
   if(n_reco==2 && abs(m2mu_12-1.02)>0.02)return;
   m2mu_23 = (mv2+mv3).M();
   m2mu_31 = (mv3+mv1).M();
@@ -2025,8 +2005,7 @@ T3MNtuple::beginJob()
   h_n3mu = fs->make<TH1F>("n3mu", "", 10, 0, 10);
   h_step = fs->make<TH1F>("step", "", 10, 0, 10);
 
-  h_phimass= fs->make<TH1F>("phimass", "", 100, 0.6, 1.6);
-  h_phimassj= fs->make<TH1F>("phimassj", "", 100, 0.6, 1.6);
+  h_phimass= fs->make<TH1F>("phimass", "", 100, 0.1, 3.5);
 
   output_former_tree = fs->make<TTree>("ft3mtree", "");
 
