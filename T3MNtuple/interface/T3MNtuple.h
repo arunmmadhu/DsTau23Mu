@@ -331,6 +331,25 @@ private:
   std::vector<std::vector<float> > TwoMuonsTrack_TriggerMatch_dR;
 
 
+  //--------- synchornization
+  int nmuons;
+  int evt;
+  int run;
+  int lumi;
+  double leadmuon_pt;
+  double leadmuon_phi;
+  double leadmuon_eta;
+  double allmuons_pt;
+
+  double leadtrack_pt;
+  double leadtrack_eta;
+  double leadtrack_phi;
+  double alltracks_pt;
+
+  double nprimevtxs;
+         
+
+
 
 
 
@@ -348,6 +367,13 @@ private:
 
   TTree *output_tree;
   TTree *output_former_tree;
+
+
+  // outputfile
+  TFile *sync_file;
+  TTree *sync_tree;
+
+
   TH1F *h_n3mu, *h_step;
   TH1F *h_phimass;
   TH1F *h_phimassj;
