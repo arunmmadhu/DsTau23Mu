@@ -73,7 +73,7 @@ T3MNtuple::~T3MNtuple()
 
 bool T3MNtuple::isGoodTrack(const Track &track) {
   if(track.pt()>TrackPtCut_){
-    if(abs(track.eta())<TrackEtaCut_){
+    if(std::fabs(track.eta())<TrackEtaCut_){
       if(track.hitPattern().trackerLayersWithMeasurement()>5){
 	if(track.hitPattern().pixelLayersWithMeasurement()>1) return true;
       }
