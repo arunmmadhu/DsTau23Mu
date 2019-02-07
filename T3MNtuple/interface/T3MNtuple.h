@@ -351,7 +351,6 @@ private:
   TH1F *h_n3mu, *h_step;
   TH1F *h_phimass;
   TH1F *h_phimassj;
-  TH1F *h_phimassj1;
   InputTag algInputTag_;
   int cnt_;
 
