@@ -99,7 +99,7 @@ bool T3MNtuple::getTrackMatch(edm::Handle<std::vector<reco::Track> > &trackColle
 void
 T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  //  std::cout<<" ========================  new event =============== "<< std::endl;
+  std::cout<<" ========================  new event =============== "<< std::endl;
   cnt_++;
   ClearEvent();
   
@@ -121,6 +121,33 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	fillMCTruth(iEvent, iSetup);
       if(doL1_)
 	fillL1(iEvent, iSetup);
+
+
+      std::cout<<" Idx size "<< TwoMuonsTrack_idx.size() << std::endl;
+      std::cout<<" Index size "<< TwoMuonsTrack_Muonsindex.size() << std::endl;
+      std::cout<<" Track Index size "<< TwoMuonsTrack_Trackindex.size() << std::endl;
+
+      for ( auto &iTwoMuTr :   TwoMuonsTrack_idx ) {
+	for ( auto &iMu :  iTwoMuTr ) {
+	  std::cout<<" Two Muons idx  " << iMu <<std::endl;
+	}
+      }
+
+      for ( auto &iTwoMuTr :  TwoMuonsTrack_Muonsindex ) {
+	for ( auto &iMu :  iTwoMuTr ) {
+	  std::cout<<" Two Muons index  " << iMu <<std::endl;
+	}
+      }
+
+
+      for ( auto &iTwoMuTr :  TwoMuonsTrack_Trackindex ) {
+        for ( auto &iMu :  iTwoMuTr ) {
+	  std::cout<<" Track " << iMu <<std::endl;
+        }
+      }
+
+
+
       output_tree->Fill();
     }
   fillDsTree(iEvent, iSetup); // method by Jian
@@ -130,34 +157,53 @@ void T3MNtuple::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSet
 {
   Handle<TrackCollection> trackCollection;
   iEvent.getByToken(trackToken_, trackCollection);
-  unsigned int index(0);
+  unsigned int Track_index(0);
+  unsigned int sel_track_index = 0;
+
+  TwoMuonsTrack_Trackindex.resize(TwoMuonsTrack_idx.size());
+
   std::vector<reco::Track>::const_iterator trIt  = trackCollection->begin();
   std::vector<reco::Track>::const_iterator trEnd = trackCollection->end();
-  for (; trIt != trEnd; ++trIt, index++) 
+
+  for (; trIt != trEnd; ++trIt, Track_index++) 
     {
-      std::vector<double> iTrack_p4;
-      std::vector<double> iTrack_poca;
-      const reco::Track track = (*trIt);
-      if(isGoodTrack(track)){
-	iTrack_p4.push_back(sqrt(pow(track.p(),2.0) + pow(PDGInfo::pi_mass(),2.0)));
-	iTrack_p4.push_back(track.px());
-	iTrack_p4.push_back(track.py());
-	iTrack_p4.push_back(track.pz());
-	Track_p4.push_back(iTrack_p4);
-	Track_normalizedChi2.push_back(track.normalizedChi2());
-	Track_numberOfValidHits.push_back(track.numberOfValidHits());
-	Track_charge.push_back(track.charge());
-	Track_dxy.push_back(track.dxy());
-	Track_dz.push_back(track.dz());
-	iTrack_poca.push_back(track.vx());
-	iTrack_poca.push_back(track.vy());
-	iTrack_poca.push_back(track.vz());
-	Track_poca.push_back(iTrack_poca);
-	
-	Track_dxyError.push_back(track.dxyError());
-	Track_dzError.push_back(track.dzError());
-      }
+      if(find(dump_track_index_to_fill.begin(), dump_track_index_to_fill.end(), Track_index) !=  dump_track_index_to_fill.end())
+	{
+	  
+	  std::cout<<"Track_index at start of the loop  "<< Track_index <<std::endl;
+	  std::vector<double> iTrack_p4;
+	  std::vector<double> iTrack_poca;
+	  const reco::Track track = (*trIt);
+	  if(isGoodTrack(track)){
+    	    for(unsigned int iTwoMuonsTrack=0;  iTwoMuonsTrack < TwoMuonsTrack_idx.size(); iTwoMuonsTrack++){
+	      if(find(TwoMuonsTrack_idx.at(iTwoMuonsTrack).begin(), TwoMuonsTrack_idx.at(iTwoMuonsTrack).end(), Track_index) !=  TwoMuonsTrack_idx.at(iTwoMuonsTrack).end()){
+		TwoMuonsTrack_Trackindex.at(iTwoMuonsTrack).push_back(sel_track_index);
+		std::cout<<" sel_track_index   "<<sel_track_index <<"    Track_index  "<< Track_index <<"  track px  " << track.px() <<std::endl;
+	      }
+	    }
+
+	    iTrack_p4.push_back(sqrt(pow(track.p(),2.0) + pow(PDGInfo::pi_mass(),2.0)));
+	    iTrack_p4.push_back(track.px());
+	    iTrack_p4.push_back(track.py());
+	    iTrack_p4.push_back(track.pz());
+	    Track_p4.push_back(iTrack_p4);
+	    Track_normalizedChi2.push_back(track.normalizedChi2());
+	    Track_numberOfValidHits.push_back(track.numberOfValidHits());
+	    Track_charge.push_back(track.charge());
+	    Track_dxy.push_back(track.dxy());
+	    Track_dz.push_back(track.dz());
+	    iTrack_poca.push_back(track.vx());
+	    iTrack_poca.push_back(track.vy());
+	    iTrack_poca.push_back(track.vz());
+	    Track_poca.push_back(iTrack_poca);
+	    
+	    Track_dxyError.push_back(track.dxyError());
+	    Track_dzError.push_back(track.dzError());
+	    sel_track_index++;
+	  }
+	}
     }
+  std::cout<<"How many tracks are filled  ??? "<<  Track_p4.size() <<std::endl;
 }
 
 void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -169,18 +215,29 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByToken(muonToken_, muonCollection);
   unsigned int Muon_index = 0;
   unsigned int sel_muon_index = 0;
+  ThreeMuons_index.resize(ThreeMuons_idx.size());
+  TwoMuonsTrack_Muonsindex.resize(TwoMuonsTrack_idx.size());
+
   for (reco::MuonCollection::const_iterator iMuon = muonCollection->begin(); iMuon != muonCollection->end(); ++iMuon, Muon_index++) {
+    //    std::cout<<"Muon_index at start of the loop  "<< Muon_index <<std::endl;
     reco::MuonRef RefMuon(muonCollection, Muon_index);
     if((RefMuon->pt() > MuonPtCut_) || (abs(RefMuon->eta()) < MuonEtaCut_))
       {
 	if(RefMuon->isPFMuon() && RefMuon->isGlobalMuon())
 	  {
-
-	    for ( auto &iThreeMuons :  ThreeMuons_idx ) {  // store Three Muon candidate idx
-	      for ( auto &iMuon :  iThreeMuons ) {
-		if(iMuon == Muon_index) muindex_temp.push_back(sel_muon_index);
+    	    for(unsigned int iThreeMuons=0;  iThreeMuons < ThreeMuons_idx.size(); iThreeMuons++){
+	      if(find(ThreeMuons_idx.at(iThreeMuons).begin(), ThreeMuons_idx.at(iThreeMuons).end(), Muon_index) !=  ThreeMuons_idx.at(iThreeMuons).end()){
+		ThreeMuons_index.at(iThreeMuons).push_back(sel_muon_index);
 	      }
-	      ThreeMuons_index.push_back(muindex_temp);
+	    }
+	    
+	    std::cout<<"   sel_muon_index  before if " <<sel_muon_index<<std::endl;	    
+	    for(unsigned int iTwoMuons=0;  iTwoMuons < TwoMuonsTrack_idx.size(); iTwoMuons++){
+	      if(TwoMuonsTrack_idx.at(iTwoMuons).at(0) == Muon_index || TwoMuonsTrack_idx.at(iTwoMuons).at(1) == Muon_index){
+		//	      if(find(TwoMuonsTrack_idx.at(iTwoMuons).begin(), TwoMuonsTrack_idx.at(iTwoMuons).end()-1, Muon_index) !=  TwoMuonsTrack_idx.at(iTwoMuons).end()){
+		//		std::cout<<" filling the index vector "<< sel_muon_index << " flat index "<< Muon_index <<"  px  "<<  RefMuon->p4().Px() << std::endl;
+		TwoMuonsTrack_Muonsindex.at(iTwoMuons).push_back(sel_muon_index);
+	      }
 	    }
 
 	  std::vector<double> iMuon_Poca;
@@ -446,6 +503,7 @@ T3MNtuple::fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup
 
   Handle<MuonCollection> muonCollection;
   iEvent.getByToken(muonToken_, muonCollection);
+  
   for ( auto &iTwoMuTr :  PreselectedTwoMuonsTrackCollection ) {
     vector<TransientTrack> t_trks;
     TransientVertex transVtx;
@@ -460,7 +518,6 @@ T3MNtuple::fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup
     mv2.SetPtEtaPhiM(Muon2->pt(), Muon2->eta(), Muon2->phi(), 0.106);
     TrackRef track1 = Muon1->innerTrack();
     TrackRef track2 = Muon2->innerTrack();
-    const reco::Track &track33 = (*trackCollection)[iTwoMuTr.at(2)];
     TrackRef track3 = TrackRef(trackCollection, iTwoMuTr.at(2));
     t_trks.push_back(theB->build(track1));
     t_trks.push_back(theB->build(track2));
@@ -478,7 +535,7 @@ T3MNtuple::fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup
       FitOk = false;
 
     if(FitOk){
-      if(transVtx.totalChiSquared() < 10){
+      if(transVtx.totalChiSquared() < 30){
       //if(transVtx.totalChiSquared() < 15 && Muon1->charge()*Muon2->charge()!=1){
 
 	h_phimass->Fill((mv1 + mv2).M());
@@ -490,11 +547,16 @@ T3MNtuple::fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup
 	for (unsigned int i=0; i < iTwoMuTr.size(); i++) {
 	  float match;
 	  if(i <2 ){	
-	    reco::MuonRef TrackTriggMatch(muonCollection, iTwoMuTr.at(i));
+
+	    reco::MuonRef TrackTriggMatch(muonCollection, iTwoMuTr.at(i));	
 	    TriggerMatch(triggerSummary,  TrackTriggMatch , TriggerMuonMatchingdr_, match);
+	    //	    std::cout<<"  i Mu index at filling step  "<< iTwoMuTr.at(i) <<"   "<< TrackTriggMatch->p4().Px()  <<std::endl;
 	  } else {
 	    TrackRef TrackTriggMatch = TrackRef(trackCollection, iTwoMuTr.at(i));
 	    TriggerMatch(triggerSummary,  TrackTriggMatch , TriggerMuonMatchingdr_, match);
+	    dump_track_index_to_fill.push_back(iTwoMuTr.at(i));
+	    std::cout<<"  i track index at filling step  "<< iTwoMuTr.at(i) <<"   "<< track3->px()  <<std::endl;
+
 	  }
 	  
 	  iTrigMatchdR.push_back(match);
@@ -578,12 +640,12 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if(FitOk){
       if(transVtx.totalChiSquared() <10){
 	ThreeMuons_idx.push_back(iThreeMuon);
+	ThreeMuons_idx.push_back(iThreeMuon);
 
 	ThreeMuons_SV_Chi2.push_back(transVtx.totalChiSquared());
 	ThreeMuons_SV_NDF.push_back(transVtx.degreesOfFreedom());
 	std::vector<float> iTrigMatchdR;
 	for ( auto &iMuon :  iThreeMuon ) {
-	  std::cout<<"iMuon index at filling step "<< iMuon <<std::endl;
 	  float match;
 	  reco::MuonRef MuonTriggMatch(muonCollection, iMuon);
 	  TriggerMatch(triggerSummary,  MuonTriggMatch , TriggerMuonMatchingdr_, match);
@@ -2372,7 +2434,8 @@ T3MNtuple::beginJob()
   output_tree->Branch("ThreeMuons_SV_NDF",&ThreeMuons_SV_NDF);
   output_tree->Branch("ThreeMuons_TriggerMatch_dR",&ThreeMuons_TriggerMatch_dR);
 
-  output_tree->Branch("TwoMuonsTrack_idx",&TwoMuonsTrack_idx);
+  output_tree->Branch("TwoMuonsTrack_Muonsindex",&TwoMuonsTrack_Muonsindex);
+  output_tree->Branch("TwoMuonsTrack_Trackindex",&TwoMuonsTrack_Trackindex);
   output_tree->Branch("TwoMuonsTrack_SV_Chi2",&TwoMuonsTrack_SV_Chi2);
   output_tree->Branch("TwoMuonsTrack_SV_NDF",&TwoMuonsTrack_SV_NDF);
   output_tree->Branch("TwoMuonsTrack_TriggerMatch_dR",&ThreeMuons_TriggerMatch_dR);
@@ -2461,7 +2524,7 @@ void T3MNtuple::ClearEvent() {
   Track_dxyError.clear();
   Track_dzError.clear();
 
-
+  dump_track_index_to_fill.clear();
 
   //=======  Muons ===
   Muon_p4.clear();
@@ -2582,6 +2645,8 @@ void T3MNtuple::ClearEvent() {
   ThreeMuons_TriggerMatch_dR.clear();
 
   TwoMuonsTrack_idx.clear();
+  TwoMuonsTrack_Muonsindex.clear();
+  TwoMuonsTrack_Trackindex.clear();
   TwoMuonsTrack_SV_Chi2.clear();
   TwoMuonsTrack_SV_NDF.clear();
   TwoMuonsTrack_TriggerMatch_dR.clear();

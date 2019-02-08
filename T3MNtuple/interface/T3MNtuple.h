@@ -197,7 +197,7 @@ private:
   std::vector<std::vector<double> > Track_poca;
   std::vector<double> Track_dxyError;
   std::vector<double> Track_dzError;
-
+  std::vector<unsigned int> dump_track_index_to_fill;
 
 
   //=======  Muons ===
@@ -327,6 +327,8 @@ private:
   std::vector<double>   ThreeMuons_SV_NDF;
 
   std::vector<std::vector<unsigned int> > TwoMuonsTrack_idx;
+  std::vector<std::vector<unsigned int> > TwoMuonsTrack_Muonsindex;
+  std::vector<std::vector<unsigned int> > TwoMuonsTrack_Trackindex;
   std::vector<double>   TwoMuonsTrack_SV_Chi2;
   std::vector<double>   TwoMuonsTrack_SV_NDF;
   std::vector<std::vector<float> > TwoMuonsTrack_TriggerMatch_dR;
