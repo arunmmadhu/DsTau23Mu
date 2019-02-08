@@ -167,12 +167,22 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   Handle<MuonCollection> muonCollection;
   iEvent.getByToken(muonToken_, muonCollection);
-  int Muon_index = 0;
+  unsigned int Muon_index = 0;
+  unsigned int sel_muon_index = 0;
   for (reco::MuonCollection::const_iterator iMuon = muonCollection->begin(); iMuon != muonCollection->end(); ++iMuon, Muon_index++) {
     reco::MuonRef RefMuon(muonCollection, Muon_index);
     if((RefMuon->pt() > MuonPtCut_) || (abs(RefMuon->eta()) < MuonEtaCut_))
       {
-	if(RefMuon->isPFMuon() && RefMuon->isGlobalMuon()){
+	if(RefMuon->isPFMuon() && RefMuon->isGlobalMuon())
+	  {
+
+	    for ( auto &iThreeMuons :  ThreeMuons_idx ) {  // store Three Muon candidate idx
+	      for ( auto &iMuon :  iThreeMuons ) {
+		if(iMuon == Muon_index) muindex_temp.push_back(sel_muon_index);
+	      }
+	      ThreeMuons_index.push_back(muindex_temp);
+	    }
+
 	  std::vector<double> iMuon_Poca;
 	  iMuon_Poca.push_back(RefMuon->vx());
 	  iMuon_Poca.push_back(RefMuon->vy());
@@ -402,7 +412,8 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  int match;
 	  getTrackMatch(trackCollection, Track, match);
 	  Muon_Track_idx.push_back(match);
-	}
+	  sel_muon_index++;
+	  }
       }
   }
 }
@@ -567,10 +578,12 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if(FitOk){
       if(transVtx.totalChiSquared() <10){
 	ThreeMuons_idx.push_back(iThreeMuon);
+
 	ThreeMuons_SV_Chi2.push_back(transVtx.totalChiSquared());
 	ThreeMuons_SV_NDF.push_back(transVtx.degreesOfFreedom());
 	std::vector<float> iTrigMatchdR;
 	for ( auto &iMuon :  iThreeMuon ) {
+	  std::cout<<"iMuon index at filling step "<< iMuon <<std::endl;
 	  float match;
 	  reco::MuonRef MuonTriggMatch(muonCollection, iMuon);
 	  TriggerMatch(triggerSummary,  MuonTriggMatch , TriggerMuonMatchingdr_, match);
@@ -2354,7 +2367,7 @@ T3MNtuple::beginJob()
   //================  Three Muonss block
 
 
-  output_tree->Branch("ThreeMuons_idx",&ThreeMuons_idx);
+  output_tree->Branch("ThreeMuons_index",&ThreeMuons_index);
   output_tree->Branch("ThreeMuons_SV_Chi2",&ThreeMuons_SV_Chi2);
   output_tree->Branch("ThreeMuons_SV_NDF",&ThreeMuons_SV_NDF);
   output_tree->Branch("ThreeMuons_TriggerMatch_dR",&ThreeMuons_TriggerMatch_dR);
@@ -2563,6 +2576,7 @@ void T3MNtuple::ClearEvent() {
   Muon_isGoodMuon_TMLastStationOptimizedBarrelLowPtTight.clear();
 
   ThreeMuons_idx.clear();
+  ThreeMuons_index.clear();
   ThreeMuons_SV_Chi2.clear();
   ThreeMuons_SV_NDF.clear();
   ThreeMuons_TriggerMatch_dR.clear();

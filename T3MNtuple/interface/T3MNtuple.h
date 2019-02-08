@@ -321,6 +321,7 @@ private:
   //  Three Muons
 
   std::vector<std::vector<unsigned int> > ThreeMuons_idx;
+  std::vector<std::vector<unsigned int> > ThreeMuons_index;
   std::vector<std::vector<float> > ThreeMuons_TriggerMatch_dR;
   std::vector<double>   ThreeMuons_SV_Chi2;
   std::vector<double>   ThreeMuons_SV_NDF;
