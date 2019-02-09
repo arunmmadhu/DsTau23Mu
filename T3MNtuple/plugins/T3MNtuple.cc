@@ -99,7 +99,7 @@ bool T3MNtuple::getTrackMatch(edm::Handle<std::vector<reco::Track> > &trackColle
 void
 T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  std::cout<<" ========================  new event =============== "<< std::endl;
+  //  std::cout<<" ========================  new event =============== "<< std::endl;
   cnt_++;
   ClearEvent();
   
@@ -123,7 +123,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	fillL1(iEvent, iSetup);
 
 
-      std::cout<<" Idx size "<< TwoMuonsTrack_idx.size() << std::endl;
+      /*      std::cout<<" Idx size "<< TwoMuonsTrack_idx.size() << std::endl;
       std::cout<<" Index size "<< TwoMuonsTrack_Muonsindex.size() << std::endl;
       std::cout<<" Track Index size "<< TwoMuonsTrack_Trackindex.size() << std::endl;
 
@@ -145,7 +145,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  std::cout<<" Track " << iMu <<std::endl;
         }
       }
-
+      */
 
 
       output_tree->Fill();
@@ -170,7 +170,7 @@ void T3MNtuple::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSet
       if(find(dump_track_index_to_fill.begin(), dump_track_index_to_fill.end(), Track_index) !=  dump_track_index_to_fill.end())
 	{
 	  
-	  std::cout<<"Track_index at start of the loop  "<< Track_index <<std::endl;
+//	  std::cout<<"Track_index at start of the loop  "<< Track_index <<std::endl;
 	  std::vector<double> iTrack_p4;
 	  std::vector<double> iTrack_poca;
 	  const reco::Track track = (*trIt);
@@ -178,7 +178,7 @@ void T3MNtuple::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSet
     	    for(unsigned int iTwoMuonsTrack=0;  iTwoMuonsTrack < TwoMuonsTrack_idx.size(); iTwoMuonsTrack++){
 	      if(find(TwoMuonsTrack_idx.at(iTwoMuonsTrack).begin(), TwoMuonsTrack_idx.at(iTwoMuonsTrack).end(), Track_index) !=  TwoMuonsTrack_idx.at(iTwoMuonsTrack).end()){
 		TwoMuonsTrack_Trackindex.at(iTwoMuonsTrack).push_back(sel_track_index);
-		std::cout<<" sel_track_index   "<<sel_track_index <<"    Track_index  "<< Track_index <<"  track px  " << track.px() <<std::endl;
+//		std::cout<<" sel_track_index   "<<sel_track_index <<"    Track_index  "<< Track_index <<"  track px  " << track.px() <<std::endl;
 	      }
 	    }
 
@@ -203,7 +203,7 @@ void T3MNtuple::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSet
 	  }
 	}
     }
-  std::cout<<"How many tracks are filled  ??? "<<  Track_p4.size() <<std::endl;
+//  std::cout<<"How many tracks are filled  ??? "<<  Track_p4.size() <<std::endl;
 }
 
 void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -231,7 +231,7 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	      }
 	    }
 	    
-	    std::cout<<"   sel_muon_index  before if " <<sel_muon_index<<std::endl;	    
+	    //	    //	    std::cout<<"   sel_muon_index  before if " <<sel_muon_index<<std::endl;	    
 	    for(unsigned int iTwoMuons=0;  iTwoMuons < TwoMuonsTrack_idx.size(); iTwoMuons++){
 	      if(TwoMuonsTrack_idx.at(iTwoMuons).at(0) == Muon_index || TwoMuonsTrack_idx.at(iTwoMuons).at(1) == Muon_index){
 		//	      if(find(TwoMuonsTrack_idx.at(iTwoMuons).begin(), TwoMuonsTrack_idx.at(iTwoMuons).end()-1, Muon_index) !=  TwoMuonsTrack_idx.at(iTwoMuons).end()){
@@ -555,7 +555,7 @@ T3MNtuple::fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup
 	    TrackRef TrackTriggMatch = TrackRef(trackCollection, iTwoMuTr.at(i));
 	    TriggerMatch(triggerSummary,  TrackTriggMatch , TriggerMuonMatchingdr_, match);
 	    dump_track_index_to_fill.push_back(iTwoMuTr.at(i));
-	    std::cout<<"  i track index at filling step  "<< iTwoMuTr.at(i) <<"   "<< track3->px()  <<std::endl;
+	    //	    std::cout<<"  i track index at filling step  "<< iTwoMuTr.at(i) <<"   "<< track3->px()  <<std::endl;
 
 	  }
 	  
