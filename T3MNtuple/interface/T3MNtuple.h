@@ -127,6 +127,8 @@ private:
   void fillBTagJets(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   int fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   int fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void fillVetrices(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+
   std::vector<std::vector<unsigned int> > findThreeMuonsCandidates(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   std::vector<std::vector<unsigned int> > findTwoMuonsAndTrackCandidates(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   template<class T>
@@ -301,6 +303,9 @@ private:
   std::vector<double> Muon_innerTrack_numberOfLostTrackerOuterHits;
   std::vector<double> Muon_innerTrack_normalizedChi2;
 
+  std::vector<double> Muon_vmuonhitcomb_reco;
+  std::vector<double> Muon_rpchits_reco;
+
   std::vector<double> Muon_outerTrack_normalizedChi2;
   std::vector<double> Muon_outerTrack_muonStationsWithValidHits;
   std::vector<bool>   Muon_isGoodMuon_TM2DCompatibility;
@@ -311,6 +316,9 @@ private:
   std::vector<bool>   Muon_isGoodMuon_TMLastStationAngTight;
   std::vector<bool>   Muon_isGoodMuon_TMLastStationOptimizedLowPtTight;
   std::vector<bool>   Muon_isGoodMuon_TMLastStationOptimizedBarrelLowPtTight;
+
+
+
 
   //  BTagged Jets
   std::vector<double>  Jet_BTagCVSB;

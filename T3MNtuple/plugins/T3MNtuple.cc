@@ -98,7 +98,7 @@ bool T3MNtuple::getTrackMatch(edm::Handle<std::vector<reco::Track> > &trackColle
 // ------------ method called for each event  ------------
 void
 T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+{ 
   //  std::cout<<" ========================  new event =============== "<< std::endl;
   cnt_++;
   ClearEvent();
@@ -151,6 +151,13 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       output_tree->Fill();
     }
   fillDsTree(iEvent, iSetup); // method by Jian
+}
+
+
+
+void T3MNtuple::fillVetrices(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+  return;
 }
 
 void T3MNtuple::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -287,6 +294,50 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    Muon_outerTrack_normalizedChi2.push_back(RefMuon->outerTrack()->normalizedChi2());
 	    Muon_outerTrack_muonStationsWithValidHits.push_back(RefMuon->outerTrack()->hitPattern().muonStationsWithValidHits());
 
+
+	    unsigned int dt1(0),dt2(0),dt3(0),dt4(0);
+	    unsigned int rpc1(0),rpc2(0),rpc3(0),rpc4(0);
+	    unsigned int csc1(0),csc2(0),csc3(0),csc4(0);
+	    double comb(0);
+	    const reco::HitPattern &pattern = RefMuon->outerTrack()->hitPattern();
+	    for (int i=0;i<pattern.numberOfAllHits(reco::HitPattern::TRACK_HITS);i++)
+	      { 
+		uint32_t hit = pattern.getHitPattern(reco::HitPattern::TRACK_HITS,i);
+		if (pattern.validHitFilter(hit) != 1) {continue;}
+		if (pattern.getMuonStation(hit) == 1)
+		  { 
+		    if (pattern.muonDTHitFilter(hit))  dt1++;
+		    if (pattern.muonRPCHitFilter(hit)) rpc1++;
+		    if (pattern.muonCSCHitFilter(hit)) csc1++;
+		  }
+		else if (pattern.getMuonStation(hit) == 2)
+		  { 
+		    if (pattern.muonDTHitFilter(hit))  dt2++;
+		    if (pattern.muonRPCHitFilter(hit)) rpc2++;
+		    if (pattern.muonCSCHitFilter(hit)) csc2++;
+		  }
+		else if (pattern.getMuonStation(hit) == 3)
+		  { 
+		    if (pattern.muonDTHitFilter(hit))  dt3++;
+		    if (pattern.muonRPCHitFilter(hit)) rpc3++;
+		    if (pattern.muonCSCHitFilter(hit)) csc3++;
+		  }
+		else if (pattern.getMuonStation(hit) == 4)
+		  { 
+		    if (pattern.muonDTHitFilter(hit))  dt4++;
+		    if (pattern.muonRPCHitFilter(hit)) rpc4++;
+		    if (pattern.muonCSCHitFilter(hit)) csc4++;
+		  }    
+	      }
+	    comb = (dt1+dt2+dt3+dt4)/2. + (rpc1+rpc2+rpc3+rpc4);
+	    csc1>6 ? comb+=6 : comb+=csc1;
+	    csc2>6 ? comb+=6 : comb+=csc2;
+	    csc3>6 ? comb+=6 : comb+=csc3;
+	    csc4>6 ? comb+=6 : comb+=csc4;
+	    Muon_vmuonhitcomb_reco.push_back(comb);
+	    Muon_rpchits_reco.push_back(rpc1+rpc2+rpc3+rpc4);
+
+
 	  } else {
 	    Muon_normChi2.push_back(0);
 	    Muon_hitPattern_numberOfValidMuonHits.push_back(0);
@@ -295,6 +346,8 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    Muon_prod_inner_outer_charge.push_back(0);
 	    Muon_outerTrack_normalizedChi2.push_back(0);
 	    Muon_outerTrack_muonStationsWithValidHits.push_back(0);
+	    Muon_vmuonhitcomb_reco.push_back(0);
+	    Muon_rpchits_reco.push_back(0);
 	  }
 
 	  if (RefMuon->isTrackerMuon()) {
@@ -2417,6 +2470,12 @@ T3MNtuple::beginJob()
   output_tree->Branch("Muon_isGoodMuon_TMLastStationOptimizedLowPtTight",&Muon_isGoodMuon_TMLastStationOptimizedLowPtTight );
   output_tree->Branch("Muon_isGoodMuon_TMLastStationOptimizedBarrelLowPtTight",&Muon_isGoodMuon_TMLastStationOptimizedBarrelLowPtTight );
 
+
+
+  output_tree->Branch("Muon_vmuonhitcomb_reco",&Muon_vmuonhitcomb_reco);
+  output_tree->Branch("Muon_rpchits_reco",&Muon_rpchits_reco);
+
+
   output_tree->Branch("Muon_charge", &Muon_charge);
   output_tree->Branch("Muon_trackCharge", &Muon_trackCharge);
   output_tree->Branch("Muon_pdgid", &Muon_pdgid);
@@ -2424,6 +2483,8 @@ T3MNtuple::beginJob()
   output_tree->Branch("Muon_M", &Muon_M);
   output_tree->Branch("Muon_par", &Muon_par);
   output_tree->Branch("Muon_cov", &Muon_cov);
+
+
 
 
   //================  Three Muonss block
@@ -2592,6 +2653,9 @@ void T3MNtuple::ClearEvent() {
   Muon_numberOfMatches.clear();
   Muon_numberofValidPixelHits.clear();
   Muon_trackerLayersWithMeasurement.clear();
+
+  Muon_vmuonhitcomb_reco.clear();
+  Muon_rpchits_reco.clear();
 
   Muon_combinedQuality_updatedSta.clear();
   Muon_combinedQuality_trkKink.clear();
