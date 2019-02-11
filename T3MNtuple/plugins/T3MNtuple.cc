@@ -108,9 +108,12 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     {
       if(doTwoMuonsAndTrack_) Event_ndsphipi_candidate = fillTwoMuonsAndTracks(iEvent, iSetup);
     }
+
+  std::cout<<"   Event_nsignal_candidates   "  << Event_nsignal_candidates <<"  Event_ndsphipi_candidate  "<< Event_ndsphipi_candidate <<std::endl;
   if(Event_nsignal_candidates!=0 or Event_ndsphipi_candidate!=0)
     {
       fillEventInfo(iEvent, iSetup);
+      fillVertices(iEvent, iSetup);
       if(doTracks_)
 	fillTracks(iEvent, iSetup);
       if(doBJets_)
@@ -135,7 +138,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       for ( auto &iTwoMuTr :  TwoMuonsTrack_Muonsindex ) {
 	for ( auto &iMu :  iTwoMuTr ) {
-	  std::cout<<" Two Muons index  " << iMu <<std::endl;
+	  std::cout<<" Two Muons index  " << iMu <<std::endl1;
 	}
       }
 
@@ -155,8 +158,75 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 
-void T3MNtuple::fillVetrices(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  Handle<TrackCollection> trackCollection;
+  iEvent.getByToken(trackToken_, trackCollection);
+
+  Handle<MuonCollection> muonCollection;
+  iEvent.getByToken(muonToken_, muonCollection);
+
+  std::vector<std::vector<TransientTrack> > signalTracksCollection;
+
+  if(ThreeMuons_idx.size()!=0){
+    for ( auto &iThreeMuon :  ThreeMuons_idx ) {
+      vector<TransientTrack> isignalTracksCollection;
+      ESHandle<TransientTrackBuilder> theB;
+      iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+      for ( auto &iMuon :  iThreeMuon ) {
+	reco::MuonRef Muon(muonCollection, iMuon);
+	TrackRef MuonTrack = Muon->globalTrack();
+	isignalTracksCollection.push_back(theB->build(MuonTrack));
+      }
+      signalTracksCollection.push_back(isignalTracksCollection);
+    }
+  } else if(TwoMuonsTrack_idx.size()!=0){
+    for ( auto &iTwoMuonsTracks :  TwoMuonsTrack_idx ) {
+
+      vector<TransientTrack> isignalTracksCollection;
+      ESHandle<TransientTrackBuilder> theB;
+      iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+      reco::MuonRef Muon1(muonCollection, iTwoMuonsTracks.at(0));
+      reco::MuonRef Muon2(muonCollection, iTwoMuonsTracks.at(1));
+
+      TrackRef track1 = Muon1->innerTrack();
+      TrackRef track2 = Muon2->innerTrack();
+      TrackRef track3 = TrackRef(trackCollection, iTwoMuonsTracks.at(2));
+      isignalTracksCollection.push_back(theB->build(track1));
+      isignalTracksCollection.push_back(theB->build(track2));
+      isignalTracksCollection.push_back(theB->build(track3));
+      signalTracksCollection.push_back(isignalTracksCollection);
+
+    }
+  }
+
+  for ( auto &iTransientTracks :  signalTracksCollection ) {
+
+    ClosestApproachInRPhi cApp12, cApp23, cApp31;
+    cApp12.calculate(iTransientTracks[0].initialFreeState(), iTransientTracks[1].initialFreeState());
+    cApp23.calculate(iTransientTracks[1].initialFreeState(), iTransientTracks[2].initialFreeState());
+    cApp31.calculate(iTransientTracks[2].initialFreeState(), iTransientTracks[0].initialFreeState());
+    std::vector<double> iVertex_signal_dca_reco;
+    if((cApp12.status()&&cApp23.status()&&cApp31.status())) { 
+      iVertex_signal_dca_reco.push_back(cApp12.distance());   // order 12,23,31, max
+      iVertex_signal_dca_reco.push_back(cApp23.distance());
+      iVertex_signal_dca_reco.push_back(cApp31.distance());
+      iVertex_signal_dca_reco.push_back(TMath::Max(dca12_reco, TMath::Max(dca23_reco, dca31_reco)));
+    } else {
+      iVertex_signal_dca_reco.push_back(-1.);
+      iVertex_signal_dca_reco.push_back(-1.);
+      iVertex_signal_dca_reco.push_back(-1.);
+      iVertex_signal_dca_reco.push_back(-1.);
+    }
+    Vertex_signal_dca_reco.push_back(iVertex_signal_dca_reco);
+
+
+
+  }
+
+
+  std::cout<<"  signalTracksCollection   " << signalTracksCollection.size() <<std::endl;
+
   return;
 }
 
@@ -2508,6 +2578,9 @@ T3MNtuple::beginJob()
   output_tree->Branch("Jet_BTagCSV", &Jet_BTagCSV);
   output_tree->Branch("Jet_p4",&Jet_p4);
 
+  output_tree->Branch("Vertex_signal_dca_reco", &Vertex_signal_dca_reco);
+
+
   //refitter_.setServices(iSetup);
 }
 
@@ -2719,6 +2792,9 @@ void T3MNtuple::ClearEvent() {
   Jet_BTagMVA.clear();
   Jet_BTagCSV.clear();
   Jet_p4.clear();
+
+  Vertex_signal_dca_reco.clear();
+
 
 }
 

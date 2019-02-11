@@ -127,7 +127,7 @@ private:
   void fillBTagJets(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   int fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   int fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  void fillVetrices(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void fillVertices(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
   std::vector<std::vector<unsigned int> > findThreeMuonsCandidates(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   std::vector<std::vector<unsigned int> > findTwoMuonsAndTrackCandidates(const edm::Event& iEvent, const edm::EventSetup& iSetup);
@@ -341,6 +341,8 @@ private:
   std::vector<double>   TwoMuonsTrack_SV_NDF;
   std::vector<std::vector<float> > TwoMuonsTrack_TriggerMatch_dR;
 
+
+  std::vector<std::vector<double > > Vertex_signal_dca_reco;
 
 
 
