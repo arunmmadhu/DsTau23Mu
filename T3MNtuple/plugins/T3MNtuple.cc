@@ -167,7 +167,8 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.getByToken(muonToken_, muonCollection);
 
   std::vector<std::vector<TransientTrack> > signalTracksCollection;
-
+      ESHandle<TransientTrackBuilder> theB;
+      iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
   if(ThreeMuons_idx.size()!=0){
     for ( auto &iThreeMuon :  ThreeMuons_idx ) {
       vector<TransientTrack> isignalTracksCollection;
@@ -184,8 +185,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
     for ( auto &iTwoMuonsTracks :  TwoMuonsTrack_idx ) {
 
       vector<TransientTrack> isignalTracksCollection;
-      ESHandle<TransientTrackBuilder> theB;
-      iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+
       reco::MuonRef Muon1(muonCollection, iTwoMuonsTracks.at(0));
       reco::MuonRef Muon2(muonCollection, iTwoMuonsTracks.at(1));
 
@@ -281,10 +281,52 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 	std::cout<<"loop over tracks "<<std::endl; // no valid tracks by some reason while the vertex is valid.
       }
     }
+  
+  //--------------------  Fit each track pair 
+
+  vector<TransientTrack> trackpair12, trackpair23, trackpair31;
+  trackpair12.push_back(iTransientTracks.at(0)); trackpair12.push_back(iTransientTracks.at(1));
+  trackpair23.push_back(iTransientTracks.at(1)); trackpair23.push_back(iTransientTracks.at(2));
+  trackpair31.push_back(iTransientTracks.at(2)); trackpair31.push_back(iTransientTracks.at(0));
+  KalmanVertexFitter kvf_trks12(true), kvf_trks23(true), kvf_trks31(true);
+  TransientVertex fv_trks12 = kvf_trks12.vertex(trackpair12);
+  TransientVertex fv_trks23 = kvf_trks23.vertex(trackpair23);
+  TransientVertex fv_trks31 = kvf_trks31.vertex(trackpair31);
+
+
+  bool Fit1Ok(true);
+  try {
+    fv_trks12 = kvf_trks12.vertex(trackpair12); 
+  } catch (...) {
+    Fit1Ok = false;
   }
 
-  
+  bool Fit2Ok(true);
+  try {
+    fv_trks23 = kvf_trks12.vertex(trackpair23); 
+  } catch (...) {
+    Fit2Ok = false;
+  }
 
+  bool Fit3Ok(true);
+  try {
+    fv_trks31 = kvf_trks12.vertex(trackpair31); 
+  } catch (...) {
+    Fit3Ok = false;
+  }
+  std::cout<<"---- "<<Fit1Ok << Fit2Ok << Fit3Ok <<std::endl;
+  std::cout<<"---- "<<fv_trks23.totalChiSquared() << "   " << fv_trks31.totalChiSquared()<<"   "<< fv_trks12.totalChiSquared() <<std::endl;
+  std::cout<<"---- "<<fv_trks23.degreesOfFreedom() << "   " << fv_trks31.degreesOfFreedom()<<"   "<< fv_trks12.degreesOfFreedom() <<std::endl;
+  
+  /*  fvwo_tC[0] = fv_trks23.totalChiSquared();
+  fvwo_nC[0] = fvwo_tC[0]/fv_trks23.degreesOfFreedom();
+  fvwo_tC[1] = fv_trks31.totalChiSquared();
+  fvwo_nC[1] = fvwo_tC[1]/fv_trks31.degreesOfFreedom();
+  fvwo_tC[2] = fv_trks12.totalChiSquared();
+  fvwo_nC[2] = fvwo_tC[2]/fv_trks12.degreesOfFreedom();*/
+
+  
+  }
 
   return;
 }
