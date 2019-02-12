@@ -54,6 +54,14 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
+#include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
 #include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
@@ -343,9 +351,14 @@ private:
 
 
   std::vector<std::vector<double > > Vertex_signal_dca_reco;
+  std::vector<std::vector<double > > Vertex_signal_KF_pos;
+  std::vector<double> Vertex_signal_KF_Chi2;
+  std::vector<std::vector<std::vector<double > > > Vertex_signal_KF_refittedTracksP4;
 
-
-
+  std::vector<std::vector<double > > Vertex_signal_AF_pos;
+  std::vector<double> Vertex_signal_AF_Chi2;
+  std::vector<double> Vertex_signal_AF_Ndf;
+  std::vector<std::vector<std::vector<double > > > Vertex_signal_AF_refittedTracksP4;
 
   bool doMC_, wideSB_, do2mu_, passhlt_, doTracks_, doMuons_, 
     do3mutuple_, doL1_, doThreeMuons_, doTwoMuonsAndTrack_, doBJets_;

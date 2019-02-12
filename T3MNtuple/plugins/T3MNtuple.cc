@@ -192,6 +192,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
       TrackRef track1 = Muon1->innerTrack();
       TrackRef track2 = Muon2->innerTrack();
       TrackRef track3 = TrackRef(trackCollection, iTwoMuonsTracks.at(2));
+
       isignalTracksCollection.push_back(theB->build(track1));
       isignalTracksCollection.push_back(theB->build(track2));
       isignalTracksCollection.push_back(theB->build(track3));
@@ -199,8 +200,13 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
     }
   }
-
+  unsigned int index(0);
   for ( auto &iTransientTracks :  signalTracksCollection ) {
+    Vertex_signal_KF_pos.push_back(std::vector<double> ());
+    Vertex_signal_KF_refittedTracksP4.push_back(std::vector<std::vector<double> >());
+
+    Vertex_signal_AF_pos.push_back(std::vector<double> ());
+
 
     ClosestApproachInRPhi cApp12, cApp23, cApp31;
     cApp12.calculate(iTransientTracks[0].initialFreeState(), iTransientTracks[1].initialFreeState());
@@ -221,11 +227,64 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
     Vertex_signal_dca_reco.push_back(iVertex_signal_dca_reco);
 
 
+    TransientVertex transVtx;
+    KalmanVertexFitter kvf(true);
+    bool FitOk(true);
+    try {
+      transVtx = kvf.vertex(iTransientTracks); //KalmanVertexFitter
+    } catch (...) {
+      FitOk = false;
+    }
+    if (!transVtx.hasRefittedTracks())
+      FitOk = false;
+    if (transVtx.refittedTracks().size() != iTransientTracks.size())
+      FitOk = false;
 
+    if(FitOk){
+      Vertex_signal_KF_Chi2.push_back(transVtx.totalChiSquared());
+      Vertex_signal_KF_pos.at(index).push_back(transVtx.position().x());
+      Vertex_signal_KF_pos.at(index).push_back(transVtx.position().y());
+      Vertex_signal_KF_pos.at(index).push_back(transVtx.position().z());
+      vector<TransientTrack>::const_iterator trkIt = transVtx.refittedTracks().begin();
+      for(; trkIt != transVtx.refittedTracks().end(); ++ trkIt) {
+	const Track & trkrefit = trkIt->track();
+	std::vector<double> irefitted_tracks_p4;
+	irefitted_tracks_p4.push_back(sqrt(pow(trkrefit.p(),2.0) + pow(PDGInfo::pi_mass(),2.0)));
+	irefitted_tracks_p4.push_back(trkrefit.px());
+	irefitted_tracks_p4.push_back(trkrefit.py());
+	irefitted_tracks_p4.push_back(trkrefit.pz());
+	Vertex_signal_KF_refittedTracksP4.at(Vertex_signal_KF_refittedTracksP4.size() -1).push_back(irefitted_tracks_p4);
+      }
+    }
+
+    bool AFitOk(true);
+    AdaptiveVertexFitter avf;
+    TransientVertex AdaptivetransVtx;
+    avf.setWeightThreshold(0.1); //weight per track. allow almost every fit, else --> exception
+    try {
+	AdaptivetransVtx = avf.vertex(iTransientTracks);
+    } catch (...) {
+      AFitOk = false;
+    }
+    if(!AdaptivetransVtx.isValid()) 
+      AFitOk = false;
+    if (AFitOk){ 
+      Vertex_signal_AF_Chi2.push_back(AdaptivetransVtx.totalChiSquared());
+      Vertex_signal_AF_Ndf.push_back(AdaptivetransVtx.degreesOfFreedom());
+      Vertex_signal_AF_pos.at(index).push_back(AdaptivetransVtx.position().x());
+      Vertex_signal_AF_pos.at(index).push_back(AdaptivetransVtx.position().y());
+      Vertex_signal_AF_pos.at(index).push_back(AdaptivetransVtx.position().z());
+
+
+      vector<TransientTrack>::const_iterator trkIt = AdaptivetransVtx.refittedTracks().begin();
+      for(; trkIt != AdaptivetransVtx.refittedTracks().end(); ++ trkIt) {
+	std::cout<<"loop over tracks "<<std::endl; // no valid tracks by some reason while the vertex is valid.
+      }
+    }
   }
 
+  
 
-  std::cout<<"  signalTracksCollection   " << signalTracksCollection.size() <<std::endl;
 
   return;
 }
@@ -761,7 +820,7 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
       FitOk = false;
 
     if(FitOk){
-      if(transVtx.totalChiSquared() <10){
+      if(transVtx.totalChiSquared() <15){
 	ThreeMuons_idx.push_back(iThreeMuon);
 	ThreeMuons_idx.push_back(iThreeMuon);
 
@@ -2579,6 +2638,16 @@ T3MNtuple::beginJob()
   output_tree->Branch("Jet_p4",&Jet_p4);
 
   output_tree->Branch("Vertex_signal_dca_reco", &Vertex_signal_dca_reco);
+  output_tree->Branch("Vertex_signal_KF_pos", &Vertex_signal_KF_pos);
+  output_tree->Branch("Vertex_signal_KF_refittedTracksP4", &Vertex_signal_KF_refittedTracksP4);
+  output_tree->Branch("Vertex_signal_KF_Chi2", &Vertex_signal_KF_Chi2);
+
+  output_tree->Branch("Vertex_signal_AF_pos", &Vertex_signal_AF_pos);
+  output_tree->Branch("Vertex_signal_AF_Chi2", &Vertex_signal_AF_Chi2);
+  output_tree->Branch("Vertex_signal_AF_Ndf", &Vertex_signal_AF_Ndf);
+
+
+
 
 
   //refitter_.setServices(iSetup);
@@ -2660,6 +2729,11 @@ void T3MNtuple::ClearEvent() {
 
   dump_track_index_to_fill.clear();
 
+
+
+  Event_nsignal_candidates=0;
+  Event_ndsphipi_candidate=0;
+ 
   //=======  Muons ===
   Muon_p4.clear();
   Muon_Poca.clear();
@@ -2794,6 +2868,19 @@ void T3MNtuple::ClearEvent() {
   Jet_p4.clear();
 
   Vertex_signal_dca_reco.clear();
+
+  Vertex_signal_KF_pos.clear();
+  Vertex_signal_KF_refittedTracksP4.clear();
+  Vertex_signal_KF_Chi2.clear();
+
+  Vertex_signal_AF_pos.clear();
+  Vertex_signal_AF_Chi2.clear();
+  Vertex_signal_AF_Ndf.clear();
+
+
+
+
+
 
 
 }
