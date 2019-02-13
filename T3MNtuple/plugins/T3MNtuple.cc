@@ -5,7 +5,7 @@
 #include "DsTau23Mu/T3MNtuple/interface/TrackParticle.h"
 #include "DsTau23Mu/T3MNtuple/interface/ParticleBuilder.h"
 
-
+ 
 //
 // constants, enums and typedefs
 //
@@ -441,17 +441,28 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   iVertex_d0_reco.push_back(abs(iTransientTracks.at(1).track().dxy(pv1P)));
   iVertex_d0_reco.push_back(abs(iTransientTracks.at(2).track().dxy(pv1P)));
   Vertex_d0_reco.push_back(iVertex_d0_reco);
-  /*
-  d0sig_reco[0] = -1; d0sig_reco[1] = -1; d0sig_reco[2] = -1;
-  GlobalVector dir1(iTransientTracks.at(0).track().px(), iTransientTracks.at(0).track().py(), iTransientTracks.at(0).track().pz());
-  GlobalVector dir2(iTransientTracks.at(1).track().px(), iTransientTracks.at(1).track().py(), iTransientTracks.at(1).track().pz());
-  GlobalVector dir3(t3->px(), tpy(), iTransientTracks.at(2).track().pz());
-  std::pair<bool, Measurement1D> ip2d_1 = IPTools::signedTransverseImpactParameter(t_trks[0], dir1, final_pv);
-  std::pair<bool, Measurement1D> ip2d_2 = IPTools::signedTransverseImpactParameter(t_trks[1], dir2, final_pv);
-  std::pair<bool, Measurement1D> ip2d_3 = IPTools::signedTransverseImpactParameter(t_trks[2], dir3, final_pv);
+  std::cout<<" ---- "<<particles_p4.at(index).at(2).at(3) <<std::endl;
+  GlobalVector dir1(particles_p4.at(index).at(0).at(1), particles_p4.at(index).at(0).at(2), particles_p4.at(index).at(0).at(3));
+  GlobalVector dir2(particles_p4.at(index).at(1).at(1), particles_p4.at(index).at(1).at(2), particles_p4.at(index).at(1).at(3));
+  GlobalVector dir3(particles_p4.at(index).at(2).at(1), particles_p4.at(index).at(2).at(2), particles_p4.at(index).at(2).at(3));
+
+  std::pair<bool, Measurement1D> ip2d_1 = IPTools::signedTransverseImpactParameter(iTransientTracks.at(0), dir1, final_pv);
+  std::pair<bool, Measurement1D> ip2d_2 = IPTools::signedTransverseImpactParameter(iTransientTracks.at(1), dir2, final_pv);
+  std::pair<bool, Measurement1D> ip2d_3 = IPTools::signedTransverseImpactParameter(iTransientTracks.at(2), dir3, final_pv);
+
   if(ip2d_1.first) d0sig_reco[0] = abs(ip2d_1.second.value()/ip2d_1.second.error());
   if(ip2d_2.first) d0sig_reco[1] = abs(ip2d_2.second.value()/ip2d_2.second.error());
   if(ip2d_3.first) d0sig_reco[2] = abs(ip2d_3.second.value()/ip2d_3.second.error());
+
+  std::vector<double> iVertex_d0sig_reco;
+  if(ip2d_1.first){ iVertex_d0sig_reco.push_back(abs(ip2d_1.second.value()/ip2d_1.second.error()));} else{iVertex_d0sig_reco.push_back(-1);}
+  if(ip2d_2.first){ iVertex_d0sig_reco.push_back(abs(ip2d_2.second.value()/ip2d_2.second.error()));} else{iVertex_d0sig_reco.push_back(-1);}
+  if(ip2d_3.first){ iVertex_d0sig_reco.push_back(abs(ip2d_3.second.value()/ip2d_3.second.error()));} else{iVertex_d0sig_reco.push_back(-1);}
+
+  Vertex_d0sig_reco.push_back(iVertex_d0sig_reco);
+
+  /*
+
 
 
   ////////////////////
@@ -479,6 +490,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   */
 
   std::cout<<"  vertex   " << primaryvertex_index <<std::endl;
+  index++;
   }
   return;
 
@@ -2852,7 +2864,7 @@ T3MNtuple::beginJob()
   output_tree->Branch("Vertex_RefitPVisValid",&Vertex_RefitPVisValid);
   output_tree->Branch("Vertex_MatchedRefitPrimaryVertex",&Vertex_MatchedRefitPrimaryVertex);
   output_tree->Branch("Vertex_d0_reco",&Vertex_d0_reco);
-
+  output_tree->Branch("Vertex_d0sig_reco",&Vertex_d0sig_reco);
 
 
   //refitter_.setServices(iSetup);
@@ -3085,7 +3097,7 @@ void T3MNtuple::ClearEvent() {
   Vertex_RefitPVisValid.clear();
   Vertex_MatchedRefitPrimaryVertex.clear();
   Vertex_d0_reco.clear();
-
+  Vertex_d0sig_reco.clear();
 
 
 
