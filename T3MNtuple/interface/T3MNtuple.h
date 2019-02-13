@@ -360,6 +360,16 @@ private:
   std::vector<double> Vertex_signal_AF_Ndf;
   std::vector<std::vector<std::vector<double > > > Vertex_signal_AF_refittedTracksP4;
 
+  std::vector<std::vector<double > > Vertex_pairfit_status;
+  std::vector<std::vector<double > > Vertex_pair_quality;
+  double Vertex_N_primary;
+  std::vector<std::vector<double > > Vertex_MatchedPrimaryVertex;
+
+  std::vector<bool>  Vertex_RefitPVisValid;
+  std::vector<std::vector<double> > Vertex_MatchedRefitPrimaryVertex;
+  std::vector<std::vector<double> > Vertex_d0_reco;
+
+
   bool doMC_, wideSB_, do2mu_, passhlt_, doTracks_, doMuons_, 
     do3mutuple_, doL1_, doThreeMuons_, doTwoMuonsAndTrack_, doBJets_;
   double TriggerMuonMatchingdr_;

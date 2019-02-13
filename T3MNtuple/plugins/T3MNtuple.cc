@@ -102,7 +102,6 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //  std::cout<<" ========================  new event =============== "<< std::endl;
   cnt_++;
   ClearEvent();
-  
   if(doThreeMuons_) Event_nsignal_candidates =   fillThreeMuons(iEvent, iSetup);
   if(Event_nsignal_candidates==0)
     {
@@ -160,28 +159,49 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+
+  Handle<VertexCollection> pvs;
+  iEvent.getByToken(vtxToken_ , pvs);
+  Vertex_N_primary = pvs->size();
+
+
   Handle<TrackCollection> trackCollection;
   iEvent.getByToken(trackToken_, trackCollection);
 
   Handle<MuonCollection> muonCollection;
   iEvent.getByToken(muonToken_, muonCollection);
 
+  std::vector<std::vector<std::vector<double> > > particles_p4;
+
   std::vector<std::vector<TransientTrack> > signalTracksCollection;
-      ESHandle<TransientTrackBuilder> theB;
-      iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+  ESHandle<TransientTrackBuilder> theB;
+  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
   if(ThreeMuons_idx.size()!=0){
     for ( auto &iThreeMuon :  ThreeMuons_idx ) {
+      particles_p4.push_back(std::vector<std::vector<double> > ());
+
       vector<TransientTrack> isignalTracksCollection;
       ESHandle<TransientTrackBuilder> theB;
       iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+      //      std::vector<std::vector<double>  > iparticles_p4;
       for ( auto &iMuon :  iThreeMuon ) {
 	reco::MuonRef Muon(muonCollection, iMuon);
 	TrackRef MuonTrack = Muon->globalTrack();
+	//	iparticle_p4.push_back*(
 	isignalTracksCollection.push_back(theB->build(MuonTrack));
+	std::vector<double> iiparticles_p4;
+	iiparticles_p4.push_back(Muon->p4().E());
+	iiparticles_p4.push_back(Muon->p4().Px());
+	iiparticles_p4.push_back(Muon->p4().Py());
+	iiparticles_p4.push_back(Muon->p4().Pz());
+	particles_p4.at(particles_p4.size() -1).push_back(iiparticles_p4);
+	//	iparticles_p4.push_back(iiparticles_p4);
       }
+
       signalTracksCollection.push_back(isignalTracksCollection);
     }
   } else if(TwoMuonsTrack_idx.size()!=0){
+    std::vector<std::vector<double> > iparticle_p4;
     for ( auto &iTwoMuonsTracks :  TwoMuonsTrack_idx ) {
 
       vector<TransientTrack> isignalTracksCollection;
@@ -197,6 +217,18 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
       isignalTracksCollection.push_back(theB->build(track2));
       isignalTracksCollection.push_back(theB->build(track3));
       signalTracksCollection.push_back(isignalTracksCollection);
+
+
+      std::vector<double> particle1_p4;
+      std::vector<double> particle2_p4;
+      std::vector<double> particle3_p4;
+
+      particle1_p4.push_back(Muon1->p4().E());       particle2_p4.push_back(Muon2->p4().E());       particle3_p4.push_back(sqrt(pow(track3->p(),2.0) + pow(PDGInfo::pi_mass(),2.0)));
+      particle1_p4.push_back(Muon1->p4().Px());      particle2_p4.push_back(Muon2->p4().Px());      particle3_p4.push_back(track3->px());
+      particle1_p4.push_back(Muon1->p4().Py());      particle2_p4.push_back(Muon2->p4().Py());      particle3_p4.push_back(track3->py());
+      particle1_p4.push_back(Muon1->p4().Pz());      particle2_p4.push_back(Muon2->p4().Pz());      particle3_p4.push_back(track3->pz());
+      iparticle_p4.push_back(particle1_p4);      iparticle_p4.push_back(particle2_p4);      iparticle_p4.push_back(particle3_p4);
+      particles_p4.push_back(iparticle_p4);
 
     }
   }
@@ -225,7 +257,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
       iVertex_signal_dca_reco.push_back(-1.);
     }
     Vertex_signal_dca_reco.push_back(iVertex_signal_dca_reco);
-
+  
 
     TransientVertex transVtx;
     KalmanVertexFitter kvf(true);
@@ -239,23 +271,27 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
       FitOk = false;
     if (transVtx.refittedTracks().size() != iTransientTracks.size())
       FitOk = false;
-
+    TLorentzVector ThreeCandidate(0,0,0,0);
     if(FitOk){
       Vertex_signal_KF_Chi2.push_back(transVtx.totalChiSquared());
       Vertex_signal_KF_pos.at(index).push_back(transVtx.position().x());
       Vertex_signal_KF_pos.at(index).push_back(transVtx.position().y());
       Vertex_signal_KF_pos.at(index).push_back(transVtx.position().z());
+
       vector<TransientTrack>::const_iterator trkIt = transVtx.refittedTracks().begin();
+
       for(; trkIt != transVtx.refittedTracks().end(); ++ trkIt) {
+      std::vector<double> irefitted_tracks_p4;
 	const Track & trkrefit = trkIt->track();
-	std::vector<double> irefitted_tracks_p4;
 	irefitted_tracks_p4.push_back(sqrt(pow(trkrefit.p(),2.0) + pow(PDGInfo::pi_mass(),2.0)));
 	irefitted_tracks_p4.push_back(trkrefit.px());
 	irefitted_tracks_p4.push_back(trkrefit.py());
 	irefitted_tracks_p4.push_back(trkrefit.pz());
+	ThreeCandidate+=TLorentzVector(trkrefit.px(),trkrefit.py(),trkrefit.pz(),sqrt(pow(trkrefit.p(),2.0) + pow(PDGInfo::pi_mass(),2.0)));
 	Vertex_signal_KF_refittedTracksP4.at(Vertex_signal_KF_refittedTracksP4.size() -1).push_back(irefitted_tracks_p4);
       }
     }
+
 
     bool AFitOk(true);
     AdaptiveVertexFitter avf;
@@ -280,6 +316,8 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
       for(; trkIt != AdaptivetransVtx.refittedTracks().end(); ++ trkIt) {
 	std::cout<<"loop over tracks "<<std::endl; // no valid tracks by some reason while the vertex is valid.
       }
+    } else {
+      Vertex_signal_AF_Chi2.push_back(-1);
     }
   
   //--------------------  Fit each track pair 
@@ -314,21 +352,136 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   } catch (...) {
     Fit3Ok = false;
   }
-  std::cout<<"---- "<<Fit1Ok << Fit2Ok << Fit3Ok <<std::endl;
-  std::cout<<"---- "<<fv_trks23.totalChiSquared() << "   " << fv_trks31.totalChiSquared()<<"   "<< fv_trks12.totalChiSquared() <<std::endl;
-  std::cout<<"---- "<<fv_trks23.degreesOfFreedom() << "   " << fv_trks31.degreesOfFreedom()<<"   "<< fv_trks12.degreesOfFreedom() <<std::endl;
+
+  std::vector<double> iVertex_pair_quality;
+  std::vector<double> iVertex_pairfit_status;
+  iVertex_pairfit_status.push_back(Fit1Ok);
+  iVertex_pairfit_status.push_back(Fit2Ok);
+  iVertex_pairfit_status.push_back(Fit3Ok);
+
+  if(Fit1Ok){iVertex_pair_quality.push_back(fv_trks12.totalChiSquared());}else{iVertex_pair_quality.push_back(-1);}
+  if(Fit2Ok){iVertex_pair_quality.push_back(fv_trks23.totalChiSquared());}else{iVertex_pair_quality.push_back(-1);}
+  if(Fit2Ok){iVertex_pair_quality.push_back(fv_trks31.totalChiSquared());}else{iVertex_pair_quality.push_back(-1);}
   
-  /*  fvwo_tC[0] = fv_trks23.totalChiSquared();
-  fvwo_nC[0] = fvwo_tC[0]/fv_trks23.degreesOfFreedom();
-  fvwo_tC[1] = fv_trks31.totalChiSquared();
-  fvwo_nC[1] = fvwo_tC[1]/fv_trks31.degreesOfFreedom();
-  fvwo_tC[2] = fv_trks12.totalChiSquared();
-  fvwo_nC[2] = fvwo_tC[2]/fv_trks12.degreesOfFreedom();*/
+  Vertex_pair_quality.push_back(iVertex_pair_quality);
+  Vertex_pairfit_status.push_back(iVertex_pairfit_status);
+  
+
+  //  fill the PV closest to the KV of a given candidate
 
   
+  double dphi_pv = -1.0;
+  size_t primaryvertex_index;
+  for(size_t vertex_index = 0; vertex_index  < pvs->size(); vertex_index++) {
+    const Vertex & pvertex = (*pvs)[vertex_index];
+    
+    TVector3 Dv3D_reco(transVtx.position().x() - pvertex.x(), transVtx.position().y() - pvertex.y(), transVtx.position().z() - pvertex.z());
+    double Cosdphi_3D = Dv3D_reco.Dot(ThreeCandidate.Vect())/(Dv3D_reco.Mag()*ThreeCandidate.Vect().Mag());
+    if(Cosdphi_3D>dphi_pv){
+      dphi_pv = Cosdphi_3D;
+      primaryvertex_index=vertex_index;
+    }
+  }
+  
+  
+  const Vertex & MatchedPrimaryVertex = (*pvs)[primaryvertex_index];
+  std::vector<double>  iprimaryVertex_Pos;
+  iprimaryVertex_Pos.push_back(MatchedPrimaryVertex.x());
+  iprimaryVertex_Pos.push_back(MatchedPrimaryVertex.y());
+  iprimaryVertex_Pos.push_back(MatchedPrimaryVertex.z());
+  Vertex_MatchedPrimaryVertex.push_back(iprimaryVertex_Pos);
+ 
+
+
+  //  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+  vector<TransientTrack> primaryvertexTransientTracks;
+  for(Vertex::trackRef_iterator itk = MatchedPrimaryVertex.tracks_begin(); itk != MatchedPrimaryVertex.tracks_end(); itk++) {
+    if((**itk).pt()>1) {
+      std::cout<<"deltaR  "<< deltaR(iTransientTracks.at(0).track().eta(), iTransientTracks.at(0).track().phi(), (**itk).eta(), (**itk).phi())<<std::endl;
+      std::cout<<"deltaR  "<< deltaR(iTransientTracks.at(1).track().eta(), iTransientTracks.at(1).track().phi(), (**itk).eta(), (**itk).phi())<<std::endl;
+      std::cout<<"deltaR  "<< deltaR(iTransientTracks.at(2).track().eta(), iTransientTracks.at(2).track().phi(), (**itk).eta(), (**itk).phi())<<std::endl;
+      if(deltaR(iTransientTracks.at(0).track().eta(), iTransientTracks.at(0).track().phi(), (**itk).eta(), (**itk).phi())<0.01)continue;
+      if(deltaR(iTransientTracks.at(1).track().eta(), iTransientTracks.at(1).track().phi(), (**itk).eta(), (**itk).phi())<0.01)continue;
+      if(deltaR(iTransientTracks.at(2).track().eta(), iTransientTracks.at(2).track().phi(), (**itk).eta(), (**itk).phi())<0.01)continue;
+
+    }
+    primaryvertexTransientTracks.push_back(theB->build(**itk));
   }
 
+  KalmanVertexFitter pv_fit(true);
+  bool FitPVOk(true);
+  TransientVertex pvvertex;
+  if(primaryvertexTransientTracks.size() >1){
+    try {
+      pvvertex =  pv_fit.vertex(trackpair12);
+    } catch (...) {
+      FitPVOk = false;
+    }
+  }
+ 
+
+  Vertex_RefitPVisValid.push_back(pvvertex.isValid());
+  std::vector<double> iRefitprimaryVertex_Pos;
+  if(FitPVOk && pvvertex.isValid()){
+    iRefitprimaryVertex_Pos.push_back(MatchedPrimaryVertex.position().x());
+
+    std::cout<<"   refit pz "<< MatchedPrimaryVertex.position().z() <<"   initia  "<< MatchedPrimaryVertex.z() <<std::endl;
+    iRefitprimaryVertex_Pos.push_back(MatchedPrimaryVertex.position().y());
+    iRefitprimaryVertex_Pos.push_back(MatchedPrimaryVertex.position().z());
+  }
+  Vertex_MatchedRefitPrimaryVertex.push_back(iRefitprimaryVertex_Pos);
+
+
+  Vertex final_pv = MatchedPrimaryVertex;  
+  if(pvvertex.isValid()) final_pv = Vertex(pvvertex);
+  math::XYZPoint pv1P = math::XYZPoint(final_pv.x(), final_pv.y(), final_pv.z());
+
+  std::vector<double> iVertex_d0_reco;
+  iVertex_d0_reco.push_back(abs(iTransientTracks.at(0).track().dxy(pv1P)));
+  iVertex_d0_reco.push_back(abs(iTransientTracks.at(1).track().dxy(pv1P)));
+  iVertex_d0_reco.push_back(abs(iTransientTracks.at(2).track().dxy(pv1P)));
+  Vertex_d0_reco.push_back(iVertex_d0_reco);
+  /*
+  d0sig_reco[0] = -1; d0sig_reco[1] = -1; d0sig_reco[2] = -1;
+  GlobalVector dir1(iTransientTracks.at(0).track().px(), iTransientTracks.at(0).track().py(), iTransientTracks.at(0).track().pz());
+  GlobalVector dir2(iTransientTracks.at(1).track().px(), iTransientTracks.at(1).track().py(), iTransientTracks.at(1).track().pz());
+  GlobalVector dir3(t3->px(), tpy(), iTransientTracks.at(2).track().pz());
+  std::pair<bool, Measurement1D> ip2d_1 = IPTools::signedTransverseImpactParameter(t_trks[0], dir1, final_pv);
+  std::pair<bool, Measurement1D> ip2d_2 = IPTools::signedTransverseImpactParameter(t_trks[1], dir2, final_pv);
+  std::pair<bool, Measurement1D> ip2d_3 = IPTools::signedTransverseImpactParameter(t_trks[2], dir3, final_pv);
+  if(ip2d_1.first) d0sig_reco[0] = abs(ip2d_1.second.value()/ip2d_1.second.error());
+  if(ip2d_2.first) d0sig_reco[1] = abs(ip2d_2.second.value()/ip2d_2.second.error());
+  if(ip2d_3.first) d0sig_reco[2] = abs(ip2d_3.second.value()/ip2d_3.second.error());
+
+
+  ////////////////////
+  // displacement 2D
+  TVector3 dv2D_reco(fv.position().x() - pv1P.x(), fv.position().y() - pv1P.y(), 0);
+  TVector3 vtauxy(vtau.Px(), vtau.Py(), 0);
+  fv_cosdphi = dv2D_reco.Dot(vtauxy)/(dv2D_reco.Perp()*vtauxy.Perp());
+  VertexDistanceXY vdistXY;
+  Measurement1D distXY = vdistXY.distance(Vertex(fv), final_pv);
+  fv_dxy = distXY.value();
+  fv_dxysig = distXY.significance();
+  fv_ppdl = distXY.value()*fv_cosdphi * m3mu_reco/vtauxy.Perp();
+
+
+  ////////////////////
+  // displacement 3D
+  TVector3 dv3D_reco(fv.position().x() - pv1P.x(), fv.position().y() - pv1P.y(), fv.position().z() - pv1P.z());
+  //TVector3 vtauxyz(vtau.Px(), vtau.Py(), vtau.Pz());
+  fv_cosdphi3D = dv3D_reco.Dot(vtauxyz)/(dv3D_reco.Mag()*vtauxyz.Mag());
+  VertexDistance3D dist;
+  fv_d3D = dist.distance(Vertex(fv), final_pv).value(); // = dv_reco.Mag() ??
+  fv_d3Dsig = dist.distance(Vertex(fv), final_pv).significance();
+  fv_ppdl3D = fv_d3D*fv_cosdphi3D*m3mu_reco/vtau.P();
+
+  */
+
+  std::cout<<"  vertex   " << primaryvertex_index <<std::endl;
+  }
   return;
+
 }
 
 void T3MNtuple::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -348,7 +501,7 @@ void T3MNtuple::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSet
       if(find(dump_track_index_to_fill.begin(), dump_track_index_to_fill.end(), Track_index) !=  dump_track_index_to_fill.end())
 	{
 	  
-//	  std::cout<<"Track_index at start of the loop  "<< Track_index <<std::endl;
+	  //	  std::cout<<"Track_index at start of the loop  "<< Track_index <<std::endl;
 	  std::vector<double> iTrack_p4;
 	  std::vector<double> iTrack_poca;
 	  const reco::Track track = (*trIt);
@@ -356,7 +509,7 @@ void T3MNtuple::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSet
     	    for(unsigned int iTwoMuonsTrack=0;  iTwoMuonsTrack < TwoMuonsTrack_idx.size(); iTwoMuonsTrack++){
 	      if(find(TwoMuonsTrack_idx.at(iTwoMuonsTrack).begin(), TwoMuonsTrack_idx.at(iTwoMuonsTrack).end(), Track_index) !=  TwoMuonsTrack_idx.at(iTwoMuonsTrack).end()){
 		TwoMuonsTrack_Trackindex.at(iTwoMuonsTrack).push_back(sel_track_index);
-//		std::cout<<" sel_track_index   "<<sel_track_index <<"    Track_index  "<< Track_index <<"  track px  " << track.px() <<std::endl;
+		//		std::cout<<" sel_track_index   "<<sel_track_index <<"    Track_index  "<< Track_index <<"  track px  " << track.px() <<std::endl;
 	      }
 	    }
 
@@ -381,7 +534,7 @@ void T3MNtuple::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSet
 	  }
 	}
     }
-//  std::cout<<"How many tracks are filled  ??? "<<  Track_p4.size() <<std::endl;
+  //  std::cout<<"How many tracks are filled  ??? "<<  Track_p4.size() <<std::endl;
 }
 
 void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -418,184 +571,184 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	      }
 	    }
 
-	  std::vector<double> iMuon_Poca;
-	  iMuon_Poca.push_back(RefMuon->vx());
-	  iMuon_Poca.push_back(RefMuon->vy());
-	  iMuon_Poca.push_back(RefMuon->vz());
-	  Muon_Poca.push_back(iMuon_Poca);
-	  std::vector<double> iMuon_p4;
-	  iMuon_p4.push_back(RefMuon->p4().E());
-	  iMuon_p4.push_back(RefMuon->p4().Px());
-	  iMuon_p4.push_back(RefMuon->p4().Py());
-	  iMuon_p4.push_back(RefMuon->p4().Pz());
-	  Muon_p4.push_back(iMuon_p4);
+	    std::vector<double> iMuon_Poca;
+	    iMuon_Poca.push_back(RefMuon->vx());
+	    iMuon_Poca.push_back(RefMuon->vy());
+	    iMuon_Poca.push_back(RefMuon->vz());
+	    Muon_Poca.push_back(iMuon_Poca);
+	    std::vector<double> iMuon_p4;
+	    iMuon_p4.push_back(RefMuon->p4().E());
+	    iMuon_p4.push_back(RefMuon->p4().Px());
+	    iMuon_p4.push_back(RefMuon->p4().Py());
+	    iMuon_p4.push_back(RefMuon->p4().Pz());
+	    Muon_p4.push_back(iMuon_p4);
 
-	  const reco::MuonIsolation Iso03 = RefMuon->isolationR03();
-	  const reco::MuonIsolation Iso05 = RefMuon->isolationR05();
+	    const reco::MuonIsolation Iso03 = RefMuon->isolationR03();
+	    const reco::MuonIsolation Iso05 = RefMuon->isolationR05();
 
-	  const reco::MuonPFIsolation PFIso03 = RefMuon->pfIsolationR03();
-	  const reco::MuonPFIsolation PFIso04 = RefMuon->pfIsolationR04();
+	    const reco::MuonPFIsolation PFIso03 = RefMuon->pfIsolationR03();
+	    const reco::MuonPFIsolation PFIso04 = RefMuon->pfIsolationR04();
 
-	  Muon_numberOfChambers.push_back(RefMuon->numberOfChambers());
-	  Muon_isGlobalMuon.push_back(RefMuon->isGlobalMuon());
-	  Muon_isPFMuon.push_back(RefMuon->isPFMuon());
-	  Muon_isRPCMuon.push_back(RefMuon->isRPCMuon());
-	  Muon_isStandAloneMuon.push_back(RefMuon->isStandAloneMuon());
-	  Muon_isTrackerMuon.push_back(RefMuon->isTrackerMuon());
-	  Muon_isCaloMuon.push_back(RefMuon->isCaloMuon());
-	  Muon_isQualityValid.push_back(RefMuon->isQualityValid());
-	  Muon_isTimeValid.push_back(RefMuon->isTimeValid());
-	  Muon_isIsolationValid.push_back(RefMuon->isIsolationValid());
-	  Muon_numberOfMatchedStations.push_back(RefMuon->numberOfMatchedStations());
-	  Muon_numberOfMatches.push_back(RefMuon->numberOfMatches(reco::Muon::SegmentArbitration));
-	  Muon_charge.push_back(RefMuon->charge());
+	    Muon_numberOfChambers.push_back(RefMuon->numberOfChambers());
+	    Muon_isGlobalMuon.push_back(RefMuon->isGlobalMuon());
+	    Muon_isPFMuon.push_back(RefMuon->isPFMuon());
+	    Muon_isRPCMuon.push_back(RefMuon->isRPCMuon());
+	    Muon_isStandAloneMuon.push_back(RefMuon->isStandAloneMuon());
+	    Muon_isTrackerMuon.push_back(RefMuon->isTrackerMuon());
+	    Muon_isCaloMuon.push_back(RefMuon->isCaloMuon());
+	    Muon_isQualityValid.push_back(RefMuon->isQualityValid());
+	    Muon_isTimeValid.push_back(RefMuon->isTimeValid());
+	    Muon_isIsolationValid.push_back(RefMuon->isIsolationValid());
+	    Muon_numberOfMatchedStations.push_back(RefMuon->numberOfMatchedStations());
+	    Muon_numberOfMatches.push_back(RefMuon->numberOfMatches(reco::Muon::SegmentArbitration));
+	    Muon_charge.push_back(RefMuon->charge());
 
-	  std::vector<double> iMuon_outerTrack_p4;
-	  std::vector<double> iMuon_innerTrack_p4;
-	  if (RefMuon->isGlobalMuon()) {
-	    Muon_normChi2.push_back(RefMuon->globalTrack()->normalizedChi2());
-	    Muon_hitPattern_numberOfValidMuonHits.push_back(RefMuon->globalTrack()->hitPattern().numberOfValidMuonHits());
-	    Muon_trackerLayersWithMeasurement.push_back(RefMuon->innerTrack()->hitPattern().trackerLayersWithMeasurement());
-	    Muon_numberofValidPixelHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfValidPixelHits());
+	    std::vector<double> iMuon_outerTrack_p4;
+	    std::vector<double> iMuon_innerTrack_p4;
+	    if (RefMuon->isGlobalMuon()) {
+	      Muon_normChi2.push_back(RefMuon->globalTrack()->normalizedChi2());
+	      Muon_hitPattern_numberOfValidMuonHits.push_back(RefMuon->globalTrack()->hitPattern().numberOfValidMuonHits());
+	      Muon_trackerLayersWithMeasurement.push_back(RefMuon->innerTrack()->hitPattern().trackerLayersWithMeasurement());
+	      Muon_numberofValidPixelHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfValidPixelHits());
 	
-	    iMuon_outerTrack_p4.push_back(RefMuon->outerTrack()->p());
-	    iMuon_outerTrack_p4.push_back(RefMuon->outerTrack()->eta());
-	    iMuon_outerTrack_p4.push_back(RefMuon->outerTrack()->phi());
-	    Muon_prod_inner_outer_charge.push_back(RefMuon->outerTrack()->charge()*RefMuon->innerTrack()->charge());
-	    Muon_outerTrack_normalizedChi2.push_back(RefMuon->outerTrack()->normalizedChi2());
-	    Muon_outerTrack_muonStationsWithValidHits.push_back(RefMuon->outerTrack()->hitPattern().muonStationsWithValidHits());
+	      iMuon_outerTrack_p4.push_back(RefMuon->outerTrack()->p());
+	      iMuon_outerTrack_p4.push_back(RefMuon->outerTrack()->eta());
+	      iMuon_outerTrack_p4.push_back(RefMuon->outerTrack()->phi());
+	      Muon_prod_inner_outer_charge.push_back(RefMuon->outerTrack()->charge()*RefMuon->innerTrack()->charge());
+	      Muon_outerTrack_normalizedChi2.push_back(RefMuon->outerTrack()->normalizedChi2());
+	      Muon_outerTrack_muonStationsWithValidHits.push_back(RefMuon->outerTrack()->hitPattern().muonStationsWithValidHits());
 
 
-	    unsigned int dt1(0),dt2(0),dt3(0),dt4(0);
-	    unsigned int rpc1(0),rpc2(0),rpc3(0),rpc4(0);
-	    unsigned int csc1(0),csc2(0),csc3(0),csc4(0);
-	    double comb(0);
-	    const reco::HitPattern &pattern = RefMuon->outerTrack()->hitPattern();
-	    for (int i=0;i<pattern.numberOfAllHits(reco::HitPattern::TRACK_HITS);i++)
-	      { 
-		uint32_t hit = pattern.getHitPattern(reco::HitPattern::TRACK_HITS,i);
-		if (pattern.validHitFilter(hit) != 1) {continue;}
-		if (pattern.getMuonStation(hit) == 1)
-		  { 
-		    if (pattern.muonDTHitFilter(hit))  dt1++;
-		    if (pattern.muonRPCHitFilter(hit)) rpc1++;
-		    if (pattern.muonCSCHitFilter(hit)) csc1++;
-		  }
-		else if (pattern.getMuonStation(hit) == 2)
-		  { 
-		    if (pattern.muonDTHitFilter(hit))  dt2++;
-		    if (pattern.muonRPCHitFilter(hit)) rpc2++;
-		    if (pattern.muonCSCHitFilter(hit)) csc2++;
-		  }
-		else if (pattern.getMuonStation(hit) == 3)
-		  { 
-		    if (pattern.muonDTHitFilter(hit))  dt3++;
-		    if (pattern.muonRPCHitFilter(hit)) rpc3++;
-		    if (pattern.muonCSCHitFilter(hit)) csc3++;
-		  }
-		else if (pattern.getMuonStation(hit) == 4)
-		  { 
-		    if (pattern.muonDTHitFilter(hit))  dt4++;
-		    if (pattern.muonRPCHitFilter(hit)) rpc4++;
-		    if (pattern.muonCSCHitFilter(hit)) csc4++;
-		  }    
-	      }
-	    comb = (dt1+dt2+dt3+dt4)/2. + (rpc1+rpc2+rpc3+rpc4);
-	    csc1>6 ? comb+=6 : comb+=csc1;
-	    csc2>6 ? comb+=6 : comb+=csc2;
-	    csc3>6 ? comb+=6 : comb+=csc3;
-	    csc4>6 ? comb+=6 : comb+=csc4;
-	    Muon_vmuonhitcomb_reco.push_back(comb);
-	    Muon_rpchits_reco.push_back(rpc1+rpc2+rpc3+rpc4);
+	      unsigned int dt1(0),dt2(0),dt3(0),dt4(0);
+	      unsigned int rpc1(0),rpc2(0),rpc3(0),rpc4(0);
+	      unsigned int csc1(0),csc2(0),csc3(0),csc4(0);
+	      double comb(0);
+	      const reco::HitPattern &pattern = RefMuon->outerTrack()->hitPattern();
+	      for (int i=0;i<pattern.numberOfAllHits(reco::HitPattern::TRACK_HITS);i++)
+		{ 
+		  uint32_t hit = pattern.getHitPattern(reco::HitPattern::TRACK_HITS,i);
+		  if (pattern.validHitFilter(hit) != 1) {continue;}
+		  if (pattern.getMuonStation(hit) == 1)
+		    { 
+		      if (pattern.muonDTHitFilter(hit))  dt1++;
+		      if (pattern.muonRPCHitFilter(hit)) rpc1++;
+		      if (pattern.muonCSCHitFilter(hit)) csc1++;
+		    }
+		  else if (pattern.getMuonStation(hit) == 2)
+		    { 
+		      if (pattern.muonDTHitFilter(hit))  dt2++;
+		      if (pattern.muonRPCHitFilter(hit)) rpc2++;
+		      if (pattern.muonCSCHitFilter(hit)) csc2++;
+		    }
+		  else if (pattern.getMuonStation(hit) == 3)
+		    { 
+		      if (pattern.muonDTHitFilter(hit))  dt3++;
+		      if (pattern.muonRPCHitFilter(hit)) rpc3++;
+		      if (pattern.muonCSCHitFilter(hit)) csc3++;
+		    }
+		  else if (pattern.getMuonStation(hit) == 4)
+		    { 
+		      if (pattern.muonDTHitFilter(hit))  dt4++;
+		      if (pattern.muonRPCHitFilter(hit)) rpc4++;
+		      if (pattern.muonCSCHitFilter(hit)) csc4++;
+		    }    
+		}
+	      comb = (dt1+dt2+dt3+dt4)/2. + (rpc1+rpc2+rpc3+rpc4);
+	      csc1>6 ? comb+=6 : comb+=csc1;
+	      csc2>6 ? comb+=6 : comb+=csc2;
+	      csc3>6 ? comb+=6 : comb+=csc3;
+	      csc4>6 ? comb+=6 : comb+=csc4;
+	      Muon_vmuonhitcomb_reco.push_back(comb);
+	      Muon_rpchits_reco.push_back(rpc1+rpc2+rpc3+rpc4);
 
 
-	  } else {
-	    Muon_normChi2.push_back(0);
-	    Muon_hitPattern_numberOfValidMuonHits.push_back(0);
-	    Muon_trackerLayersWithMeasurement.push_back(0);
-	    Muon_numberofValidPixelHits.push_back(0);
-	    Muon_prod_inner_outer_charge.push_back(0);
-	    Muon_outerTrack_normalizedChi2.push_back(0);
-	    Muon_outerTrack_muonStationsWithValidHits.push_back(0);
-	    Muon_vmuonhitcomb_reco.push_back(0);
-	    Muon_rpchits_reco.push_back(0);
-	  }
+	    } else {
+	      Muon_normChi2.push_back(0);
+	      Muon_hitPattern_numberOfValidMuonHits.push_back(0);
+	      Muon_trackerLayersWithMeasurement.push_back(0);
+	      Muon_numberofValidPixelHits.push_back(0);
+	      Muon_prod_inner_outer_charge.push_back(0);
+	      Muon_outerTrack_normalizedChi2.push_back(0);
+	      Muon_outerTrack_muonStationsWithValidHits.push_back(0);
+	      Muon_vmuonhitcomb_reco.push_back(0);
+	      Muon_rpchits_reco.push_back(0);
+	    }
 
-	  if (RefMuon->isTrackerMuon()) {
-	    Muon_innerTrack_validFraction.push_back(RefMuon->innerTrack()->validFraction());
-	    Muon_innerTrack_pixelLayersWithMeasurement.push_back(RefMuon->innerTrack()->hitPattern().pixelLayersWithMeasurement() );
-	    Muon_innerTrack_numberOfValidTrackerHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfValidTrackerHits() );
-	    Muon_innerTrack_numberOfLostTrackerHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfLostTrackerHits(HitPattern::TRACK_HITS) );
-	    Muon_innerTrack_numberOfLostTrackerInnerHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfLostTrackerHits(HitPattern::MISSING_INNER_HITS) );
-	    Muon_innerTrack_numberOfLostTrackerOuterHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfLostTrackerHits(HitPattern::MISSING_OUTER_HITS) );
-	    Muon_innerTrack_normalizedChi2.push_back(RefMuon->innerTrack()->normalizedChi2() );
+	    if (RefMuon->isTrackerMuon()) {
+	      Muon_innerTrack_validFraction.push_back(RefMuon->innerTrack()->validFraction());
+	      Muon_innerTrack_pixelLayersWithMeasurement.push_back(RefMuon->innerTrack()->hitPattern().pixelLayersWithMeasurement() );
+	      Muon_innerTrack_numberOfValidTrackerHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfValidTrackerHits() );
+	      Muon_innerTrack_numberOfLostTrackerHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfLostTrackerHits(HitPattern::TRACK_HITS) );
+	      Muon_innerTrack_numberOfLostTrackerInnerHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfLostTrackerHits(HitPattern::MISSING_INNER_HITS) );
+	      Muon_innerTrack_numberOfLostTrackerOuterHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfLostTrackerHits(HitPattern::MISSING_OUTER_HITS) );
+	      Muon_innerTrack_normalizedChi2.push_back(RefMuon->innerTrack()->normalizedChi2() );
 
-	    Muon_innerTrack_numberofValidHits.push_back(RefMuon->innerTrack()->numberOfValidHits());
-	    Muon_hitPattern_pixelLayerwithMeas.push_back(RefMuon->innerTrack()->hitPattern().pixelLayersWithMeasurement());
+	      Muon_innerTrack_numberofValidHits.push_back(RefMuon->innerTrack()->numberOfValidHits());
+	      Muon_hitPattern_pixelLayerwithMeas.push_back(RefMuon->innerTrack()->hitPattern().pixelLayersWithMeasurement());
 
-	    Muon_innerTrack_quality.push_back(RefMuon->innerTrack()->quality(TrackBase::highPurity));
-	    iMuon_innerTrack_p4.push_back(RefMuon->innerTrack()->p());
-	    iMuon_innerTrack_p4.push_back(RefMuon->innerTrack()->eta());
-	    iMuon_innerTrack_p4.push_back(RefMuon->innerTrack()->phi());
-	  } else {
-	    Muon_innerTrack_quality.push_back(0);
-	    Muon_innerTrack_numberofValidHits.push_back(0);
-	    Muon_hitPattern_pixelLayerwithMeas.push_back(0);
-	    Muon_innerTrack_validFraction.push_back(0);
-	    Muon_innerTrack_pixelLayersWithMeasurement.push_back(0);
-	    Muon_innerTrack_numberOfValidTrackerHits.push_back(0);
-	    Muon_innerTrack_numberOfLostTrackerHits.push_back(0);
-	    Muon_innerTrack_numberOfLostTrackerInnerHits.push_back(0);
-	    Muon_innerTrack_numberOfLostTrackerOuterHits.push_back(0);
-	    Muon_innerTrack_normalizedChi2.push_back(0);
-	  }
-	  Muon_outerTrack_p4.push_back(iMuon_outerTrack_p4);
-	  Muon_innerTrack_p4.push_back(iMuon_innerTrack_p4);
-
-
-	  if (RefMuon->isIsolationValid()) {
-	    Muon_emEt03.push_back(Iso03.emEt);
-	    Muon_emVetoEt03.push_back(Iso03.emVetoEt);
-	    Muon_hadEt03.push_back(Iso03.hadEt);
-	    Muon_hadVetoEt03.push_back(Iso03.hadVetoEt);
-	    Muon_nJets03.push_back(Iso03.nJets);
-	    Muon_nTracks03.push_back(Iso03.nTracks);
-	    Muon_sumPt03.push_back(Iso03.sumPt);
-	    Muon_trackerVetoPt03.push_back(Iso03.trackerVetoPt);
-
-	    Muon_emEt05.push_back(Iso05.emEt);
-	    Muon_emVetoEt05.push_back(Iso05.emVetoEt);
-	    Muon_hadEt05.push_back(Iso05.hadEt);
-	    Muon_hadVetoEt05.push_back(Iso05.hadVetoEt);
-	    Muon_nJets05.push_back(Iso05.nJets);
-	    Muon_nTracks05.push_back(Iso05.nTracks);
-	    Muon_sumPt05.push_back(Iso05.sumPt);
-	    Muon_trackerVetoPt05.push_back(Iso05.trackerVetoPt);
-	  } else { // if isolation is not valid use -1 as default
-	    Muon_emEt03.push_back(-1);
-	    Muon_emVetoEt03.push_back(-1);
-	    Muon_hadEt03.push_back(-1);
-	    Muon_hadVetoEt03.push_back(-1);
-	    Muon_nJets03.push_back(-1);
-	    Muon_nTracks03.push_back(-1);
-	    Muon_sumPt03.push_back(-1);
-	    Muon_trackerVetoPt03.push_back(-1);
-
-	    Muon_emEt05.push_back(-1);
-	    Muon_emVetoEt05.push_back(-1);
-	    Muon_hadEt05.push_back(-1);
-	    Muon_hadVetoEt05.push_back(-1);
-	    Muon_nJets05.push_back(-1);
-	    Muon_nTracks05.push_back(-1);
-	    Muon_sumPt05.push_back(-1);
-	    Muon_trackerVetoPt05.push_back(-1);
-	  }
+	      Muon_innerTrack_quality.push_back(RefMuon->innerTrack()->quality(TrackBase::highPurity));
+	      iMuon_innerTrack_p4.push_back(RefMuon->innerTrack()->p());
+	      iMuon_innerTrack_p4.push_back(RefMuon->innerTrack()->eta());
+	      iMuon_innerTrack_p4.push_back(RefMuon->innerTrack()->phi());
+	    } else {
+	      Muon_innerTrack_quality.push_back(0);
+	      Muon_innerTrack_numberofValidHits.push_back(0);
+	      Muon_hitPattern_pixelLayerwithMeas.push_back(0);
+	      Muon_innerTrack_validFraction.push_back(0);
+	      Muon_innerTrack_pixelLayersWithMeasurement.push_back(0);
+	      Muon_innerTrack_numberOfValidTrackerHits.push_back(0);
+	      Muon_innerTrack_numberOfLostTrackerHits.push_back(0);
+	      Muon_innerTrack_numberOfLostTrackerInnerHits.push_back(0);
+	      Muon_innerTrack_numberOfLostTrackerOuterHits.push_back(0);
+	      Muon_innerTrack_normalizedChi2.push_back(0);
+	    }
+	    Muon_outerTrack_p4.push_back(iMuon_outerTrack_p4);
+	    Muon_innerTrack_p4.push_back(iMuon_innerTrack_p4);
 
 
-	  //--- Fill PFMuonIsolation -----
-	  if (RefMuon->isPFIsolationValid()) {
-	    Muon_sumChargedHadronPt03.push_back(PFIso03.sumChargedHadronPt);
-	    Muon_sumChargedParticlePt03.push_back(PFIso03.sumChargedParticlePt);
+	    if (RefMuon->isIsolationValid()) {
+	      Muon_emEt03.push_back(Iso03.emEt);
+	      Muon_emVetoEt03.push_back(Iso03.emVetoEt);
+	      Muon_hadEt03.push_back(Iso03.hadEt);
+	      Muon_hadVetoEt03.push_back(Iso03.hadVetoEt);
+	      Muon_nJets03.push_back(Iso03.nJets);
+	      Muon_nTracks03.push_back(Iso03.nTracks);
+	      Muon_sumPt03.push_back(Iso03.sumPt);
+	      Muon_trackerVetoPt03.push_back(Iso03.trackerVetoPt);
+
+	      Muon_emEt05.push_back(Iso05.emEt);
+	      Muon_emVetoEt05.push_back(Iso05.emVetoEt);
+	      Muon_hadEt05.push_back(Iso05.hadEt);
+	      Muon_hadVetoEt05.push_back(Iso05.hadVetoEt);
+	      Muon_nJets05.push_back(Iso05.nJets);
+	      Muon_nTracks05.push_back(Iso05.nTracks);
+	      Muon_sumPt05.push_back(Iso05.sumPt);
+	      Muon_trackerVetoPt05.push_back(Iso05.trackerVetoPt);
+	    } else { // if isolation is not valid use -1 as default
+	      Muon_emEt03.push_back(-1);
+	      Muon_emVetoEt03.push_back(-1);
+	      Muon_hadEt03.push_back(-1);
+	      Muon_hadVetoEt03.push_back(-1);
+	      Muon_nJets03.push_back(-1);
+	      Muon_nTracks03.push_back(-1);
+	      Muon_sumPt03.push_back(-1);
+	      Muon_trackerVetoPt03.push_back(-1);
+
+	      Muon_emEt05.push_back(-1);
+	      Muon_emVetoEt05.push_back(-1);
+	      Muon_hadEt05.push_back(-1);
+	      Muon_hadVetoEt05.push_back(-1);
+	      Muon_nJets05.push_back(-1);
+	      Muon_nTracks05.push_back(-1);
+	      Muon_sumPt05.push_back(-1);
+	      Muon_trackerVetoPt05.push_back(-1);
+	    }
+
+
+	    //--- Fill PFMuonIsolation -----
+	    if (RefMuon->isPFIsolationValid()) {
+	      Muon_sumChargedHadronPt03.push_back(PFIso03.sumChargedHadronPt);
+	      Muon_sumChargedParticlePt03.push_back(PFIso03.sumChargedParticlePt);
 	    Muon_sumNeutralHadronEt03.push_back(PFIso03.sumNeutralHadronEt);
 	    Muon_sumNeutralHadronEtHighThreshold03.push_back(PFIso03.sumNeutralHadronEtHighThreshold);
 	    Muon_sumPhotonEt03.push_back(PFIso03.sumPhotonEt);
@@ -2679,6 +2832,8 @@ T3MNtuple::beginJob()
   output_tree->Branch("Jet_BTagCSV", &Jet_BTagCSV);
   output_tree->Branch("Jet_p4",&Jet_p4);
 
+  output_tree->Branch("Vertex_N_primary", &Vertex_N_primary);
+
   output_tree->Branch("Vertex_signal_dca_reco", &Vertex_signal_dca_reco);
   output_tree->Branch("Vertex_signal_KF_pos", &Vertex_signal_KF_pos);
   output_tree->Branch("Vertex_signal_KF_refittedTracksP4", &Vertex_signal_KF_refittedTracksP4);
@@ -2688,7 +2843,15 @@ T3MNtuple::beginJob()
   output_tree->Branch("Vertex_signal_AF_Chi2", &Vertex_signal_AF_Chi2);
   output_tree->Branch("Vertex_signal_AF_Ndf", &Vertex_signal_AF_Ndf);
 
+  output_tree->Branch("Vertex_pair_quality", &Vertex_pair_quality);
+  output_tree->Branch("Vertex_pairfit_status", &Vertex_pairfit_status);
 
+  output_tree->Branch("Vertex_MatchedPrimaryVertex",&Vertex_MatchedPrimaryVertex);
+
+
+  output_tree->Branch("Vertex_RefitPVisValid",&Vertex_RefitPVisValid);
+  output_tree->Branch("Vertex_MatchedRefitPrimaryVertex",&Vertex_MatchedRefitPrimaryVertex);
+  output_tree->Branch("Vertex_d0_reco",&Vertex_d0_reco);
 
 
 
@@ -2910,17 +3073,18 @@ void T3MNtuple::ClearEvent() {
   Jet_p4.clear();
 
   Vertex_signal_dca_reco.clear();
-
   Vertex_signal_KF_pos.clear();
   Vertex_signal_KF_refittedTracksP4.clear();
   Vertex_signal_KF_Chi2.clear();
-
   Vertex_signal_AF_pos.clear();
   Vertex_signal_AF_Chi2.clear();
   Vertex_signal_AF_Ndf.clear();
-
-
-
+  Vertex_pair_quality.clear();
+  Vertex_pairfit_status.clear();
+  Vertex_MatchedPrimaryVertex.clear();
+  Vertex_RefitPVisValid.clear();
+  Vertex_MatchedRefitPrimaryVertex.clear();
+  Vertex_d0_reco.clear();
 
 
 
