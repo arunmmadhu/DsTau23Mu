@@ -11,7 +11,4 @@
 #pragma link C++ class std::vector<std::vector<double> >+;
 #pragma link C++ class std::vector<std::vector<std::vector<double> > >+;
 
-#pragma link C++ class vector<vector<double> >+;
-#pragma link C++ class vector<vector<vector<double> > >+;
-
 #endif

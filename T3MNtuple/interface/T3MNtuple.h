@@ -386,11 +386,15 @@ private:
   static double TrackPtCut_;
   static double TrackEtaCut_;
 
+  static double phimassmin_;
+  static double phimassmax_;
+
 
   TTree *output_tree;
   TTree *output_former_tree;
   TH1F *h_n3mu, *h_step;
   TH1F *h_phimass;
+  TH1F *h_svmass;
   TH1F *h_phimassj;
   InputTag algInputTag_;
   int cnt_;

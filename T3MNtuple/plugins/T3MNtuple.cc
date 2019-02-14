@@ -17,6 +17,10 @@ double T3MNtuple::MuonPtCut_(-1.);
 double T3MNtuple::MuonEtaCut_(999);
 double T3MNtuple::TrackPtCut_(-1.);
 double T3MNtuple::TrackEtaCut_(999);
+double T3MNtuple::phimassmin_(1.4);
+double T3MNtuple::phimassmax_(3.0);
+
+
 //
 // constructors and destructor
 //
@@ -99,7 +103,7 @@ bool T3MNtuple::getTrackMatch(edm::Handle<std::vector<reco::Track> > &trackColle
 void
 T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 { 
-  //  std::cout<<" ========================  new event =============== "<< std::endl;
+  std::cout<<" ========================  new event =============== "<< std::endl;
   cnt_++;
   ClearEvent();
   if(doThreeMuons_) Event_nsignal_candidates =   fillThreeMuons(iEvent, iSetup);
@@ -108,7 +112,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if(doTwoMuonsAndTrack_) Event_ndsphipi_candidate = fillTwoMuonsAndTracks(iEvent, iSetup);
     }
 
-  std::cout<<"   Event_nsignal_candidates   "  << Event_nsignal_candidates <<"  Event_ndsphipi_candidate  "<< Event_ndsphipi_candidate <<std::endl;
+  //  std::cout<<"   Event_nsignal_candidates   "  << Event_nsignal_candidates <<"  Event_ndsphipi_candidate  "<< Event_ndsphipi_candidate <<std::endl;
   if(Event_nsignal_candidates!=0 or Event_ndsphipi_candidate!=0)
     {
       fillEventInfo(iEvent, iSetup);
@@ -164,6 +168,8 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.getByToken(vtxToken_ , pvs);
   Vertex_N_primary = pvs->size();
 
+  Handle<VertexCollection> svs;
+  iEvent.getByToken(svToken_ , svs);
 
   Handle<TrackCollection> trackCollection;
   iEvent.getByToken(trackToken_, trackCollection);
@@ -227,7 +233,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
       particle1_p4.push_back(Muon1->p4().Px());      particle2_p4.push_back(Muon2->p4().Px());      particle3_p4.push_back(track3->px());
       particle1_p4.push_back(Muon1->p4().Py());      particle2_p4.push_back(Muon2->p4().Py());      particle3_p4.push_back(track3->py());
       particle1_p4.push_back(Muon1->p4().Pz());      particle2_p4.push_back(Muon2->p4().Pz());      particle3_p4.push_back(track3->pz());
-      iparticle_p4.push_back(particle1_p4);      iparticle_p4.push_back(particle2_p4);      iparticle_p4.push_back(particle3_p4);
+      iparticle_p4.push_back(particle1_p4);          iparticle_p4.push_back(particle2_p4);          iparticle_p4.push_back(particle3_p4);
       particles_p4.push_back(iparticle_p4);
 
     }
@@ -474,6 +480,18 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
   index++;
   }
+
+
+
+  n_sv = 0 ;
+  for(size_t isv = 0; isv < svs->size(); isv++) {
+    const Vertex & sv = (*svs)[isv];
+    //    if(abs(sv.p4().M()-0.498)<.03 && sv.tracksSize()==2)continue; // no Ks
+    //    std::cout<<"Secondary Vertex Mass  "<< sv.p4().M() << "    nSV   "<< isv <<std::endl;
+    h_svmass->Fill( sv.p4().M());
+  }
+
+
   return;
 
 }
@@ -494,8 +512,6 @@ void T3MNtuple::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSet
     {
       if(find(dump_track_index_to_fill.begin(), dump_track_index_to_fill.end(), Track_index) !=  dump_track_index_to_fill.end())
 	{
-	  
-	  //	  std::cout<<"Track_index at start of the loop  "<< Track_index <<std::endl;
 	  std::vector<double> iTrack_p4;
 	  std::vector<double> iTrack_poca;
 	  const reco::Track track = (*trIt);
@@ -503,7 +519,6 @@ void T3MNtuple::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSet
     	    for(unsigned int iTwoMuonsTrack=0;  iTwoMuonsTrack < TwoMuonsTrack_idx.size(); iTwoMuonsTrack++){
 	      if(find(TwoMuonsTrack_idx.at(iTwoMuonsTrack).begin(), TwoMuonsTrack_idx.at(iTwoMuonsTrack).end(), Track_index) !=  TwoMuonsTrack_idx.at(iTwoMuonsTrack).end()){
 		TwoMuonsTrack_Trackindex.at(iTwoMuonsTrack).push_back(sel_track_index);
-		//		std::cout<<" sel_track_index   "<<sel_track_index <<"    Track_index  "<< Track_index <<"  track px  " << track.px() <<std::endl;
 	      }
 	    }
 
@@ -528,7 +543,6 @@ void T3MNtuple::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSet
 	  }
 	}
     }
-  //  std::cout<<"How many tracks are filled  ??? "<<  Track_p4.size() <<std::endl;
 }
 
 void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -544,7 +558,6 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
   TwoMuonsTrack_Muonsindex.resize(TwoMuonsTrack_idx.size());
 
   for (reco::MuonCollection::const_iterator iMuon = muonCollection->begin(); iMuon != muonCollection->end(); ++iMuon, Muon_index++) {
-    //    std::cout<<"Muon_index at start of the loop  "<< Muon_index <<std::endl;
     reco::MuonRef RefMuon(muonCollection, Muon_index);
     if((RefMuon->pt() > MuonPtCut_) || (abs(RefMuon->eta()) < MuonEtaCut_))
       {
@@ -555,12 +568,8 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		ThreeMuons_index.at(iThreeMuons).push_back(sel_muon_index);
 	      }
 	    }
-	    
-	    //	    //	    std::cout<<"   sel_muon_index  before if " <<sel_muon_index<<std::endl;	    
 	    for(unsigned int iTwoMuons=0;  iTwoMuons < TwoMuonsTrack_idx.size(); iTwoMuons++){
 	      if(TwoMuonsTrack_idx.at(iTwoMuons).at(0) == Muon_index || TwoMuonsTrack_idx.at(iTwoMuons).at(1) == Muon_index){
-		//	      if(find(TwoMuonsTrack_idx.at(iTwoMuons).begin(), TwoMuonsTrack_idx.at(iTwoMuons).end()-1, Muon_index) !=  TwoMuonsTrack_idx.at(iTwoMuons).end()){
-		//		std::cout<<" filling the index vector "<< sel_muon_index << " flat index "<< Muon_index <<"  px  "<<  RefMuon->p4().Px() << std::endl;
 		TwoMuonsTrack_Muonsindex.at(iTwoMuons).push_back(sel_muon_index);
 	      }
 	    }
@@ -743,104 +752,104 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    if (RefMuon->isPFIsolationValid()) {
 	      Muon_sumChargedHadronPt03.push_back(PFIso03.sumChargedHadronPt);
 	      Muon_sumChargedParticlePt03.push_back(PFIso03.sumChargedParticlePt);
-	    Muon_sumNeutralHadronEt03.push_back(PFIso03.sumNeutralHadronEt);
-	    Muon_sumNeutralHadronEtHighThreshold03.push_back(PFIso03.sumNeutralHadronEtHighThreshold);
-	    Muon_sumPhotonEt03.push_back(PFIso03.sumPhotonEt);
-	    Muon_sumPhotonEtHighThreshold03.push_back(PFIso03.sumPhotonEtHighThreshold);
-	    Muon_sumPUPt03.push_back(PFIso03.sumPUPt);
-
-	    Muon_sumChargedHadronPt04.push_back(PFIso04.sumChargedHadronPt);
-	    Muon_sumChargedParticlePt04.push_back(PFIso04.sumChargedParticlePt);
-	    Muon_sumNeutralHadronEt04.push_back(PFIso04.sumNeutralHadronEt);
-	    Muon_sumNeutralHadronEtHighThreshold04.push_back(PFIso04.sumNeutralHadronEtHighThreshold);
-	    Muon_sumPhotonEt04.push_back(PFIso04.sumPhotonEt);
-	    Muon_sumPhotonEtHighThreshold04.push_back(PFIso04.sumPhotonEtHighThreshold);
-	    Muon_sumPUPt04.push_back(PFIso04.sumPUPt);
-	  } else { // if isolation is not valid use -1 as default
-	    Muon_sumChargedHadronPt03.push_back(-1);
-	    Muon_sumChargedParticlePt03.push_back(-1);
-	    Muon_sumNeutralHadronEt03.push_back(-1);
-	    Muon_sumNeutralHadronEtHighThreshold03.push_back(-1);
-	    Muon_sumPhotonEt03.push_back(-1);
-	    Muon_sumPhotonEtHighThreshold03.push_back(-1);
-	    Muon_sumPUPt03.push_back(-1);
-
-	    Muon_sumChargedHadronPt04.push_back(-1);
-	    Muon_sumChargedParticlePt04.push_back(-1);
-	    Muon_sumNeutralHadronEt04.push_back(-1);
-	    Muon_sumNeutralHadronEtHighThreshold04.push_back(-1);
-	    Muon_sumPhotonEt04.push_back(-1);
-	    Muon_sumPhotonEtHighThreshold04.push_back(-1);
-	    Muon_sumPUPt04.push_back(-1);
-	  }
-
-
-	  ///////////////////////////////////// Muon Combined Quality /////////////////////////////////////////////////////////////////////////////////////
-	  //   find more about combined Muon quality in http://cmsdoxygen.web.cern.ch/cmsdoxygen/CMSSW_9_4_4/doc/html/d4/d52/structreco_1_1MuonQuality.html
-	  Muon_combinedQuality_updatedSta.push_back(RefMuon->combinedQuality().updatedSta);
-	  Muon_combinedQuality_trkKink.push_back(RefMuon->combinedQuality().trkKink);
-	  Muon_combinedQuality_glbKink.push_back(RefMuon->combinedQuality().glbKink);
-	  Muon_combinedQuality_trkRelChi2.push_back(RefMuon->combinedQuality().trkRelChi2);
-	  Muon_combinedQuality_staRelChi2.push_back(RefMuon->combinedQuality().staRelChi2);
-	  Muon_combinedQuality_chi2LocalPosition.push_back(RefMuon->combinedQuality().chi2LocalPosition);
-	  Muon_combinedQuality_chi2LocalMomentum.push_back(RefMuon->combinedQuality().chi2LocalMomentum);
-	  Muon_combinedQuality_localDistance.push_back(RefMuon->combinedQuality().localDistance);
-	  Muon_combinedQuality_globalDeltaEtaPhi.push_back(RefMuon->combinedQuality().globalDeltaEtaPhi);
-	  Muon_combinedQuality_tightMatch.push_back(RefMuon->combinedQuality().tightMatch);
-	  Muon_combinedQuality_glbTrackProbability.push_back(RefMuon->combinedQuality().glbTrackProbability);
-
-	  Muon_calEnergy_em.push_back(RefMuon->calEnergy().em);
-	  Muon_calEnergy_emS9.push_back(RefMuon->calEnergy().emS9);
-	  Muon_calEnergy_emS25.push_back(RefMuon->calEnergy().emS25);
-	  Muon_calEnergy_had.push_back(RefMuon->calEnergy().had);
-	  Muon_calEnergy_hadS9.push_back(RefMuon->calEnergy().hadS9);
-
-	  Muon_segmentCompatibility.push_back(muon::segmentCompatibility(*RefMuon));
-	  Muon_caloCompatibility.push_back(muon::caloCompatibility(*RefMuon));
-
-	  Muon_ptErrOverPt.push_back(RefMuon->muonBestTrack()->ptError()/RefMuon->muonBestTrack()->pt());
-     
-	  Muon_isGoodMuon_TM2DCompatibility.push_back(muon::isGoodMuon(*RefMuon, muon::TM2DCompatibilityTight));
-	  Muon_isGoodMuon_TrackerMuonArbitrated.push_back(muon::isGoodMuon(*RefMuon,muon::TrackerMuonArbitrated));
-	  Muon_isGoodMuon_TMOneStationTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMOneStationTight));
-	  Muon_isGoodMuon_TMOneStationAngTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMOneStationAngTight));
-	  Muon_isGoodMuon_TMLastStationTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMLastStationTight));
-	  Muon_isGoodMuon_TMLastStationAngTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMLastStationAngTight));
-	  Muon_isGoodMuon_TMLastStationOptimizedLowPtTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMLastStationOptimizedLowPtTight));
-	  Muon_isGoodMuon_TMLastStationOptimizedBarrelLowPtTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMLastStationOptimizedBarrelLowPtTight));
-
-
-	  reco::TrackRef Track = RefMuon->track();
-	  int ntp = Muon_par.size();
-	  Muon_par.push_back(std::vector<double>());
-	  Muon_cov.push_back(std::vector<double>());
-	  if (Track.isNonnull()) {
-	    GlobalPoint pvpoint(Track->vx(), Track->vy(), Track->vz());
-	    edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
-	    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transTrackBuilder);
-	    reco::TransientTrack transTrk = transTrackBuilder->build(Track);
-	    TrackParticle trackparticle = ParticleBuilder::CreateTrackParticle(transTrk, transTrackBuilder, pvpoint, true, true);
-	    Muon_trackCharge.push_back(trackparticle.Charge());
-	    Muon_pdgid.push_back(trackparticle.PDGID());
-	    Muon_B.push_back(trackparticle.BField());
-	    Muon_M.push_back(trackparticle.Mass());
-	    for (int i = 0; i < trackparticle.NParameters(); i++) {
-	      Muon_par.at(ntp).push_back(trackparticle.Parameter(i));
-	      for (int j = i; j < trackparticle.NParameters(); j++) {
-		Muon_cov.at(ntp).push_back(trackparticle.Covariance(i, j));
-	      }
+	      Muon_sumNeutralHadronEt03.push_back(PFIso03.sumNeutralHadronEt);
+	      Muon_sumNeutralHadronEtHighThreshold03.push_back(PFIso03.sumNeutralHadronEtHighThreshold);
+	      Muon_sumPhotonEt03.push_back(PFIso03.sumPhotonEt);
+	      Muon_sumPhotonEtHighThreshold03.push_back(PFIso03.sumPhotonEtHighThreshold);
+	      Muon_sumPUPt03.push_back(PFIso03.sumPUPt);
+	    
+	      Muon_sumChargedHadronPt04.push_back(PFIso04.sumChargedHadronPt);
+	      Muon_sumChargedParticlePt04.push_back(PFIso04.sumChargedParticlePt);
+	      Muon_sumNeutralHadronEt04.push_back(PFIso04.sumNeutralHadronEt);
+	      Muon_sumNeutralHadronEtHighThreshold04.push_back(PFIso04.sumNeutralHadronEtHighThreshold);
+	      Muon_sumPhotonEt04.push_back(PFIso04.sumPhotonEt);
+	      Muon_sumPhotonEtHighThreshold04.push_back(PFIso04.sumPhotonEtHighThreshold);
+	      Muon_sumPUPt04.push_back(PFIso04.sumPUPt);
+	    } else { // if isolation is not valid use -1 as default
+	      Muon_sumChargedHadronPt03.push_back(-1);
+	      Muon_sumChargedParticlePt03.push_back(-1);
+	      Muon_sumNeutralHadronEt03.push_back(-1);
+	      Muon_sumNeutralHadronEtHighThreshold03.push_back(-1);
+	      Muon_sumPhotonEt03.push_back(-1);
+	      Muon_sumPhotonEtHighThreshold03.push_back(-1);
+	      Muon_sumPUPt03.push_back(-1);
+	      
+	      Muon_sumChargedHadronPt04.push_back(-1);
+	      Muon_sumChargedParticlePt04.push_back(-1);
+	      Muon_sumNeutralHadronEt04.push_back(-1);
+	      Muon_sumNeutralHadronEtHighThreshold04.push_back(-1);
+	      Muon_sumPhotonEt04.push_back(-1);
+	      Muon_sumPhotonEtHighThreshold04.push_back(-1);
+	      Muon_sumPUPt04.push_back(-1);
 	    }
-	  } else {
-	    Muon_trackCharge.push_back(-999);
-	    Muon_pdgid.push_back(-999);
-	    Muon_B.push_back(-999);
-	    Muon_M.push_back(-999);
-	  }
-
-	  int match;
-	  getTrackMatch(trackCollection, Track, match);
-	  Muon_Track_idx.push_back(match);
-	  sel_muon_index++;
+	    
+	    
+	    ///////////////////////////////////// Muon Combined Quality /////////////////////////////////////////////////////////////////////////////////////
+	    //   find more about combined Muon quality in http://cmsdoxygen.web.cern.ch/cmsdoxygen/CMSSW_9_4_4/doc/html/d4/d52/structreco_1_1MuonQuality.html
+	    Muon_combinedQuality_updatedSta.push_back(RefMuon->combinedQuality().updatedSta);
+	    Muon_combinedQuality_trkKink.push_back(RefMuon->combinedQuality().trkKink);
+	    Muon_combinedQuality_glbKink.push_back(RefMuon->combinedQuality().glbKink);
+	    Muon_combinedQuality_trkRelChi2.push_back(RefMuon->combinedQuality().trkRelChi2);
+	    Muon_combinedQuality_staRelChi2.push_back(RefMuon->combinedQuality().staRelChi2);
+	    Muon_combinedQuality_chi2LocalPosition.push_back(RefMuon->combinedQuality().chi2LocalPosition);
+	    Muon_combinedQuality_chi2LocalMomentum.push_back(RefMuon->combinedQuality().chi2LocalMomentum);
+	    Muon_combinedQuality_localDistance.push_back(RefMuon->combinedQuality().localDistance);
+	    Muon_combinedQuality_globalDeltaEtaPhi.push_back(RefMuon->combinedQuality().globalDeltaEtaPhi);
+	    Muon_combinedQuality_tightMatch.push_back(RefMuon->combinedQuality().tightMatch);
+	    Muon_combinedQuality_glbTrackProbability.push_back(RefMuon->combinedQuality().glbTrackProbability);
+	    
+	    Muon_calEnergy_em.push_back(RefMuon->calEnergy().em);
+	    Muon_calEnergy_emS9.push_back(RefMuon->calEnergy().emS9);
+	    Muon_calEnergy_emS25.push_back(RefMuon->calEnergy().emS25);
+	    Muon_calEnergy_had.push_back(RefMuon->calEnergy().had);
+	    Muon_calEnergy_hadS9.push_back(RefMuon->calEnergy().hadS9);
+	    
+	    Muon_segmentCompatibility.push_back(muon::segmentCompatibility(*RefMuon));
+	    Muon_caloCompatibility.push_back(muon::caloCompatibility(*RefMuon));
+	    
+	    Muon_ptErrOverPt.push_back(RefMuon->muonBestTrack()->ptError()/RefMuon->muonBestTrack()->pt());
+	    
+	    Muon_isGoodMuon_TM2DCompatibility.push_back(muon::isGoodMuon(*RefMuon, muon::TM2DCompatibilityTight));
+	    Muon_isGoodMuon_TrackerMuonArbitrated.push_back(muon::isGoodMuon(*RefMuon,muon::TrackerMuonArbitrated));
+	    Muon_isGoodMuon_TMOneStationTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMOneStationTight));
+	    Muon_isGoodMuon_TMOneStationAngTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMOneStationAngTight));
+	    Muon_isGoodMuon_TMLastStationTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMLastStationTight));
+	    Muon_isGoodMuon_TMLastStationAngTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMLastStationAngTight));
+	    Muon_isGoodMuon_TMLastStationOptimizedLowPtTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMLastStationOptimizedLowPtTight));
+	    Muon_isGoodMuon_TMLastStationOptimizedBarrelLowPtTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMLastStationOptimizedBarrelLowPtTight));
+	    
+	    
+	    reco::TrackRef Track = RefMuon->track();
+	    int ntp = Muon_par.size();
+	    Muon_par.push_back(std::vector<double>());
+	    Muon_cov.push_back(std::vector<double>());
+	    if (Track.isNonnull()) {
+	      GlobalPoint pvpoint(Track->vx(), Track->vy(), Track->vz());
+	      edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
+	      iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transTrackBuilder);
+	      reco::TransientTrack transTrk = transTrackBuilder->build(Track);
+	      TrackParticle trackparticle = ParticleBuilder::CreateTrackParticle(transTrk, transTrackBuilder, pvpoint, true, true);
+	      Muon_trackCharge.push_back(trackparticle.Charge());
+	      Muon_pdgid.push_back(trackparticle.PDGID());
+	      Muon_B.push_back(trackparticle.BField());
+	      Muon_M.push_back(trackparticle.Mass());
+	      for (int i = 0; i < trackparticle.NParameters(); i++) {
+		Muon_par.at(ntp).push_back(trackparticle.Parameter(i));
+		for (int j = i; j < trackparticle.NParameters(); j++) {
+		  Muon_cov.at(ntp).push_back(trackparticle.Covariance(i, j));
+		}
+	      }
+	    } else {
+	      Muon_trackCharge.push_back(-999);
+	      Muon_pdgid.push_back(-999);
+	      Muon_B.push_back(-999);
+	      Muon_M.push_back(-999);
+	    }
+	    
+	    int match;
+	    getTrackMatch(trackCollection, Track, match);
+	    Muon_Track_idx.push_back(match);
+	    sel_muon_index++;
 	  }
       }
   }
@@ -907,6 +916,7 @@ T3MNtuple::fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup
 
     if(FitOk){
       if(transVtx.totalChiSquared() < 30){
+	if((mv1 + mv2).M() < phimassmin_ || (mv1 + mv2).M() > phimassmax_){ //----  di-muon mass constraint
       //if(transVtx.totalChiSquared() < 15 && Muon1->charge()*Muon2->charge()!=1){
 
 	h_phimass->Fill((mv1 + mv2).M());
@@ -933,6 +943,7 @@ T3MNtuple::fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup
 	  iTrigMatchdR.push_back(match);
 	}
 	TwoMuonsTrack_TriggerMatch_dR.push_back(iTrigMatchdR);
+	}
       }
     }
   }
@@ -980,6 +991,7 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
   Handle<MuonCollection> muonCollection;
   iEvent.getByToken(muonToken_, muonCollection);
+  std::cout<<" Muon Collection size  "<< PreselectedThreeMuonsCollection.size() << std::endl;
   for ( auto &iThreeMuon :  PreselectedThreeMuonsCollection ) {
     vector<TransientTrack> t_trks;   
     TransientVertex transVtx;
@@ -989,9 +1001,24 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
     reco::MuonRef Muon2(muonCollection, iThreeMuon.at(1));
     reco::MuonRef Muon3(muonCollection, iThreeMuon.at(2));
 
-    TrackRef track1 = Muon1->globalTrack();
-    TrackRef track2 = Muon2->globalTrack();
-    TrackRef track3 = Muon3->globalTrack();
+
+    TLorentzVector mv1,mv2,mv3;
+
+    mv1.SetPtEtaPhiM(Muon1->pt(), Muon1->eta(), Muon1->phi(), 0.106);
+    mv2.SetPtEtaPhiM(Muon2->pt(), Muon2->eta(), Muon2->phi(), 0.106);
+    mv3.SetPtEtaPhiM(Muon3->pt(), Muon3->eta(), Muon3->phi(), 0.106);
+
+
+    //    TrackRef track1 = Muon1->globalTrack();
+    //    TrackRef track2 = Muon2->globalTrack();
+    //    TrackRef track3 = Muon3->globalTrack();
+
+
+    TrackRef track1 = Muon1->innerTrack();
+    TrackRef track2 = Muon2->innerTrack();
+    TrackRef track3 = Muon3->innerTrack();
+
+
     t_trks.push_back(theB->build(track1));
     t_trks.push_back(theB->build(track2));
     t_trks.push_back(theB->build(track3));
@@ -1008,10 +1035,12 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if (transVtx.refittedTracks().size() != t_trks.size())
       FitOk = false;
 
-    if(FitOk){
-      if(transVtx.totalChiSquared() <15){
+    if(FitOk){}
+    std::cout<<" px  "<< mv1.Px() <<"  "<< mv2.Px() <<"  "<< mv3.Px() <<"   if vertex valid   " << transVtx.isValid()<<"  chi2  " << transVtx.totalChiSquared() << std::endl; 
+    if(transVtx.isValid()){
+      if(transVtx.totalChiSquared() < 100.){ // very loose/ ndf =3
 	ThreeMuons_idx.push_back(iThreeMuon);
-	ThreeMuons_idx.push_back(iThreeMuon);
+	std::cout<<"   Three Muon Mass  "<< (mv1+ mv2+ mv3).M() <<std::endl;
 
 	ThreeMuons_SV_Chi2.push_back(transVtx.totalChiSquared());
 	ThreeMuons_SV_NDF.push_back(transVtx.degreesOfFreedom());
@@ -1502,7 +1531,7 @@ void T3MNtuple::fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 		  if(!fv.isValid()) continue; // eff ? 
 		  double fvnC_tmp = fv.totalChiSquared()/fv.degreesOfFreedom();
-
+		  std::cout<<" fvnC_tmp  " <<  fv.totalChiSquared() <<std::endl;
 		  //vtau.SetPxPyPzE(m_1.px()+m_2.px()+m_3.px(), m_1.py()+m_2.py()+m_3.py(), m_1.pz()+m_2.pz()+m_3.pz(), m_1.energy()+m_2.energy()+m_3.energy());
 	  
 		  if(n_reco==0)n_reco=3;
@@ -1547,7 +1576,7 @@ void T3MNtuple::fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSet
 		    }
 		}
 	    }
-      
+
 	  if(n_reco<3 && do2mu_ && m_1.pt() > 2.5 && m_2.pt() > 2.5)  ////////// if do 2mu+1trk
 	    {
 	      for(size_t itk = 0; itk < trks->size(); itk++)
@@ -1626,7 +1655,7 @@ void T3MNtuple::fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSet
   if(n_reco < (do2mu_?2:3)) return; 
   h_step->Fill(4);
 
-  vector<Muon> mu; // -------------  this must be checked again
+  vector<Muon> mu; 
   mu.push_back((*muons)[j1]);
   mu.push_back((*muons)[j2]);
   mu.push_back((*muons)[j3]);
@@ -1697,7 +1726,14 @@ void T3MNtuple::fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   vtau.SetPxPyPzE(mu[0].px()+mu[1].px()+t3->px(), mu[0].py()+mu[1].py()+t3->py(), mu[0].pz()+mu[1].pz()+t3->pz(), mu[0].energy()+mu[1].energy()+t3_energy);
 
+
   m3mu_reco = vtau.M();
+
+  if(n_reco>2){  std::cout<<"Jian mass --- "<< m3mu_reco<<std::endl;   
+    std::cout<<" px  "<< mu[0].px() <<"  "<< mu[1].px() <<"  "<< mu[2].px() <<std::endl; 
+
+
+  }
 
   double pt12 = (mu[0].pt()+mu[1].pt());
   double eta12 = (mu[0].eta()*mu[0].pt() + mu[1].eta()*mu[1].pt())/pt12;
@@ -2452,6 +2488,7 @@ T3MNtuple::beginJob()
   h_step = fs->make<TH1F>("step", "", 10, 0, 10);
 
   h_phimass= fs->make<TH1F>("phimass", "", 100, 0.1, 3.5);
+  h_svmass= fs->make<TH1F>("svmass", "", 100, 0.1, 3.5);
 
   output_former_tree = fs->make<TTree>("ft3mtree", "");
 
