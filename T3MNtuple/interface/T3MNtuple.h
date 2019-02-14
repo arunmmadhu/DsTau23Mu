@@ -370,6 +370,11 @@ private:
   std::vector<std::vector<double> > Vertex_d0_reco;
   std::vector<std::vector<double> > Vertex_d0sig_reco;
 
+  std::vector<std::vector<double> > Vertex_2Ddisplacement;
+  std::vector<std::vector<double> > Vertex_3Ddisplacement;
+
+
+
   bool doMC_, wideSB_, do2mu_, passhlt_, doTracks_, doMuons_, 
     do3mutuple_, doL1_, doThreeMuons_, doTwoMuonsAndTrack_, doBJets_;
   double TriggerMuonMatchingdr_;

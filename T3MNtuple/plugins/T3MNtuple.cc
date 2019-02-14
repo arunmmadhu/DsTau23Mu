@@ -367,9 +367,6 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   Vertex_pairfit_status.push_back(iVertex_pairfit_status);
   
 
-  //  fill the PV closest to the KV of a given candidate
-
-  
   double dphi_pv = -1.0;
   size_t primaryvertex_index;
   for(size_t vertex_index = 0; vertex_index  < pvs->size(); vertex_index++) {
@@ -392,14 +389,9 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   Vertex_MatchedPrimaryVertex.push_back(iprimaryVertex_Pos);
  
 
-
-  //  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
   vector<TransientTrack> primaryvertexTransientTracks;
   for(Vertex::trackRef_iterator itk = MatchedPrimaryVertex.tracks_begin(); itk != MatchedPrimaryVertex.tracks_end(); itk++) {
     if((**itk).pt()>1) {
-      std::cout<<"deltaR  "<< deltaR(iTransientTracks.at(0).track().eta(), iTransientTracks.at(0).track().phi(), (**itk).eta(), (**itk).phi())<<std::endl;
-      std::cout<<"deltaR  "<< deltaR(iTransientTracks.at(1).track().eta(), iTransientTracks.at(1).track().phi(), (**itk).eta(), (**itk).phi())<<std::endl;
-      std::cout<<"deltaR  "<< deltaR(iTransientTracks.at(2).track().eta(), iTransientTracks.at(2).track().phi(), (**itk).eta(), (**itk).phi())<<std::endl;
       if(deltaR(iTransientTracks.at(0).track().eta(), iTransientTracks.at(0).track().phi(), (**itk).eta(), (**itk).phi())<0.01)continue;
       if(deltaR(iTransientTracks.at(1).track().eta(), iTransientTracks.at(1).track().phi(), (**itk).eta(), (**itk).phi())<0.01)continue;
       if(deltaR(iTransientTracks.at(2).track().eta(), iTransientTracks.at(2).track().phi(), (**itk).eta(), (**itk).phi())<0.01)continue;
@@ -424,8 +416,6 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   std::vector<double> iRefitprimaryVertex_Pos;
   if(FitPVOk && pvvertex.isValid()){
     iRefitprimaryVertex_Pos.push_back(MatchedPrimaryVertex.position().x());
-
-    std::cout<<"   refit pz "<< MatchedPrimaryVertex.position().z() <<"   initia  "<< MatchedPrimaryVertex.z() <<std::endl;
     iRefitprimaryVertex_Pos.push_back(MatchedPrimaryVertex.position().y());
     iRefitprimaryVertex_Pos.push_back(MatchedPrimaryVertex.position().z());
   }
@@ -441,7 +431,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   iVertex_d0_reco.push_back(abs(iTransientTracks.at(1).track().dxy(pv1P)));
   iVertex_d0_reco.push_back(abs(iTransientTracks.at(2).track().dxy(pv1P)));
   Vertex_d0_reco.push_back(iVertex_d0_reco);
-  std::cout<<" ---- "<<particles_p4.at(index).at(2).at(3) <<std::endl;
+
   GlobalVector dir1(particles_p4.at(index).at(0).at(1), particles_p4.at(index).at(0).at(2), particles_p4.at(index).at(0).at(3));
   GlobalVector dir2(particles_p4.at(index).at(1).at(1), particles_p4.at(index).at(1).at(2), particles_p4.at(index).at(1).at(3));
   GlobalVector dir3(particles_p4.at(index).at(2).at(1), particles_p4.at(index).at(2).at(2), particles_p4.at(index).at(2).at(3));
@@ -461,35 +451,27 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
   Vertex_d0sig_reco.push_back(iVertex_d0sig_reco);
 
-  /*
-
-
-
-  ////////////////////
-  // displacement 2D
-  TVector3 dv2D_reco(fv.position().x() - pv1P.x(), fv.position().y() - pv1P.y(), 0);
-  TVector3 vtauxy(vtau.Px(), vtau.Py(), 0);
+  TVector3 dv2D_reco(final_pv.position().x() - pv1P.x(), final_pv.position().y() - pv1P.y(), 0);
+  TVector3 vtauxy(ThreeCandidate.Px(), ThreeCandidate.Py(), 0);
   fv_cosdphi = dv2D_reco.Dot(vtauxy)/(dv2D_reco.Perp()*vtauxy.Perp());
   VertexDistanceXY vdistXY;
-  Measurement1D distXY = vdistXY.distance(Vertex(fv), final_pv);
-  fv_dxy = distXY.value();
-  fv_dxysig = distXY.significance();
-  fv_ppdl = distXY.value()*fv_cosdphi * m3mu_reco/vtauxy.Perp();
+  Measurement1D distXY = vdistXY.distance(Vertex(final_pv), final_pv);
+  std::vector<double> iVertex_2Ddisplacement;
+  iVertex_2Ddisplacement.push_back(distXY.value());
+  iVertex_2Ddisplacement.push_back(distXY.significance());
+  iVertex_2Ddisplacement.push_back(distXY.value()*fv_cosdphi * m3mu_reco/vtauxy.Perp());
+  Vertex_2Ddisplacement.push_back(iVertex_2Ddisplacement);
 
-
-  ////////////////////
-  // displacement 3D
-  TVector3 dv3D_reco(fv.position().x() - pv1P.x(), fv.position().y() - pv1P.y(), fv.position().z() - pv1P.z());
-  //TVector3 vtauxyz(vtau.Px(), vtau.Py(), vtau.Pz());
+  TVector3 vtauxyz(ThreeCandidate.Px(), ThreeCandidate.Py(), ThreeCandidate.Pz());
+  TVector3 dv3D_reco(final_pv.position().x() - pv1P.x(), final_pv.position().y() - pv1P.y(), final_pv.position().z() - pv1P.z());
   fv_cosdphi3D = dv3D_reco.Dot(vtauxyz)/(dv3D_reco.Mag()*vtauxyz.Mag());
   VertexDistance3D dist;
-  fv_d3D = dist.distance(Vertex(fv), final_pv).value(); // = dv_reco.Mag() ??
-  fv_d3Dsig = dist.distance(Vertex(fv), final_pv).significance();
-  fv_ppdl3D = fv_d3D*fv_cosdphi3D*m3mu_reco/vtau.P();
+  std::vector<double> iVertex_3Ddisplacement;
+  iVertex_3Ddisplacement.push_back(dist.distance(Vertex(final_pv), final_pv).value());
+  iVertex_3Ddisplacement.push_back(dist.distance(Vertex(final_pv), final_pv).significance());
+  iVertex_3Ddisplacement.push_back(fv_d3D*fv_cosdphi3D*m3mu_reco/ThreeCandidate.P());
+  Vertex_3Ddisplacement.push_back(iVertex_3Ddisplacement);
 
-  */
-
-  std::cout<<"  vertex   " << primaryvertex_index <<std::endl;
   index++;
   }
   return;
@@ -2865,6 +2847,9 @@ T3MNtuple::beginJob()
   output_tree->Branch("Vertex_MatchedRefitPrimaryVertex",&Vertex_MatchedRefitPrimaryVertex);
   output_tree->Branch("Vertex_d0_reco",&Vertex_d0_reco);
   output_tree->Branch("Vertex_d0sig_reco",&Vertex_d0sig_reco);
+  output_tree->Branch("Vertex_2Ddisplacement",&Vertex_2Ddisplacement);
+  output_tree->Branch("Vertex_3Ddisplacement",&Vertex_3Ddisplacement);
+
 
 
   //refitter_.setServices(iSetup);
@@ -3098,7 +3083,8 @@ void T3MNtuple::ClearEvent() {
   Vertex_MatchedRefitPrimaryVertex.clear();
   Vertex_d0_reco.clear();
   Vertex_d0sig_reco.clear();
-
+  Vertex_2Ddisplacement.clear();
+  Vertex_3Ddisplacement.clear();
 
 
 }
