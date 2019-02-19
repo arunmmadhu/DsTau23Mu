@@ -103,7 +103,7 @@ bool T3MNtuple::getTrackMatch(edm::Handle<std::vector<reco::Track> > &trackColle
 void
 T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 { 
-  std::cout<<" ========================  new event =============== "<< std::endl;
+  //  std::cout<<" ========================  new event =============== "<< std::endl;
   cnt_++;
   ClearEvent();
   if(doThreeMuons_) Event_nsignal_candidates =   fillThreeMuons(iEvent, iSetup);
@@ -320,7 +320,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
       vector<TransientTrack>::const_iterator trkIt = AdaptivetransVtx.refittedTracks().begin();
       for(; trkIt != AdaptivetransVtx.refittedTracks().end(); ++ trkIt) {
-	std::cout<<"loop over tracks "<<std::endl; // no valid tracks by some reason while the vertex is valid.
+	//	std::cout<<"loop over tracks "<<std::endl; // no valid tracks by some reason while the vertex is valid.
       }
     } else {
       Vertex_signal_AF_Chi2.push_back(-1);
@@ -991,7 +991,7 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
   Handle<MuonCollection> muonCollection;
   iEvent.getByToken(muonToken_, muonCollection);
-  std::cout<<" Muon Collection size  "<< PreselectedThreeMuonsCollection.size() << std::endl;
+  //  std::cout<<" Muon Collection size  "<< PreselectedThreeMuonsCollection.size() << std::endl;
   for ( auto &iThreeMuon :  PreselectedThreeMuonsCollection ) {
     vector<TransientTrack> t_trks;   
     TransientVertex transVtx;
@@ -1036,11 +1036,11 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
       FitOk = false;
 
     if(FitOk){}
-    std::cout<<" px  "<< mv1.Px() <<"  "<< mv2.Px() <<"  "<< mv3.Px() <<"   if vertex valid   " << transVtx.isValid()<<"  chi2  " << transVtx.totalChiSquared() << std::endl; 
+    //    std::cout<<" px  "<< mv1.Px() <<"  "<< mv2.Px() <<"  "<< mv3.Px() <<"   if vertex valid   " << transVtx.isValid()<<"  chi2  " << transVtx.totalChiSquared() << std::endl; 
     if(transVtx.isValid()){
       if(transVtx.totalChiSquared() < 100.){ // very loose/ ndf =3
 	ThreeMuons_idx.push_back(iThreeMuon);
-	std::cout<<"   Three Muon Mass  "<< (mv1+ mv2+ mv3).M() <<std::endl;
+	//	std::cout<<"   Three Muon Mass  "<< (mv1+ mv2+ mv3).M() <<std::endl;
 
 	ThreeMuons_SV_Chi2.push_back(transVtx.totalChiSquared());
 	ThreeMuons_SV_NDF.push_back(transVtx.degreesOfFreedom());
@@ -1531,7 +1531,7 @@ void T3MNtuple::fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 		  if(!fv.isValid()) continue; // eff ? 
 		  double fvnC_tmp = fv.totalChiSquared()/fv.degreesOfFreedom();
-		  std::cout<<" fvnC_tmp  " <<  fv.totalChiSquared() <<std::endl;
+		  //		  std::cout<<" fvnC_tmp  " <<  fv.totalChiSquared() <<std::endl;
 		  //vtau.SetPxPyPzE(m_1.px()+m_2.px()+m_3.px(), m_1.py()+m_2.py()+m_3.py(), m_1.pz()+m_2.pz()+m_3.pz(), m_1.energy()+m_2.energy()+m_3.energy());
 	  
 		  if(n_reco==0)n_reco=3;
@@ -1729,11 +1729,9 @@ void T3MNtuple::fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   m3mu_reco = vtau.M();
 
-  if(n_reco>2){  std::cout<<"Jian mass --- "<< m3mu_reco<<std::endl;   
-    std::cout<<" px  "<< mu[0].px() <<"  "<< mu[1].px() <<"  "<< mu[2].px() <<std::endl; 
-
-
-  }
+  //  if(n_reco>2){  std::cout<<"Jian mass --- "<< m3mu_reco<<std::endl;   
+  //  std::cout<<" px  "<< mu[0].px() <<"  "<< mu[1].px() <<"  "<< mu[2].px() <<std::endl; 
+  // }
 
   double pt12 = (mu[0].pt()+mu[1].pt());
   double eta12 = (mu[0].eta()*mu[0].pt() + mu[1].eta()*mu[1].pt())/pt12;
