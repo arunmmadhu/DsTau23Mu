@@ -42,9 +42,7 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "RecoMuon/MuonIdentification/interface/MuonCaloCompatibility.h"
-//#include "RecoMuon/MuonIdentification/src/MuonKinkFinder.cc"
 #include "DataFormats/MuonReco/interface/MuonShower.h"
-//#include "TrackingTools/TrackRefitter/interface/RefitDirection.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -54,21 +52,16 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
-
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-
 #include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
-//#include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
-//#include "TrackingTools/TrackFitters/interface/TrajectoryFitterRecord.h"
-//#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
@@ -76,11 +69,9 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/MuonReco/interface/CaloMuon.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
-//#include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetMatchInfo.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
-//#include "scnew.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
@@ -97,7 +88,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "DsTau23Mu/T3MNtuple/interface/PDGInfo.h"
-
+#include "DsTau23Mu/T3MNtuple/interface/DataMCType.h"
 #include "TH2.h"
 #include <TTree.h>
 
@@ -190,6 +181,7 @@ private:
   //=======  Event ===
   int EventNumber;
   unsigned int Event_EventNumber;
+  int Event_DataMC_Type;
   unsigned int Event_RunNumber;
   int Event_bunchCrossing;
   int Event_orbitNumber;
@@ -385,7 +377,6 @@ private:
   static double MuonEtaCut_;
   static double TrackPtCut_;
   static double TrackEtaCut_;
-
   static double phimassmin_;
   static double phimassmax_;
 
@@ -400,9 +391,6 @@ private:
   int cnt_;
 
   EDGetTokenT<MuonCollection> muonToken_;
-  //EDGetTokenT<MuonCollection> badmuonToken_;
-  //EDGetTokenT<ValueMap<MuonShower>> MuonShowerInformationValueMapToken_;
-  //EDGetTokenT<JetCollection> jetToken_;
   EDGetTokenT<JetTagCollection> btagCvsBToken_;
   EDGetTokenT<JetTagCollection> btagCSVToken_;
   EDGetTokenT<JetTagCollection> btagMVAToken_;
@@ -411,19 +399,12 @@ private:
   EDGetTokenT<TrackCollection> trackToken_;
   EDGetTokenT<TriggerResults> triggerToken_;
   EDGetTokenT<trigger::TriggerEvent> trigeventToken_;
-  //  EDGetTokenT<std::vector<reco::Track> > trackToken_;
   EDGetToken algToken_;
-  //EDGetTokenT<L1GlobalTriggerReadoutRecord> level1Token_;
   EDGetTokenT<BeamSpot> bsToken_;
   EDGetTokenT<vector<PileupSummaryInfo>> puToken_;
   EDGetTokenT<GenParticleCollection> genToken_;
-  //EDGetTokenT<bool> BadGlbMuonFilterToken_;
-  //PFCaloCompatibility muonCaloCompatibility_;
-  //TrackDetectorAssociator trackAssociator_;
-  //TrackAssociatorParameters parameters_;
+  TString sampleType_;
   L1TGlobalUtil* gtUtil_;
-  //MuonCaloCompatibility muonCaloCompatibility_;
-  //TrackTransformer refitter_;
 };
 
 

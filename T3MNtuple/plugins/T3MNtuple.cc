@@ -38,7 +38,8 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
   algToken_(consumes<BXVector<GlobalAlgBlk>>(iConfig.getParameter<InputTag>("AlgInputTag"))),
   bsToken_(consumes<BeamSpot>(iConfig.getParameter<InputTag>("beamSpotHandle"))),
   puToken_(consumes<vector<PileupSummaryInfo> >(iConfig.getParameter<InputTag>("pileupSummary"))),
-  genToken_(consumes<GenParticleCollection>(iConfig.getParameter<InputTag>("genParticles")))
+  genToken_(consumes<GenParticleCollection>(iConfig.getParameter<InputTag>("genParticles"))),
+  sampleType_(iConfig.getUntrackedParameter<string>("DataMCType",""))
 {
   gtUtil_ = new L1TGlobalUtil(iConfig, consumesCollector(), *this, algInputTag_, algInputTag_);
   doMC_ = iConfig.getParameter<bool>("doMC");
@@ -58,6 +59,9 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
 
   TrackPtCut_ = iConfig.getParameter<double>("TrackPtCut"); //default: 1.5
   TrackEtaCut_ = iConfig.getParameter<double>("TrackEtaCut"); //default: 2.5
+
+  DataMCType DMT;
+  Event_DataMC_Type=DMT.GetType(sampleType_);
 }
 
 
@@ -106,6 +110,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //  std::cout<<" ========================  new event =============== "<< std::endl;
   cnt_++;
   ClearEvent();
+
   if(doThreeMuons_) Event_nsignal_candidates =   fillThreeMuons(iEvent, iSetup);
   if(Event_nsignal_candidates==0)
     {
@@ -485,10 +490,9 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
   n_sv = 0 ;
   for(size_t isv = 0; isv < svs->size(); isv++) {
-    const Vertex & sv = (*svs)[isv];
+    //    const Vertex & sv = (*svs)[isv];
     //    if(abs(sv.p4().M()-0.498)<.03 && sv.tracksSize()==2)continue; // no Ks
     //    std::cout<<"Secondary Vertex Mass  "<< sv.p4().M() << "    nSV   "<< isv <<std::endl;
-    h_svmass->Fill( sv.p4().M());
   }
 
 
@@ -919,7 +923,6 @@ T3MNtuple::fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup
 	if((mv1 + mv2).M() < phimassmin_ || (mv1 + mv2).M() > phimassmax_){ //----  di-muon mass constraint
       //if(transVtx.totalChiSquared() < 15 && Muon1->charge()*Muon2->charge()!=1){
 
-	h_phimass->Fill((mv1 + mv2).M());
 	TwoMuonsTrack_idx.push_back(iTwoMuTr);
 	TwoMuonsTrack_SV_Chi2.push_back(transVtx.totalChiSquared());
 	TwoMuonsTrack_SV_NDF.push_back(transVtx.degreesOfFreedom());
@@ -991,7 +994,6 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
   Handle<MuonCollection> muonCollection;
   iEvent.getByToken(muonToken_, muonCollection);
-  //  std::cout<<" Muon Collection size  "<< PreselectedThreeMuonsCollection.size() << std::endl;
   for ( auto &iThreeMuon :  PreselectedThreeMuonsCollection ) {
     vector<TransientTrack> t_trks;   
     TransientVertex transVtx;
@@ -1036,7 +1038,6 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
       FitOk = false;
 
     if(FitOk){}
-    //    std::cout<<" px  "<< mv1.Px() <<"  "<< mv2.Px() <<"  "<< mv3.Px() <<"   if vertex valid   " << transVtx.isValid()<<"  chi2  " << transVtx.totalChiSquared() << std::endl; 
     if(transVtx.isValid()){
       if(transVtx.totalChiSquared() < 100.){ // very loose/ ndf =3
 	ThreeMuons_idx.push_back(iThreeMuon);
@@ -1326,6 +1327,11 @@ void T3MNtuple::fillEventInfo(const edm::Event& iEvent, const edm::EventSetup& i
   Event_luminosityBlock = iEvent.luminosityBlock();
   Event_isRealData = iEvent.isRealData();
 
+  DataMCType DMT;
+  Event_DataMC_Type = DMT.GetType();
+  if (Event_isRealData) {
+    Event_DataMC_Type = DataMCType::Data;
+  }
 }
 
 void T3MNtuple::fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -1729,9 +1735,7 @@ void T3MNtuple::fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   m3mu_reco = vtau.M();
 
-  //  if(n_reco>2){  std::cout<<"Jian mass --- "<< m3mu_reco<<std::endl;   
-  //  std::cout<<" px  "<< mu[0].px() <<"  "<< mu[1].px() <<"  "<< mu[2].px() <<std::endl; 
-  // }
+
 
   double pt12 = (mu[0].pt()+mu[1].pt());
   double eta12 = (mu[0].eta()*mu[0].pt() + mu[1].eta()*mu[1].pt())/pt12;
@@ -1815,7 +1819,6 @@ void T3MNtuple::fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 
 
-  //cout<<"muon: "<<endl;  
   for(int i = 0; i < 3; i++) {  // loop muon
 
     //if(hlt_doublemu3_tau3mu)cout<<"reco mu"<<i<<"  "<<mu[i].pdgId()<<" "<<mu[i].pt()<<" "<<mu[i].eta()<<" "<<mu[i].phi()<<endl;
@@ -2485,8 +2488,6 @@ T3MNtuple::beginJob()
   h_n3mu = fs->make<TH1F>("n3mu", "", 10, 0, 10);
   h_step = fs->make<TH1F>("step", "", 10, 0, 10);
 
-  h_phimass= fs->make<TH1F>("phimass", "", 100, 0.1, 3.5);
-  h_svmass= fs->make<TH1F>("svmass", "", 100, 0.1, 3.5);
 
   output_former_tree = fs->make<TTree>("ft3mtree", "");
 
@@ -2712,6 +2713,9 @@ T3MNtuple::beginJob()
   output_tree->Branch("Event_isRealData", &Event_isRealData);
   output_tree->Branch("Event_nsignal_candidates", &Event_nsignal_candidates);
   output_tree->Branch("Event_ndsphipi_candidate", &Event_ndsphipi_candidate);
+  output_tree->Branch("Event_DataMC_Type" ,&Event_DataMC_Type);
+
+
   output_tree->Branch("puN", &puN, "puN/D");
 
   output_tree->Branch("Track_p4", &Track_p4);
