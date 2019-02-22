@@ -1,4 +1,4 @@
 # DsTau23Mu
 
 
-DsTauToTree Nutple. So far fully based on Jian version
+A flat ntuple dedicated for tauToThreeMu search by UF group
