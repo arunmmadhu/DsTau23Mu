@@ -17,6 +17,8 @@ unsigned int DataMCType::GetType(TString name){
   StoreType(name);
   if(name=="data")      return Data;
   if(name=="ds_tau")    return Ds_Tau;
+  if(name=="bs_tau")    return Bs_Tau;
+  if(name=="bp_tau")    return Bp_Tau;
   std::cout << "ERROR: Data/MC Type " << name << " UNKNOWN!!!! " << std::endl;
   return unknown;
 }
