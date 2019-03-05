@@ -116,7 +116,6 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     {
       if(doTwoMuonsAndTrack_) Event_ndsphipi_candidate = fillTwoMuonsAndTracks(iEvent, iSetup);
     }
-
   //  std::cout<<"   Event_nsignal_candidates   "  << Event_nsignal_candidates <<"  Event_ndsphipi_candidate  "<< Event_ndsphipi_candidate <<std::endl;
   if(Event_nsignal_candidates!=0 or Event_ndsphipi_candidate!=0)
     {
@@ -1100,7 +1099,7 @@ T3MNtuple::findTwoMuonsAndTrackCandidates(const edm::Event& iEvent, const edm::E
   for (reco::MuonCollection::const_iterator iMuon = muonCollection->begin(); iMuon != muonCollection->end(); ++iMuon, Muon_index++) {
     reco::MuonRef RefMuon(muonCollection, Muon_index);
     if((RefMuon->pt() < MuonPtCut_) || (std::fabs(RefMuon->eta()) > MuonEtaCut_)) continue;
-    if(RefMuon->isPFMuon() && RefMuon->isGlobalMuon()) preselected_muon_idx.push_back(Muon_index);
+    if(RefMuon->isPFMuon() && RefMuon->isGlobalMuon())  preselected_muon_idx.push_back(Muon_index);
   }
   
   if(preselected_muon_idx.size() > 1){

@@ -6,9 +6,10 @@
 class DataMCType{
  public:
   enum Type {Data=1,
-	     Ds_Tau=10,
-	     Bs_Tau=20,
-	     Bp_Tau=30,
+	     Ds_PhiPi=30,
+	     Ds_Tau=40,
+	     Bs_Tau=60,
+	     Bp_Tau=90,
 	     unknown=999
 	     // add here more MC types
   };
