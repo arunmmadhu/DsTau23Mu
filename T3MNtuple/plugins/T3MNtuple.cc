@@ -107,7 +107,7 @@ bool T3MNtuple::getTrackMatch(edm::Handle<std::vector<reco::Track> > &trackColle
 void
 T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 { 
-  //  std::cout<<" ========================  new event =============== "<< std::endl;
+  std::cout<<" ========================  new event =============== "<< std::endl;
   cnt_++;
   ClearEvent();
 
@@ -130,7 +130,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if(doMC_)
 	fillMCTruth(iEvent, iSetup);
       if(doL1_)
-	fillL1(iEvent, iSetup);
+	fillTrigger(iEvent, iSetup);
 
 
       /*      std::cout<<" Idx size "<< TwoMuonsTrack_idx.size() << std::endl;
@@ -1050,8 +1050,10 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  reco::MuonRef MuonTriggMatch(muonCollection, iMuon);
 	  TriggerMatch(triggerSummary,  MuonTriggMatch , TriggerMuonMatchingdr_, match);
 	  iTrigMatchdR.push_back(match);
+	  std::cout<<" iTrigMatchdR   " << match << std::endl;
 	}
 	ThreeMuons_TriggerMatch_dR.push_back(iTrigMatchdR);
+
       }
     }
   }
@@ -1217,102 +1219,51 @@ T3MNtuple::findThreeMuonsCandidates(const edm::Event& iEvent, const edm::EventSe
 
 
 
-void T3MNtuple::fillL1(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void T3MNtuple::fillTrigger(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   gtUtil_->retrieveL1(iEvent, iSetup, algToken_);
   const vector<pair<string, bool> > initialDecisions = gtUtil_->decisionsInitial();
 
   if (!iEvent.isRealData())
     {
-      //      gtUtil_->retrieveL1(iEvent, iSetup, algToken_);
-      //      const vector<pair<string, bool> > initialDecisions = gtUtil_->decisionsInitial();
       for (size_t i_l1t = 0; i_l1t < initialDecisions.size(); i_l1t++) 
 	{
     	  string l1tName = (initialDecisions.at(i_l1t)).first;
-	  if( l1tName == "NULL") continue;
-    
-	  if( l1tName == "L1_DoubleMu0" ) 
-	    {
-	      if( initialDecisions.at(i_l1t).second ) l1_doublemu0 = 1;
-	    }
-	  if( l1tName == "L1_TripleMu0" )
-	    {
-	      if( initialDecisions.at(i_l1t).second ) l1_triplemu0 = 1;
-	    }
-	  if( l1tName == "L1_TripleMu_5_0_0" )
-	    {
-	      if( initialDecisions.at(i_l1t).second ) l1_triplemu500 = 1;
-	    }
-	  if( l1tName == "L1_DoubleMu0er1p6_dEta_Max1p8" )
-	    {
-	      if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p6 = 1;
-	    }
-	  if( l1tName == "L1_DoubleMu0er1p6_dEta_Max1p8_OS" )
-	    {
-	      if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p6_os = 1;
-	    }
-	  if( l1tName == "L1_DoubleMu0er1p4_dEta_Max1p8_OS" ) 
-	    {
-	      if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p4_os = 1;
-	    }
-	  if( l1tName == "L1_DoubleMu_10_0_dEta_Max1p8" ) 
-	    {
-	      if( initialDecisions.at(i_l1t).second ) l1_doublemu_10_0 = 1;
-	    }
-	  if( l1tName == "L1_DoubleMu_11_4" ) 
-	    {
-	      if( initialDecisions.at(i_l1t).second ) l1_doublemu_11_4 = 1;
-	    }
+	  if(l1tName.find("DoubleMu") != string::npos || l1tName.find("TripleMu") != string::npos){
+	    Trigger_l1name.push_back( l1tName );
+	    Trigger_l1decision.push_back( initialDecisions.at(i_l1t).second );
+	    Trigger_l1prescale.push_back( 1 );
+	  }
 	}
     }
   else
-    {  // data 
-      //ESHandle<L1TUtmTriggerMenu> l1GtMenu;
-      //iSetup.get<L1TUtmTriggerMenuRcd>().get(l1GtMenu);
+    {
       ESHandle<L1TGlobalPrescalesVetos> psAndVetos;
       auto psRcd = iSetup.tryToGet<L1TGlobalPrescalesVetosRcd>();
       if(psRcd) psRcd->get(psAndVetos);
       int columnN= gtUtil_->prescaleColumn();
-
       for (size_t i_l1t = 0; i_l1t < initialDecisions.size(); i_l1t++) {
-
-	string l1tName = (initialDecisions.at(i_l1t)).first;
-	if( l1tName == "NULL") continue;
-
-	if( l1tName == "L1_DoubleMu0" ) {
-	  if( initialDecisions.at(i_l1t).second ) l1_doublemu0 = 1;
-	  //cout<<(psAndVetos->prescale_table_)[columnN][i_l1t]<<endl;
-	}
-	if( l1tName == "L1_TripleMu0" ) {
-	  if( initialDecisions.at(i_l1t).second ) l1_triplemu0 = 1;
-	  prescale_triplemu0 = (psAndVetos->prescale_table_)[columnN][i_l1t];
-	}
-	if( l1tName == "L1_TripleMu_5_0_0" ) {
-	  if( initialDecisions.at(i_l1t).second ) l1_triplemu500 = 1;
-	  prescale_triplemu500 = (psAndVetos->prescale_table_)[columnN][i_l1t];
-	}
-	if( l1tName == "L1_DoubleMu0er1p6_dEta_Max1p8" ) {
-	  if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p6 = 1;
-	  prescale_doublemu0_eta1p6 = (psAndVetos->prescale_table_)[columnN][i_l1t];
-	}
-	if( l1tName == "L1_DoubleMu0er1p6_dEta_Max1p8_OS" ) {
-	  if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p6_os = 1;
-	  prescale_doublemu0_eta1p6_os = (psAndVetos->prescale_table_)[columnN][i_l1t];
-	}
-	if( l1tName == "L1_DoubleMu0er1p4_dEta_Max1p8_OS" ) {
-	  if( initialDecisions.at(i_l1t).second ) l1_doublemu0_eta1p4_os = 1;
-	  prescale_doublemu0_eta1p4_os = (psAndVetos->prescale_table_)[columnN][i_l1t];
-	}
-	if( l1tName == "L1_DoubleMu_10_0_dEta_Max1p8" ) {
-	  if( initialDecisions.at(i_l1t).second ) l1_doublemu_10_0 = 1;
-	  prescale_doublemu_10_0 = (psAndVetos->prescale_table_)[columnN][i_l1t];
-	}
-	if( l1tName == "L1_DoubleMu_11_4" ) {
-	  if( initialDecisions.at(i_l1t).second ) l1_doublemu_11_4 = 1;
-	  prescale_doublemu_11_4 = (psAndVetos->prescale_table_)[columnN][i_l1t];
+        string l1tName = (initialDecisions.at(i_l1t)).first;
+	if(l1tName.find("DoubleMu") != string::npos || l1tName.find("TripleMu") != string::npos){
+	  	  Trigger_l1name.push_back( l1tName );
+	  	  Trigger_l1decision.push_back( initialDecisions.at(i_l1t).second );
+	  	  Trigger_l1prescale.push_back( (psAndVetos->prescale_table_)[columnN][i_l1t]);
 	}
       }
-    } // data
+    } 
+
+  Handle<TriggerResults> triggerBitsH;
+  iEvent.getByToken(triggerToken_, triggerBitsH);
+  const TriggerNames &triggerNames = iEvent.triggerNames( *triggerBitsH );
+  for (size_t i_hlt = 0; i_hlt != triggerBitsH->size(); ++i_hlt)
+    {
+      string hltName = triggerNames.triggerName(i_hlt);
+      if(hltName.find("HLT_DoubleMu") != string::npos){
+	Trigger_hltname.push_back(hltName);
+	Trigger_hltdecision.push_back(triggerBitsH->accept(i_hlt ));
+	std::cout <<"   "<< hltName << "  "<< triggerBitsH->accept(i_hlt ) << std::endl;
+      }
+    }
 }
 
 
@@ -1331,7 +1282,8 @@ void T3MNtuple::fillEventInfo(const edm::Event& iEvent, const edm::EventSetup& i
   if (Event_isRealData) {
     Event_DataMC_Type = DataMCType::Data;
   }
-}
+} 
+
 
 void T3MNtuple::fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
@@ -1401,6 +1353,7 @@ void T3MNtuple::fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSet
   for (size_t i_hlt = 0; i_hlt != triggerBitsH->size(); ++i_hlt)
     {
       string hltName = triggerNames.triggerName(i_hlt);
+
       if(!(hltName.find("HLT_DoubleMu4_LowMassNonResonantTrk_Displaced_v") == string::npos)){
         if( triggerBitsH->wasrun(i_hlt) && !triggerBitsH->error(i_hlt) && triggerBitsH->accept(i_hlt )) hlt_doublemu4_lmnrt = 1;
       }
@@ -1815,6 +1768,7 @@ void T3MNtuple::fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSet
 
     if(mat1 && mat2 && mat3) {trigmat_new = 1; break;}
   }
+  std::cout<<"trigmat_new  "<< trigmat_new << std::endl;
 
 
 
@@ -2890,6 +2844,13 @@ T3MNtuple::beginJob()
 
 
 
+  output_tree->Branch("Trigger_l1name",&Trigger_l1name);
+  output_tree->Branch("Trigger_l1decision",&Trigger_l1decision);
+  output_tree->Branch("Trigger_l1prescale",&Trigger_l1prescale);
+
+  output_tree->Branch("Trigger_hltname",&Trigger_hltname);
+  output_tree->Branch("Trigger_hltdecision",&Trigger_hltdecision);
+
   //refitter_.setServices(iSetup);
 }
 
@@ -3123,6 +3084,13 @@ void T3MNtuple::ClearEvent() {
   Vertex_d0sig_reco.clear();
   Vertex_2Ddisplacement.clear();
   Vertex_3Ddisplacement.clear();
+
+  Trigger_l1name.clear();
+  Trigger_l1decision.clear();
+  Trigger_l1prescale.clear();
+  Trigger_hltname.clear();
+  Trigger_hltdecision.clear();
+
 
 
 }

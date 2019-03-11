@@ -121,7 +121,7 @@ private:
   void fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  void fillL1(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void fillTrigger(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void fillBTagJets(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   int fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup);
@@ -364,6 +364,13 @@ private:
 
   std::vector<std::vector<double> > Vertex_2Ddisplacement;
   std::vector<std::vector<double> > Vertex_3Ddisplacement;
+
+  std::vector<string>  Trigger_l1name;
+  std::vector<int> Trigger_l1decision;
+  std::vector<int> Trigger_l1prescale;
+
+  std::vector<string>  Trigger_hltname;
+  std::vector<int> Trigger_hltdecision;
 
 
 
