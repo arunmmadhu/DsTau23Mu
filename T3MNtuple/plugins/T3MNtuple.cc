@@ -116,7 +116,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     {
       if(doTwoMuonsAndTrack_) Event_ndsphipi_candidate = fillTwoMuonsAndTracks(iEvent, iSetup);
     }
-  //  std::cout<<"   Event_nsignal_candidates   "  << Event_nsignal_candidates <<"  Event_ndsphipi_candidate  "<< Event_ndsphipi_candidate <<std::endl;
+  std::cout<<"   Event_nsignal_candidates   "  << Event_nsignal_candidates <<"  Event_ndsphipi_candidate  "<< Event_ndsphipi_candidate <<std::endl;
   if(Event_nsignal_candidates!=0 or Event_ndsphipi_candidate!=0)
     {
       fillEventInfo(iEvent, iSetup);
@@ -233,6 +233,9 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
       std::vector<double> particle2_p4;
       std::vector<double> particle3_p4;
 
+
+      std::cout<<"px,py,pz "<< Muon1->p4().Px()<< "  "<<Muon1->p4().Py() << "  "<< Muon1->p4().Pz() << std::endl;
+
       particle1_p4.push_back(Muon1->p4().E());       particle2_p4.push_back(Muon2->p4().E());       particle3_p4.push_back(sqrt(pow(track3->p(),2.0) + pow(PDGInfo::pi_mass(),2.0)));
       particle1_p4.push_back(Muon1->p4().Px());      particle2_p4.push_back(Muon2->p4().Px());      particle3_p4.push_back(track3->px());
       particle1_p4.push_back(Muon1->p4().Py());      particle2_p4.push_back(Muon2->p4().Py());      particle3_p4.push_back(track3->py());
@@ -282,14 +285,16 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
     if (transVtx.refittedTracks().size() != iTransientTracks.size())
       FitOk = false;
     TLorentzVector ThreeCandidate(0,0,0,0);
+
+    math::XYZPoint TheSecondaryVertexPoint;
     if(FitOk){
       Vertex_signal_KF_Chi2.push_back(transVtx.totalChiSquared());
       Vertex_signal_KF_pos.at(index).push_back(transVtx.position().x());
       Vertex_signal_KF_pos.at(index).push_back(transVtx.position().y());
       Vertex_signal_KF_pos.at(index).push_back(transVtx.position().z());
-
+  
+      TheSecondaryVertexPoint = math::XYZPoint(transVtx.position().x(), transVtx.position().y(), transVtx.position().z());
       vector<TransientTrack>::const_iterator trkIt = transVtx.refittedTracks().begin();
-
       for(; trkIt != transVtx.refittedTracks().end(); ++ trkIt) {
       std::vector<double> irefitted_tracks_p4;
 	const Track & trkrefit = trkIt->track();
@@ -301,6 +306,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 	Vertex_signal_KF_refittedTracksP4.at(Vertex_signal_KF_refittedTracksP4.size() -1).push_back(irefitted_tracks_p4);
       }
     }
+
 
 
     bool AFitOk(true);
@@ -376,7 +382,9 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   Vertex_pair_quality.push_back(iVertex_pair_quality);
   Vertex_pairfit_status.push_back(iVertex_pairfit_status);
   
-
+  ///////////////////////////////////////////
+  //  find here the primary vertex with the best
+  //  alignement to the tri-muon 
   double dphi_pv = -1.0;
   size_t primaryvertex_index;
   for(size_t vertex_index = 0; vertex_index  < pvs->size(); vertex_index++) {
@@ -389,6 +397,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
       primaryvertex_index=vertex_index;
     }
   }
+
   
   
   const Vertex & MatchedPrimaryVertex = (*pvs)[primaryvertex_index];
@@ -399,7 +408,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   Vertex_MatchedPrimaryVertex.push_back(iprimaryVertex_Pos);
  
 
-  vector<TransientTrack> primaryvertexTransientTracks;
+  vector<TransientTrack> primaryvertexTransientTracks;// remove muon candidate from the PV to perform refit
   for(Vertex::trackRef_iterator itk = MatchedPrimaryVertex.tracks_begin(); itk != MatchedPrimaryVertex.tracks_end(); itk++) {
     if((**itk).pt()>1) {
       if(deltaR(iTransientTracks.at(0).track().eta(), iTransientTracks.at(0).track().phi(), (**itk).eta(), (**itk).phi())<0.01)continue;
@@ -442,6 +451,11 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   iVertex_d0_reco.push_back(abs(iTransientTracks.at(2).track().dxy(pv1P)));
   Vertex_d0_reco.push_back(iVertex_d0_reco);
 
+  TLorentzVector LV1=TLorentzVector(particles_p4.at(index).at(0).at(1), particles_p4.at(index).at(0).at(2), particles_p4.at(index).at(0).at(3),particles_p4.at(index).at(0).at(0));
+  TLorentzVector LV2=TLorentzVector(particles_p4.at(index).at(1).at(1), particles_p4.at(index).at(1).at(2), particles_p4.at(index).at(1).at(3),particles_p4.at(index).at(1).at(0));
+  TLorentzVector LV3=TLorentzVector(particles_p4.at(index).at(2).at(1), particles_p4.at(index).at(2).at(2), particles_p4.at(index).at(2).at(3),particles_p4.at(index).at(2).at(0));
+  TLorentzVector LVTau = LV1 + LV2 + LV3;
+
   GlobalVector dir1(particles_p4.at(index).at(0).at(1), particles_p4.at(index).at(0).at(2), particles_p4.at(index).at(0).at(3));
   GlobalVector dir2(particles_p4.at(index).at(1).at(1), particles_p4.at(index).at(1).at(2), particles_p4.at(index).at(1).at(3));
   GlobalVector dir3(particles_p4.at(index).at(2).at(1), particles_p4.at(index).at(2).at(2), particles_p4.at(index).at(2).at(3));
@@ -482,12 +496,75 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   iVertex_3Ddisplacement.push_back(fv_d3D*fv_cosdphi3D*m3mu_reco/ThreeCandidate.P());
   Vertex_3Ddisplacement.push_back(iVertex_3Ddisplacement);
 
-  index++;
+
+
+  ///////////////////////////////////////////////////////////////
+  //    Here fill the isolation
+
+
+  float minmuon_pt(999.), maxmuon_dr(0.);
+
+  if(LV1.Pt()<minmuon_pt)minmuon_pt=LV1.Pt();
+  if(LV2.Pt()<minmuon_pt)minmuon_pt=LV2.Pt();
+  if(LV3.Pt()<minmuon_pt)minmuon_pt=LV3.Pt();
+
+  float  drLV1Tau(deltaR(LV1.Eta(), LV1.Phi(), LVTau.Eta(), LVTau.Phi()));
+  float  drLV2Tau(deltaR(LV2.Eta(), LV2.Phi(), LVTau.Eta(), LVTau.Phi()));
+  float  drLV3Tau(deltaR(LV3.Eta(), LV3.Phi(), LVTau.Eta(), LVTau.Phi()));
+
+  maxmuon_dr = TMath::Max(drLV1Tau, TMath::Max(drLV2Tau,drLV3Tau));
+
+		  
+  for(size_t i = 0; i < trackCollection->size(); i++) {
+    const Track & t = (*trackCollection)[i];
+
+    if(!(t.quality(TrackBase::tight)))continue;
+    if(deltaR(LV1.Eta(), LV1.Phi(), t.eta(), t.phi())<0.01)continue;
+    if(deltaR(LV2.Eta(), LV2.Phi(), t.eta(), t.phi())<0.01)continue;
+    if(deltaR(LV3.Eta(), LV3.Phi(), t.eta(), t.phi())<0.01)continue;
+
+
+    double dz = abs(t.dz(TheSecondaryVertexPoint));
+    double dxy = abs(t.dxy(TheSecondaryVertexPoint));
+    double dca_fv = sqrt(dz*dz+dxy*dxy);
+    double dr_tau = deltaR(t.eta(), t.phi(), LVTau.Eta(), LVTau.Phi());
+
+    ////////////////////////////////////////////////
+    // Below is the isolation defined by Jian
+    // iso no. 1b - using pt_min, drtau_max of the 3 mu
+    if(t.pt() > 0.33*pt_min && dr_tau < 3.*drtau_max && dca_fv<0.05 ) {
+      pttrk_tau += t.pt();
+      ntrk_tau++; // iso 3b
+      if(dca_fv<mindca_iso)mindca_iso=dca_fv; // iso 4b
+    } 
+
+    if(t.pt()<1.0) continue;  // was 1.2
+    // iso no. 1
+    if(dr_tau < 0.5 && dca_fv<0.05 ) {
+      pttrk_tau05 += t.pt();
+      ntrk_tau05++; // iso 3
+      //if(dca_fv<mindca_iso05)mindca_iso05=dca_fv; // iso 4
+    }
+
+    if(dca_fv<0.05)ntrk_tau_b++; // iso 3b
+    if(dca_fv<mindca_iso05)mindca_iso05=dca_fv; // iso 4
+
+
+
+
+    iTransientTracks.at(0)
+    //    TheSecondaryVertexPoint
   }
 
 
 
-  n_sv = 0 ;
+
+
+
+  index++;
+  }
+
+  n_sv = 0; // to be filled later
   for(size_t isv = 0; isv < svs->size(); isv++) {
     //    const Vertex & sv = (*svs)[isv];
     //    if(abs(sv.p4().M()-0.498)<.03 && sv.tracksSize()==2)continue; // no Ks
@@ -608,6 +685,13 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    Muon_numberOfMatchedStations.push_back(RefMuon->numberOfMatchedStations());
 	    Muon_numberOfMatches.push_back(RefMuon->numberOfMatches(reco::Muon::SegmentArbitration));
 	    Muon_charge.push_back(RefMuon->charge());
+
+	    /////////////////////////////////////////////////////////////
+	    //here following guide given in:
+	    //https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2
+
+
+	    //	    std::cout<<"isLooseMuon  "<< RefMuon->isLooseMuon()
 
 	    std::vector<double> iMuon_outerTrack_p4;
 	    std::vector<double> iMuon_innerTrack_p4;
@@ -1261,7 +1345,6 @@ void T3MNtuple::fillTrigger(const edm::Event& iEvent, const edm::EventSetup& iSe
       if(hltName.find("HLT_DoubleMu") != string::npos){
 	Trigger_hltname.push_back(hltName);
 	Trigger_hltdecision.push_back(triggerBitsH->accept(i_hlt ));
-	std::cout <<"   "<< hltName << "  "<< triggerBitsH->accept(i_hlt ) << std::endl;
       }
     }
 }
@@ -1289,7 +1372,6 @@ void T3MNtuple::fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSet
 {
  
   h_step->Fill(0);
-
 
   BeamSpot bs;
   Handle<BeamSpot> beamSpotHandle;
@@ -2819,22 +2901,16 @@ T3MNtuple::beginJob()
   output_tree->Branch("Jet_p4",&Jet_p4);
 
   output_tree->Branch("Vertex_N_primary", &Vertex_N_primary);
-
   output_tree->Branch("Vertex_signal_dca_reco", &Vertex_signal_dca_reco);
   output_tree->Branch("Vertex_signal_KF_pos", &Vertex_signal_KF_pos);
   output_tree->Branch("Vertex_signal_KF_refittedTracksP4", &Vertex_signal_KF_refittedTracksP4);
   output_tree->Branch("Vertex_signal_KF_Chi2", &Vertex_signal_KF_Chi2);
-
   output_tree->Branch("Vertex_signal_AF_pos", &Vertex_signal_AF_pos);
   output_tree->Branch("Vertex_signal_AF_Chi2", &Vertex_signal_AF_Chi2);
   output_tree->Branch("Vertex_signal_AF_Ndf", &Vertex_signal_AF_Ndf);
-
   output_tree->Branch("Vertex_pair_quality", &Vertex_pair_quality);
   output_tree->Branch("Vertex_pairfit_status", &Vertex_pairfit_status);
-
   output_tree->Branch("Vertex_MatchedPrimaryVertex",&Vertex_MatchedPrimaryVertex);
-
-
   output_tree->Branch("Vertex_RefitPVisValid",&Vertex_RefitPVisValid);
   output_tree->Branch("Vertex_MatchedRefitPrimaryVertex",&Vertex_MatchedRefitPrimaryVertex);
   output_tree->Branch("Vertex_d0_reco",&Vertex_d0_reco);
