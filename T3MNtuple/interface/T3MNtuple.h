@@ -365,6 +365,15 @@ private:
   std::vector<std::vector<double> > Vertex_2Ddisplacement;
   std::vector<std::vector<double> > Vertex_3Ddisplacement;
 
+  std::vector<std::vector<float> > Vertex_Isolation1;
+  std::vector<std::vector<float> > Vertex_Isolation2;
+  std::vector<std::vector<float> > Vertex_Isolation3;
+  std::vector<std::vector<float> > Vertex_Isolation4;
+
+
+
+
+
   std::vector<string>  Trigger_l1name;
   std::vector<int> Trigger_l1decision;
   std::vector<int> Trigger_l1prescale;

@@ -116,7 +116,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     {
       if(doTwoMuonsAndTrack_) Event_ndsphipi_candidate = fillTwoMuonsAndTracks(iEvent, iSetup);
     }
-  std::cout<<"   Event_nsignal_candidates   "  << Event_nsignal_candidates <<"  Event_ndsphipi_candidate  "<< Event_ndsphipi_candidate <<std::endl;
+  //  std::cout<<"   Event_nsignal_candidates   "  << Event_nsignal_candidates <<"  Event_ndsphipi_candidate  "<< Event_ndsphipi_candidate <<std::endl;
   if(Event_nsignal_candidates!=0 or Event_ndsphipi_candidate!=0)
     {
       fillEventInfo(iEvent, iSetup);
@@ -193,11 +193,9 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
       vector<TransientTrack> isignalTracksCollection;
       ESHandle<TransientTrackBuilder> theB;
       iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
-      //      std::vector<std::vector<double>  > iparticles_p4;
       for ( auto &iMuon :  iThreeMuon ) {
 	reco::MuonRef Muon(muonCollection, iMuon);
 	TrackRef MuonTrack = Muon->globalTrack();
-	//	iparticle_p4.push_back*(
 	isignalTracksCollection.push_back(theB->build(MuonTrack));
 	std::vector<double> iiparticles_p4;
 	iiparticles_p4.push_back(Muon->p4().E());
@@ -205,7 +203,6 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 	iiparticles_p4.push_back(Muon->p4().Py());
 	iiparticles_p4.push_back(Muon->p4().Pz());
 	particles_p4.at(particles_p4.size() -1).push_back(iiparticles_p4);
-	//	iparticles_p4.push_back(iiparticles_p4);
       }
 
       signalTracksCollection.push_back(isignalTracksCollection);
@@ -232,9 +229,6 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
       std::vector<double> particle1_p4;
       std::vector<double> particle2_p4;
       std::vector<double> particle3_p4;
-
-
-      std::cout<<"px,py,pz "<< Muon1->p4().Px()<< "  "<<Muon1->p4().Py() << "  "<< Muon1->p4().Pz() << std::endl;
 
       particle1_p4.push_back(Muon1->p4().E());       particle2_p4.push_back(Muon2->p4().E());       particle3_p4.push_back(sqrt(pow(track3->p(),2.0) + pow(PDGInfo::pi_mass(),2.0)));
       particle1_p4.push_back(Muon1->p4().Px());      particle2_p4.push_back(Muon2->p4().Px());      particle3_p4.push_back(track3->px());
@@ -429,7 +423,6 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
       FitPVOk = false;
     }
   }
- 
 
   Vertex_RefitPVisValid.push_back(pvvertex.isValid());
   std::vector<double> iRefitprimaryVertex_Pos;
@@ -501,7 +494,6 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   ///////////////////////////////////////////////////////////////
   //    Here fill the isolation
 
-
   float minmuon_pt(999.), maxmuon_dr(0.);
 
   if(LV1.Pt()<minmuon_pt)minmuon_pt=LV1.Pt();
@@ -514,11 +506,19 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
   maxmuon_dr = TMath::Max(drLV1Tau, TMath::Max(drLV2Tau,drLV3Tau));
 
-		  
+  float sumptalltracks(0.), sumalltracks(0.), mindist(99.);
+  float sumptalltracks05(0.), sumalltracks05(0.), mindist05(99.), sumalltracks_b(0.);
+  float pt_trk_1(0.), pt_trk_2(0.), pt_trk_3(0.);
+  float N_trk_1(0.),N_trk_2(0.),N_trk_3(0.), N_trk_total(0.);
+  float N_trk0p1(0.), N_trk0p2(0.), N_trk0p5(0.), maxdxy(0.);
+  float relative_iso(0.), relative_iso05(0.), relative_mu1_iso(0.),relative_mu2_iso(0.),relative_mu3_iso(0.);
+  float relative_maxiso(0.);
+
+
   for(size_t i = 0; i < trackCollection->size(); i++) {
     const Track & t = (*trackCollection)[i];
 
-    if(!(t.quality(TrackBase::tight)))continue;
+    if(!(t.quality(TrackBase::tight)))continue; //-- this might be weaker
     if(deltaR(LV1.Eta(), LV1.Phi(), t.eta(), t.phi())<0.01)continue;
     if(deltaR(LV2.Eta(), LV2.Phi(), t.eta(), t.phi())<0.01)continue;
     if(deltaR(LV3.Eta(), LV3.Phi(), t.eta(), t.phi())<0.01)continue;
@@ -532,48 +532,103 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
     ////////////////////////////////////////////////
     // Below is the isolation defined by Jian
     // iso no. 1b - using pt_min, drtau_max of the 3 mu
-    if(t.pt() > 0.33*pt_min && dr_tau < 3.*drtau_max && dca_fv<0.05 ) {
-      pttrk_tau += t.pt();
-      ntrk_tau++; // iso 3b
-      if(dca_fv<mindca_iso)mindca_iso=dca_fv; // iso 4b
+    if(t.pt() > 0.33*minmuon_pt && dr_tau < 3.*maxmuon_dr && dca_fv<0.05 ) {
+      sumptalltracks += t.pt();
+      sumalltracks++; // iso 3b
+      if(dca_fv<mindist)mindist=dca_fv; // iso 4b
     } 
 
     if(t.pt()<1.0) continue;  // was 1.2
     // iso no. 1
     if(dr_tau < 0.5 && dca_fv<0.05 ) {
-      pttrk_tau05 += t.pt();
-      ntrk_tau05++; // iso 3
+      sumptalltracks05 += t.pt();
+      sumalltracks05++; // iso 3
       //if(dca_fv<mindca_iso05)mindca_iso05=dca_fv; // iso 4
     }
-
-    if(dca_fv<0.05)ntrk_tau_b++; // iso 3b
-    if(dca_fv<mindca_iso05)mindca_iso05=dca_fv; // iso 4
-
+    if(dca_fv<mindca_iso05)mindist05=dca_fv; // iso 4
+    if(dca_fv<0.05)sumalltracks_b++; // iso 3b
 
 
 
-    iTransientTracks.at(0)
-    //    TheSecondaryVertexPoint
+    TransientTrack trkiso = theB->build(t);
+    ClosestApproachInRPhi cAppm1, cAppm2, cAppm3;
+    cAppm1.calculate(trkiso.initialFreeState(), iTransientTracks.at(0).initialFreeState());
+    cAppm2.calculate(trkiso.initialFreeState(), iTransientTracks.at(1).initialFreeState());
+    cAppm3.calculate(trkiso.initialFreeState(), iTransientTracks.at(2).initialFreeState());
+    if(!(cAppm1.status()&&cAppm2.status()&&cAppm3.status())) continue;
+
+
+    // iso no. 2
+    if(deltaR(t.eta(), t.phi(), LV1.Eta(), LV1.Phi()) < 0.3 && cAppm1.distance() < 0.1) {// && dz1 < .3) 
+      N_trk_1++;
+      pt_trk_1 += t.pt();
+    }
+    if(deltaR(t.eta(), t.phi(), LV2.Eta(), LV2.Phi()) < 0.3 && cAppm2.distance() < 0.1) {//&& dz2 < .3) 
+      N_trk_2++;
+      pt_trk_2 += t.pt();
+    }
+    if(deltaR(t.eta(), t.phi(), LV3.Eta(), LV3.Phi()) < 0.3 && cAppm3.distance() < 0.1) {//&& dz3 < .3) 
+      N_trk_3++;
+      pt_trk_3 += t.pt();
+    }
+    if( (deltaR(t.eta(), t.phi(), LV1.Eta(), LV1.Phi()) < 0.3 && cAppm1.distance() < 0.1 )
+	||(deltaR(t.eta(), t.phi(), LV2.Eta(), LV2.Phi()) < 0.3 && cAppm2.distance() < 0.1 )
+	||(deltaR(t.eta(), t.phi(), LV3.Eta(), LV3.Phi()) < 0.3 && cAppm3.distance() < 0.1 )
+	) N_trk_total++;
+
+
+
+
+    double dz_primaryvertex=abs(t.dz(pv1P));
+    if(!(dz_primaryvertex < 1))continue;
+    double dxy_primaryvertex = abs(t.dxy(pv1P));
+    if(dxy_primaryvertex>0.1) N_trk0p1++;
+    if(dxy_primaryvertex>0.2) N_trk0p2++;
+    if(dxy_primaryvertex>0.5) N_trk0p5++;
+    if(dxy_primaryvertex>maxdxy) maxdxy = dxy_primaryvertex;
   }
 
+  relative_iso = sumptalltracks/LVTau.Pt();
+  relative_iso05 = sumptalltracks05/LVTau.Pt();
+  relative_mu1_iso = pt_trk_1/LV1.Pt(); relative_mu2_iso = pt_trk_2/LV2.Pt(); relative_mu3_iso = pt_trk_3/LV3.Pt();
+  relative_maxiso = TMath::Max(relative_mu1_iso, TMath::Max(relative_mu2_iso,relative_mu3_iso ));
 
+  std::vector<float> isolation1, isolation2, isolation3, isolation4;
+  isolation1.push_back(relative_iso);
+  isolation1.push_back(sumalltracks);
+  isolation1.push_back(mindist);
+  
+  isolation2.push_back(relative_iso05);
+  isolation2.push_back(sumalltracks05);
+  isolation2.push_back(mindist05);
+  
+  isolation3.push_back(relative_mu1_iso);
+  isolation3.push_back(relative_mu2_iso);
+  isolation3.push_back(relative_mu3_iso);
+  isolation3.push_back(relative_maxiso);
 
+  isolation4.push_back(N_trk_1);
+  isolation4.push_back(N_trk_2);
+  isolation4.push_back(N_trk_3);
 
+  isolation4.push_back(N_trk0p1);
+  isolation4.push_back(N_trk0p2);
+  isolation4.push_back(N_trk0p5);
+  isolation4.push_back(maxdxy);
 
 
   index++;
   }
 
-  n_sv = 0; // to be filled later
+
+
+  //N_Sv = 0; // to be filled later
   for(size_t isv = 0; isv < svs->size(); isv++) {
     //    const Vertex & sv = (*svs)[isv];
     //    if(abs(sv.p4().M()-0.498)<.03 && sv.tracksSize()==2)continue; // no Ks
     //    std::cout<<"Secondary Vertex Mass  "<< sv.p4().M() << "    nSV   "<< isv <<std::endl;
   }
-
-
   return;
-
 }
 
 void T3MNtuple::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -2880,8 +2935,6 @@ T3MNtuple::beginJob()
 
 
   //================  Three Muonss block
-
-
   output_tree->Branch("ThreeMuons_index",&ThreeMuons_index);
   output_tree->Branch("ThreeMuons_SV_Chi2",&ThreeMuons_SV_Chi2);
   output_tree->Branch("ThreeMuons_SV_NDF",&ThreeMuons_SV_NDF);
@@ -2892,8 +2945,6 @@ T3MNtuple::beginJob()
   output_tree->Branch("TwoMuonsTrack_SV_Chi2",&TwoMuonsTrack_SV_Chi2);
   output_tree->Branch("TwoMuonsTrack_SV_NDF",&TwoMuonsTrack_SV_NDF);
   output_tree->Branch("TwoMuonsTrack_TriggerMatch_dR",&ThreeMuons_TriggerMatch_dR);
-
-
 
   output_tree->Branch("Jet_BTagCVSB", &Jet_BTagCVSB);
   output_tree->Branch("Jet_BTagMVA", &Jet_BTagMVA);
@@ -2917,6 +2968,11 @@ T3MNtuple::beginJob()
   output_tree->Branch("Vertex_d0sig_reco",&Vertex_d0sig_reco);
   output_tree->Branch("Vertex_2Ddisplacement",&Vertex_2Ddisplacement);
   output_tree->Branch("Vertex_3Ddisplacement",&Vertex_3Ddisplacement);
+  output_tree->Branch("Vertex_Isolation1",&Vertex_Isolation1);
+  output_tree->Branch("Vertex_Isolation2",&Vertex_Isolation2);
+  output_tree->Branch("Vertex_Isolation3",&Vertex_Isolation3);
+  output_tree->Branch("Vertex_Isolation4",&Vertex_Isolation4);
+
 
 
 
@@ -3160,6 +3216,14 @@ void T3MNtuple::ClearEvent() {
   Vertex_d0sig_reco.clear();
   Vertex_2Ddisplacement.clear();
   Vertex_3Ddisplacement.clear();
+  Vertex_Isolation1.clear();
+  Vertex_Isolation2.clear();
+  Vertex_Isolation3.clear();
+  Vertex_Isolation4.clear();
+
+
+
+
 
   Trigger_l1name.clear();
   Trigger_l1decision.clear();
