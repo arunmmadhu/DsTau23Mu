@@ -616,7 +616,10 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   isolation4.push_back(N_trk0p5);
   isolation4.push_back(maxdxy);
 
-
+  Vertex_Isolation1.push_back(isolation1);
+  Vertex_Isolation2.push_back(isolation2);
+  Vertex_Isolation3.push_back(isolation3);
+  Vertex_Isolation4.push_back(isolation4);
   index++;
   }
 
