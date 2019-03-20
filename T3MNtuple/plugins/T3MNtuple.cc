@@ -162,7 +162,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   fillDsTree(iEvent, iSetup); // method by Jian
 }
-
+ 
 
 
 void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -395,6 +395,8 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   
   
   const Vertex & MatchedPrimaryVertex = (*pvs)[primaryvertex_index];
+  dump_pv_index_to_fill.push_back(primaryvertex_index);
+
   std::vector<double>  iprimaryVertex_Pos;
   iprimaryVertex_Pos.push_back(MatchedPrimaryVertex.x());
   iprimaryVertex_Pos.push_back(MatchedPrimaryVertex.y());
@@ -690,10 +692,15 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   Handle<MuonCollection> muonCollection;
   iEvent.getByToken(muonToken_, muonCollection);
+
+  Handle<VertexCollection> pvs;
+  iEvent.getByToken(vtxToken_ , pvs);
+
   unsigned int Muon_index = 0;
   unsigned int sel_muon_index = 0;
   ThreeMuons_index.resize(ThreeMuons_idx.size());
   TwoMuonsTrack_Muonsindex.resize(TwoMuonsTrack_idx.size());
+
 
   for (reco::MuonCollection::const_iterator iMuon = muonCollection->begin(); iMuon != muonCollection->end(); ++iMuon, Muon_index++) {
     reco::MuonRef RefMuon(muonCollection, Muon_index);
@@ -744,12 +751,20 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    Muon_numberOfMatches.push_back(RefMuon->numberOfMatches(reco::Muon::SegmentArbitration));
 	    Muon_charge.push_back(RefMuon->charge());
 
+	    const Vertex & VertexMuonID = (*pvs)[dump_pv_index_to_fill.at(0)];
+	    int idbit=0;
+	    if(muon::isLooseMuon(*RefMuon)) idbit |= 1 << 0;
+	    if(muon::isSoftMuon(*RefMuon,VertexMuonID)) idbit |= 1 << 1;
+	    if(muon::isMediumMuon(*RefMuon)) idbit |= 1 << 2;
+	    if(muon::isTightMuon(*RefMuon,VertexMuonID)) idbit |= 1 << 3;
+	    if(muon::isHighPtMuon(*RefMuon,VertexMuonID)) idbit |= 1 << 4;
+	    Muon_ID.push_back(idbit);
+
 	    /////////////////////////////////////////////////////////////
 	    //here following guide given in:
 	    //https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2
 
 
-	    //	    std::cout<<"isLooseMuon  "<< RefMuon->isLooseMuon()
 
 	    std::vector<double> iMuon_outerTrack_p4;
 	    std::vector<double> iMuon_innerTrack_p4;
@@ -3064,7 +3079,7 @@ void T3MNtuple::ClearEvent() {
   Track_dzError.clear();
 
   dump_track_index_to_fill.clear();
-
+  dump_pv_index_to_fill.clear();
 
 
   Event_nsignal_candidates=0;
@@ -3091,6 +3106,7 @@ void T3MNtuple::ClearEvent() {
   Muon_nTracks03.clear();
   Muon_sumPt03.clear();
   Muon_trackerVetoPt03.clear();
+  Muon_ID.clear();
 
   Muon_emEt05.clear();
   Muon_emVetoEt05.clear();

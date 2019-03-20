@@ -96,6 +96,7 @@ using namespace reco;
 using namespace edm;
 using namespace std;
 using namespace l1t;
+using namespace muon;
 //
 // class declaration
 //
@@ -200,6 +201,7 @@ private:
   std::vector<double> Track_dxyError;
   std::vector<double> Track_dzError;
   std::vector<unsigned int> dump_track_index_to_fill;
+  std::vector<unsigned int> dump_pv_index_to_fill;
 
 
   //=======  Muons ===
@@ -221,6 +223,7 @@ private:
   std::vector<float> Muon_hadVetoEt03;
   std::vector<int> Muon_nJets03;
   std::vector<int> Muon_nTracks03;
+  std::vector<int> Muon_ID; // bitwise 0 - Loose, 1 - Soft, 2 - Medium, 3 - Tight, 4 - HiPt
   std::vector<float> Muon_sumPt03;
   std::vector<float> Muon_trackerVetoPt03;
 
