@@ -135,6 +135,7 @@ private:
   void TriggerMatch(edm::Handle<trigger::TriggerEvent> &triggerSummary,  T obj, double drmax, float &match);
  
   bool isGoodTrack(const Track &track);
+  bool AcceptedMuon(reco::MuonRef RefMuon);
   bool getTrackMatch(edm::Handle<std::vector<reco::Track> > &trackCollection, reco::TrackRef &refTrack, int &match);
 
   double /*filterbadGlbMuon*/ gen_flavor, nmu_mom, hlt_doublemu4_lmnrt, hlt_doublemu3_tau3mu, l1_triplemu0, l1_doublemu0,
@@ -224,6 +225,7 @@ private:
   std::vector<int> Muon_nJets03;
   std::vector<int> Muon_nTracks03;
   std::vector<int> Muon_ID; // bitwise 0 - Loose, 1 - Soft, 2 - Medium, 3 - Tight, 4 - HiPt
+  std::vector<int> Muon_StandardSelection;
   std::vector<float> Muon_sumPt03;
   std::vector<float> Muon_trackerVetoPt03;
 
