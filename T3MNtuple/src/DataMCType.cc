@@ -29,7 +29,7 @@ unsigned int DataMCType::GetType(TString name){
 
 bool DataMCType::isSignalParticle(int pdg_id){
   unsigned int pdgid=abs(pdg_id);
-  if(pdgid==PDGInfo::Z0 || pdgid==PDGInfo::W_plus || pdgid==PDGInfo::Higgs0 || pdgid==PDGInfo::Higgs_plus){
+  if(pdgid==PDGInfo::D_star_plus || pdgid==PDGInfo::B_plus || pdgid==PDGInfo::B_0 ){
     return true;
   }
   return false; 

@@ -112,6 +112,16 @@ bool T3MNtuple::getTrackMatch(edm::Handle<std::vector<reco::Track> > &trackColle
 }
 
 
+
+bool T3MNtuple::isGoodGenParticle(const reco::GenParticle &GenPar){
+  if (GenPar.p4().Pt() > 0.2) return true;
+  int id = abs(GenPar.pdgId());
+  if (id == PDGInfo::D_star_plus) return true;
+  if (id == PDGInfo::B_plus) return true;
+  if (id == PDGInfo::B_0) return true;
+  return false;
+}
+
 // ------------ method called for each event  ------------
 void
 T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -119,7 +129,6 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::cout<<" ========================  new event =============== "<< std::endl;
   cnt_++;
   ClearEvent();
-
   if(doThreeMuons_) Event_nsignal_candidates =   fillThreeMuons(iEvent, iSetup);
   if(Event_nsignal_candidates==0)
     {
@@ -1025,11 +1034,111 @@ T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   if (!iEvent.isRealData())
     {
+      Handle<GenParticleCollection> genParticles;
+      iEvent.getByToken(genToken_, genParticles);
+      /*
+      for (reco::GenParticleCollection::const_iterator itr = genParticles->begin(); itr != genParticles->end(); ++itr) {
+	if ( !isGoodGenParticle(*itr) ) continue;
+	MC_pdgid.push_back(itr->pdgId());
+	MC_charge.push_back(itr->charge());
+	std::vector<float> iMC_p4;
+	iMC_p4.push_back(itr->p4().E());
+	iMC_p4.push_back(itr->p4().Px());
+	iMC_p4.push_back(itr->p4().Py());
+	iMC_p4.push_back(itr->p4().Pz());
+
+	MC_p4.push_back(iMC_p4);
+	MC_midx.push_back(-1);
+	MC_status.push_back(itr->status());
+	MC_childpdgid.push_back(std::vector<int>());
+	MC_childidx.push_back(std::vector<int>());
+	
+      }
+      unsigned int i = 0;
+      for (reco::GenParticleCollection::const_iterator itr = genParticles->begin(); itr != genParticles->end(); ++itr) {
+	if ( !isGoodGenParticle(*itr) ) continue;
+	for (unsigned int d = 0; d < itr->numberOfDaughters(); d++) {
+	  const reco::GenParticle *dau = static_cast<const reco::GenParticle*>(itr->daughter(d));
+	  unsigned int j = 0;
+	  for (reco::GenParticleCollection::const_iterator jtr = genParticles->begin(); jtr != genParticles->end(); ++jtr){
+	    if ( !isGoodGenParticle(*jtr) ) continue;
+	    if (dau->status() == jtr->status() && dau->p4() == jtr->p4() && dau->pdgId() == jtr->pdgId() && dau->numberOfMothers() == jtr->numberOfMothers()
+		&& dau->numberOfDaughters() == jtr->numberOfDaughters()) {
+	      MC_midx.at(j) = i;
+	      MC_childidx.at(i).push_back(j);
+	      MC_childpdgid.at(i).push_back(dau->pdgId());
+	    }
+	    j++;
+	  }
+	}
+	i++;
+      }
+      */
+      DataMCType DMT;
+      for (reco::GenParticleCollection::const_iterator itr = genParticles->begin(); itr != genParticles->end(); ++itr) {
+	if (DMT.isSignalParticle(itr->pdgId())) {
+	  MCSignalParticle_childpdgid.push_back(std::vector<int>());
+	  MCSignalParticle_pdgid.push_back(itr->pdgId());
+	  MCSignalParticle_charge.push_back(itr->charge());
+	  MCSignalParticle_Tauidx.push_back(std::vector<unsigned int>());
+	
+	  std::vector<double> iSig_p4;
+	  iSig_p4.push_back(itr->p4().E());
+	  iSig_p4.push_back(itr->p4().Px());
+	  iSig_p4.push_back(itr->p4().Py());
+	  iSig_p4.push_back(itr->p4().Pz());
+	  MCSignalParticle_p4.push_back(iSig_p4);
+	  // look for daughter tau
+	  for (unsigned int i = 0; i < itr->numberOfDaughters(); i++){
+	    const reco::Candidate *dau = itr->daughter(i);
+	    MCSignalParticle_childpdgid.at(MCSignalParticle_childpdgid.size() - 1).push_back(dau->pdgId());
+	    if (abs(dau->pdgId()) == PDGInfo::tau_minus) {
+	      unsigned int tauidx = MCTauandProd_p4.size();
+	      MCSignalParticle_Tauidx.at(MCSignalParticle_Tauidx.size() - 1).push_back(tauidx);
+	      // Analysis the tau decay
+	      std::vector<const reco::GenParticle*> TauProducts = TauDecayProducts(static_cast<const reco::GenParticle*>(dau));
+	      //	      MCTauandProd_midx.push_back(myTauDecay.Get_MotherIdx());
+	      MCTauandProd_pdgid.push_back(std::vector<int>());
+	      MCTauandProd_charge.push_back(std::vector<int>());
+	      MCTauandProd_p4.push_back(std::vector<std::vector<double> >());
+
+	      for (unsigned int i = 0; i < TauProducts.size(); i++) {
+		MCTauandProd_pdgid.at(tauidx).push_back(TauProducts.at(i)->pdgId());
+		MCTauandProd_charge.at(tauidx).push_back(TauProducts.at(i)->charge());
+		std::vector<double> iTauandProd_p4;
+		iTauandProd_p4.push_back(TauProducts.at(i)->p4().E());
+		iTauandProd_p4.push_back(TauProducts.at(i)->p4().Px());
+		iTauandProd_p4.push_back(TauProducts.at(i)->p4().Py());
+		iTauandProd_p4.push_back(TauProducts.at(i)->p4().Pz());
+
+		MCTauandProd_p4.at(tauidx).push_back(iTauandProd_p4);
+	      }
+	    }
+	  }
+	}
+      }
+
+
       Handle<vector<PileupSummaryInfo> >  PupInfo;
       iEvent.getByToken(puToken_, PupInfo);
       puN = PupInfo->begin()->getTrueNumInteractions();
     }
 }
+
+
+std::vector<const reco::GenParticle* > T3MNtuple::TauDecayProducts(const reco::GenParticle *Tau){
+  std::vector<const reco::GenParticle* > out;
+  unsigned int pdgid=abs(Tau->pdgId());
+  if(pdgid==PDGInfo::tau_minus){ // check that it is a tau
+    out.push_back(Tau);
+    for (unsigned int i=0; i< Tau->numberOfDaughters(); i++){
+      const reco::Candidate *dau=Tau->daughter(i);
+      out.push_back(static_cast<const reco::GenParticle*>(dau));
+    }
+  }
+  return out;
+}
+
 
 int
 T3MNtuple::fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -2951,7 +3060,26 @@ T3MNtuple::beginJob()
   output_tree->Branch("Muon_par", &Muon_par);
   output_tree->Branch("Muon_cov", &Muon_cov);
 
+  if(doMC_){
+      output_tree->Branch("MC_p4", &MC_p4);
+      output_tree->Branch("MC_pdgid", &MC_pdgid);
+      output_tree->Branch("MC_charge", &MC_charge);
+      output_tree->Branch("MC_midx", &MC_midx);
+      output_tree->Branch("MC_childpdgid", &MC_childpdgid);
+      output_tree->Branch("MC_childidx", &MC_childidx);
+      output_tree->Branch("MC_status", &MC_status);
 
+
+      output_tree->Branch("MCSignalParticle_p4", &MCSignalParticle_p4);
+      output_tree->Branch("MCSignalParticle_pdgid", &MCSignalParticle_pdgid);
+      //      output_tree->Branch("MCSignalParticle_childpdgid", &MCSignalParticle_childpdgid);
+      output_tree->Branch("MCSignalParticle_charge", &MCSignalParticle_charge);
+      output_tree->Branch("MCSignalParticle_Tauidx", &MCSignalParticle_Tauidx);
+      output_tree->Branch("MCTauandProd_p4", &MCTauandProd_p4);
+      output_tree->Branch("MCTauandProd_pdgid", &MCTauandProd_pdgid);
+      output_tree->Branch("MCTauandProd_midx", &MCTauandProd_midx);
+      output_tree->Branch("MCTauandProd_charge", &MCTauandProd_charge);
+  }
 
 
   //================  Three Muonss block
@@ -3202,6 +3330,31 @@ void T3MNtuple::ClearEvent() {
   Muon_isGoodMuon_TMLastStationAngTight.clear();
   Muon_isGoodMuon_TMLastStationOptimizedLowPtTight.clear();
   Muon_isGoodMuon_TMLastStationOptimizedBarrelLowPtTight.clear();
+
+
+  if (doMC_) {
+    MC_p4.clear();
+    MC_pdgid.clear();
+    MC_charge.clear();
+    MC_midx.clear();
+    MC_status.clear();
+    MC_childpdgid.clear();
+    MC_childidx.clear();
+    MCSignalParticle_p4.clear();
+    MCSignalParticle_pdgid.clear();
+    MCSignalParticle_charge.clear();
+    MCSignalParticle_Poca.clear();
+    MCSignalParticle_Tauidx.clear();
+    MCTauandProd_p4.clear();
+    MCTauandProd_Vertex.clear();
+    MCTauandProd_pdgid.clear();
+    MCTauandProd_midx.clear();
+    MCTauandProd_charge.clear();
+    MCTau_JAK.clear();
+    MCTau_DecayBitMask.clear();
+    MCSignalParticle_childpdgid.clear();
+  }
+
 
   ThreeMuons_idx.clear();
   ThreeMuons_index.clear();

@@ -137,6 +137,8 @@ private:
   bool isGoodTrack(const Track &track);
   bool AcceptedMuon(reco::MuonRef RefMuon);
   bool getTrackMatch(edm::Handle<std::vector<reco::Track> > &trackCollection, reco::TrackRef &refTrack, int &match);
+  bool isGoodGenParticle(const reco::GenParticle &GenPar);
+  std::vector<const reco::GenParticle* > TauDecayProducts(const reco::GenParticle *Tau);
 
   double /*filterbadGlbMuon*/ gen_flavor, nmu_mom, hlt_doublemu4_lmnrt, hlt_doublemu3_tau3mu, l1_triplemu0, l1_doublemu0,
     prescale_triplemu0, prescale_doublemu_10_0, prescale_doublemu0_eta1p6,
@@ -323,7 +325,31 @@ private:
   std::vector<bool>   Muon_isGoodMuon_TMLastStationOptimizedBarrelLowPtTight;
 
 
+  //do All
+  std::vector<std::vector<float> > MC_p4;
+  std::vector<int> MC_pdgid;
+  std::vector<std::vector<int> > MC_childpdgid;
+  std::vector<std::vector<int> > MC_childidx;
+  std::vector<int> MC_charge;
+  std::vector<int> MC_midx;
+  std::vector<int> MC_status;
 
+  // Signal particles Ds, B0, Bp
+  std::vector<std::vector<double> > MCSignalParticle_p4;
+  std::vector<int> MCSignalParticle_pdgid;
+  std::vector<std::vector<int> > MCSignalParticle_childpdgid;
+  std::vector<int> MCSignalParticle_charge;
+  std::vector<std::vector<double> > MCSignalParticle_Poca;
+  std::vector<std::vector<unsigned int> > MCSignalParticle_Tauidx;
+
+  // MC Tau Info
+  std::vector<std::vector<std::vector<double> > > MCTauandProd_p4;
+  std::vector<std::vector<std::vector<double> > > MCTauandProd_Vertex;
+  std::vector<std::vector<int> > MCTauandProd_pdgid;
+  std::vector<std::vector<unsigned int> > MCTauandProd_midx;
+  std::vector<std::vector<int> > MCTauandProd_charge;
+  std::vector<unsigned int> MCTau_JAK;
+  std::vector<unsigned int> MCTau_DecayBitMask;
 
   //  BTagged Jets
   std::vector<double>  Jet_BTagCVSB;

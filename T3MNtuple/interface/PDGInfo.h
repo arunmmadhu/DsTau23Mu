@@ -132,7 +132,12 @@ class PDGInfo {
     K_prime_10 = 20313 ,
     anti_K_prime_10 = -20313 ,
     K_prime_1_plus = 20323 ,
-    K_prime_1_minus = -20323 
+    K_prime_1_minus = -20323 ,
+    D_star_plus = 431 ,
+    D_star_minus = -431 ,
+    B_plus = 521 ,
+    B_minus = -521 ,
+    B_0 = 511
    };
 
   static std::string pdgIdToName(int pdgId) {
@@ -253,6 +258,11 @@ class PDGInfo {
 	   if(pdgId == -20313)   return "anti_K_prime_10";
 	   if(pdgId == 20323)    return "K_prime_1+";
 	   if(pdgId == -20323)   return "K_prime_1-";
+	   if(pdgId == 431)      return "D_star_plus";
+	   if(pdgId == -431)     return "D_star_minus";
+	   if(pdgId == 521)      return "B_plus";
+	   if(pdgId == -521)     return "B_minus";
+	   if(pdgId == 511)      return "B_0";
 
 	   std::stringstream out;
 	   out << "unknown ID = " << pdgId;
