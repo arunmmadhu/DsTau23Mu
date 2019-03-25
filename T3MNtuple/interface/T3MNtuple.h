@@ -347,7 +347,7 @@ private:
   std::vector<std::vector<std::vector<double> > > MCTauandProd_p4;
   std::vector<std::vector<std::vector<double> > > MCTauandProd_Vertex;
   std::vector<std::vector<int> > MCTauandProd_pdgid;
-  std::vector<std::vector<unsigned int> > MCTauandProd_midx;
+  std::vector<unsigned int>  MCTauandProd_midx;
   std::vector<std::vector<int> > MCTauandProd_charge;
   std::vector<unsigned int> MCTau_JAK;
   std::vector<unsigned int> MCTau_DecayBitMask;

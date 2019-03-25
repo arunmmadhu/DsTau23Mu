@@ -135,7 +135,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     {
       if(doTwoMuonsAndTrack_) Event_ndsphipi_candidate = fillTwoMuonsAndTracks(iEvent, iSetup);
     }
-  //  std::cout<<"   Event_nsignal_candidates   "  << Event_nsignal_candidates <<"  Event_ndsphipi_candidate  "<< Event_ndsphipi_candidate <<std::endl;
+  std::cout<<"   Event_nsignal_candidates   "  << Event_nsignal_candidates <<"  Event_ndsphipi_candidate  "<< Event_ndsphipi_candidate <<std::endl;
   if(Event_nsignal_candidates!=0 or Event_ndsphipi_candidate!=0)
     {
       fillEventInfo(iEvent, iSetup);
@@ -1076,6 +1076,7 @@ T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
       */
       DataMCType DMT;
+      unsigned int k;
       for (reco::GenParticleCollection::const_iterator itr = genParticles->begin(); itr != genParticles->end(); ++itr) {
 	if (DMT.isSignalParticle(itr->pdgId())) {
 	  MCSignalParticle_childpdgid.push_back(std::vector<int>());
@@ -1102,17 +1103,17 @@ T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	    MCSignalParticle_childpdgid.at(MCSignalParticle_childpdgid.size() - 1).push_back(dau->pdgId());
 	    MCSignalParticle_childp4.at(MCSignalParticle_childpdgid.size() - 1).push_back(ichildp4);
-	    std::cout<<"Signal particles product  "<< PDGInfo::pdgIdToName(dau->pdgId())<< std::endl;
+	    //	    std::cout<<"Signal particles product  "<< PDGInfo::pdgIdToName(dau->pdgId())<< std::endl;
 	    if (abs(dau->pdgId()) == PDGInfo::tau_minus) {
 	      unsigned int tauidx = MCTauandProd_p4.size();
 	      MCSignalParticle_Tauidx.at(MCSignalParticle_Tauidx.size() - 1).push_back(tauidx);
 	      // Analysis the tau decay
 	      std::vector<const reco::GenParticle*> TauProducts = TauDecayProducts(static_cast<const reco::GenParticle*>(dau));
-	      //	      MCTauandProd_midx.push_back(myTauDecay.Get_MotherIdx());
+	      MCTauandProd_midx.push_back(k);
 	      MCTauandProd_pdgid.push_back(std::vector<int>());
 	      MCTauandProd_charge.push_back(std::vector<int>());
 	      MCTauandProd_p4.push_back(std::vector<std::vector<double> >());
-	      std::cout<<"In case of tau, tauidx: "<< tauidx << std::endl;
+	      //std::cout<<"In case of tau, tauidx: "<< tauidx << std::endl;
 	      for (unsigned int i = 0; i < TauProducts.size(); i++) {
 		MCTauandProd_pdgid.at(tauidx).push_back(TauProducts.at(i)->pdgId());
 		MCTauandProd_charge.at(tauidx).push_back(TauProducts.at(i)->charge());
@@ -1123,10 +1124,11 @@ T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		iTauandProd_p4.push_back(TauProducts.at(i)->p4().Pz());
 
 		MCTauandProd_p4.at(tauidx).push_back(iTauandProd_p4);
-		std::cout<<"Tau Products:   "<< PDGInfo::pdgIdToName(TauProducts.at(i)->pdgId())<< std::endl;
+		//std::cout<<"Tau Products:   "<< PDGInfo::pdgIdToName(TauProducts.at(i)->pdgId())<< std::endl;
 	      }
 	    }
 	  }
+	  k++;
 	}
       }
 
