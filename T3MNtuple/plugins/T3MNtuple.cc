@@ -116,7 +116,7 @@ bool T3MNtuple::getTrackMatch(edm::Handle<std::vector<reco::Track> > &trackColle
 bool T3MNtuple::isGoodGenParticle(const reco::GenParticle &GenPar){
   if (GenPar.p4().Pt() > 0.2) return true;
   int id = abs(GenPar.pdgId());
-  if (id == PDGInfo::D_star_plus) return true;
+  if (id == PDGInfo::Ds_plus) return true;
   if (id == PDGInfo::B_plus) return true;
   if (id == PDGInfo::B_0) return true;
   return false;
@@ -129,6 +129,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::cout<<" ========================  new event =============== "<< std::endl;
   cnt_++;
   ClearEvent();
+  //  fillMCTruth(iEvent, iSetup);
   if(doThreeMuons_) Event_nsignal_candidates =   fillThreeMuons(iEvent, iSetup);
   if(Event_nsignal_candidates==0)
     {
@@ -1078,6 +1079,7 @@ T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       for (reco::GenParticleCollection::const_iterator itr = genParticles->begin(); itr != genParticles->end(); ++itr) {
 	if (DMT.isSignalParticle(itr->pdgId())) {
 	  MCSignalParticle_childpdgid.push_back(std::vector<int>());
+	  MCSignalParticle_childp4.push_back(std::vector<std::vector<double> >());
 	  MCSignalParticle_pdgid.push_back(itr->pdgId());
 	  MCSignalParticle_charge.push_back(itr->charge());
 	  MCSignalParticle_Tauidx.push_back(std::vector<unsigned int>());
@@ -1088,10 +1090,19 @@ T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  iSig_p4.push_back(itr->p4().Py());
 	  iSig_p4.push_back(itr->p4().Pz());
 	  MCSignalParticle_p4.push_back(iSig_p4);
+	  std::cout<<"Signal particle  "<<   PDGInfo::pdgIdToName(itr->pdgId()) << std::endl;
 	  // look for daughter tau
 	  for (unsigned int i = 0; i < itr->numberOfDaughters(); i++){
 	    const reco::Candidate *dau = itr->daughter(i);
+	    std::vector<double> ichildp4;
+	    ichildp4.push_back(dau->p4().E());
+	    ichildp4.push_back(dau->p4().Px());
+	    ichildp4.push_back(dau->p4().Py());
+	    ichildp4.push_back(dau->p4().Pz());
+
 	    MCSignalParticle_childpdgid.at(MCSignalParticle_childpdgid.size() - 1).push_back(dau->pdgId());
+	    MCSignalParticle_childp4.at(MCSignalParticle_childpdgid.size() - 1).push_back(ichildp4);
+	    std::cout<<"Signal particles product  "<< PDGInfo::pdgIdToName(dau->pdgId())<< std::endl;
 	    if (abs(dau->pdgId()) == PDGInfo::tau_minus) {
 	      unsigned int tauidx = MCTauandProd_p4.size();
 	      MCSignalParticle_Tauidx.at(MCSignalParticle_Tauidx.size() - 1).push_back(tauidx);
@@ -1101,7 +1112,7 @@ T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      MCTauandProd_pdgid.push_back(std::vector<int>());
 	      MCTauandProd_charge.push_back(std::vector<int>());
 	      MCTauandProd_p4.push_back(std::vector<std::vector<double> >());
-
+	      std::cout<<"In case of tau, tauidx: "<< tauidx << std::endl;
 	      for (unsigned int i = 0; i < TauProducts.size(); i++) {
 		MCTauandProd_pdgid.at(tauidx).push_back(TauProducts.at(i)->pdgId());
 		MCTauandProd_charge.at(tauidx).push_back(TauProducts.at(i)->charge());
@@ -1112,6 +1123,7 @@ T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		iTauandProd_p4.push_back(TauProducts.at(i)->p4().Pz());
 
 		MCTauandProd_p4.at(tauidx).push_back(iTauandProd_p4);
+		std::cout<<"Tau Products:   "<< PDGInfo::pdgIdToName(TauProducts.at(i)->pdgId())<< std::endl;
 	      }
 	    }
 	  }
@@ -3072,7 +3084,8 @@ T3MNtuple::beginJob()
 
       output_tree->Branch("MCSignalParticle_p4", &MCSignalParticle_p4);
       output_tree->Branch("MCSignalParticle_pdgid", &MCSignalParticle_pdgid);
-      //      output_tree->Branch("MCSignalParticle_childpdgid", &MCSignalParticle_childpdgid);
+      output_tree->Branch("MCSignalParticle_childpdgid", &MCSignalParticle_childpdgid);
+      output_tree->Branch("MCSignalParticle_childp4", &MCSignalParticle_childp4);
       output_tree->Branch("MCSignalParticle_charge", &MCSignalParticle_charge);
       output_tree->Branch("MCSignalParticle_Tauidx", &MCSignalParticle_Tauidx);
       output_tree->Branch("MCTauandProd_p4", &MCTauandProd_p4);
@@ -3353,6 +3366,7 @@ void T3MNtuple::ClearEvent() {
     MCTau_JAK.clear();
     MCTau_DecayBitMask.clear();
     MCSignalParticle_childpdgid.clear();
+    MCSignalParticle_childp4.clear();
   }
 
 

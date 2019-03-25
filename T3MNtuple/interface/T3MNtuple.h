@@ -338,6 +338,7 @@ private:
   std::vector<std::vector<double> > MCSignalParticle_p4;
   std::vector<int> MCSignalParticle_pdgid;
   std::vector<std::vector<int> > MCSignalParticle_childpdgid;
+  std::vector<std::vector<std::vector<double> > > MCSignalParticle_childp4;
   std::vector<int> MCSignalParticle_charge;
   std::vector<std::vector<double> > MCSignalParticle_Poca;
   std::vector<std::vector<unsigned int> > MCSignalParticle_Tauidx;

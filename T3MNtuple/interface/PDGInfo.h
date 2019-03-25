@@ -133,8 +133,16 @@ class PDGInfo {
     anti_K_prime_10 = -20313 ,
     K_prime_1_plus = 20323 ,
     K_prime_1_minus = -20323 ,
-    D_star_plus = 431 ,
-    D_star_minus = -431 ,
+    Ds_plus = 431 ,
+    Ds_minus = -431 ,
+    Ds_star_plus = 433 ,
+    Ds_star_minus = -433 ,
+    D_0 = 421 ,
+    D_plus = 411 ,
+    D_minus = -411 ,
+    D_star_2010_plus = 413 ,
+    D_star_2010_minus = -413 ,
+    D_star_2007_0 = 423 ,
     B_plus = 521 ,
     B_minus = -521 ,
     B_0 = 511
@@ -258,11 +266,21 @@ class PDGInfo {
 	   if(pdgId == -20313)   return "anti_K_prime_10";
 	   if(pdgId == 20323)    return "K_prime_1+";
 	   if(pdgId == -20323)   return "K_prime_1-";
-	   if(pdgId == 431)      return "D_star_plus";
-	   if(pdgId == -431)     return "D_star_minus";
+	   if(pdgId == 431)      return "Ds_plus";
+	   if(pdgId == -431)     return "Ds_minus";
+	   if(pdgId == 433)      return "Ds_star_plus";
+	   if(pdgId == -433)     return "Ds_star_minus";
 	   if(pdgId == 521)      return "B_plus";
 	   if(pdgId == -521)     return "B_minus";
 	   if(pdgId == 511)      return "B_0";
+           if(pdgId == 421)      return "D_0";
+	   if(pdgId == 411)      return "D_plus";
+	   if(pdgId == -411)     return "D_minus";
+	   if(pdgId == 413)      return "D_star_2010_plus";
+	   if(pdgId == -413)     return "D_star_2010_minus";
+	   if(pdgId == 423)      return "D_star_2007_0";
+
+
 
 	   std::stringstream out;
 	   out << "unknown ID = " << pdgId;
