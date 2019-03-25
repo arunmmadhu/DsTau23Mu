@@ -1076,7 +1076,7 @@ T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
       */
       DataMCType DMT;
-      unsigned int k;
+      unsigned int k(0);
       for (reco::GenParticleCollection::const_iterator itr = genParticles->begin(); itr != genParticles->end(); ++itr) {
 	if (DMT.isSignalParticle(itr->pdgId())) {
 	  MCSignalParticle_childpdgid.push_back(std::vector<int>());
@@ -1109,6 +1109,7 @@ T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      MCSignalParticle_Tauidx.at(MCSignalParticle_Tauidx.size() - 1).push_back(tauidx);
 	      // Analysis the tau decay
 	      std::vector<const reco::GenParticle*> TauProducts = TauDecayProducts(static_cast<const reco::GenParticle*>(dau));
+	      std::cout<<"k  :"<< k << std::endl;
 	      MCTauandProd_midx.push_back(k);
 	      MCTauandProd_pdgid.push_back(std::vector<int>());
 	      MCTauandProd_charge.push_back(std::vector<int>());
