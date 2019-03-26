@@ -8,7 +8,7 @@ class DataMCType{
   enum Type {Data=1,
 	     Ds_PhiPi=30,
 	     Ds_Tau=40,
-	     Bs_Tau=60,
+	     B0_Tau=60,
 	     Bp_Tau=90,
 	     unknown=999
 	     // add here more MC types

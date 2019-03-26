@@ -126,7 +126,7 @@ bool T3MNtuple::isGoodGenParticle(const reco::GenParticle &GenPar){
 void
 T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 { 
-  std::cout<<" ========================  new event =============== "<< std::endl;
+  //  std::cout<<" ========================  new event =============== "<< std::endl;
   cnt_++;
   ClearEvent();
   //  fillMCTruth(iEvent, iSetup);
@@ -135,7 +135,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     {
       if(doTwoMuonsAndTrack_) Event_ndsphipi_candidate = fillTwoMuonsAndTracks(iEvent, iSetup);
     }
-  std::cout<<"   Event_nsignal_candidates   "  << Event_nsignal_candidates <<"  Event_ndsphipi_candidate  "<< Event_ndsphipi_candidate <<std::endl;
+  //  std::cout<<"   Event_nsignal_candidates   "  << Event_nsignal_candidates <<"  Event_ndsphipi_candidate  "<< Event_ndsphipi_candidate <<std::endl;
   if(Event_nsignal_candidates!=0 or Event_ndsphipi_candidate!=0)
     {
       fillEventInfo(iEvent, iSetup);
@@ -1091,7 +1091,7 @@ T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  iSig_p4.push_back(itr->p4().Py());
 	  iSig_p4.push_back(itr->p4().Pz());
 	  MCSignalParticle_p4.push_back(iSig_p4);
-	  std::cout<<"Signal particle  "<<   PDGInfo::pdgIdToName(itr->pdgId()) << std::endl;
+	  //	  std::cout<<"Signal particle  "<<   PDGInfo::pdgIdToName(itr->pdgId()) << std::endl;
 	  // look for daughter tau
 	  for (unsigned int i = 0; i < itr->numberOfDaughters(); i++){
 	    const reco::Candidate *dau = itr->daughter(i);
@@ -1109,7 +1109,7 @@ T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      MCSignalParticle_Tauidx.at(MCSignalParticle_Tauidx.size() - 1).push_back(tauidx);
 	      // Analysis the tau decay
 	      std::vector<const reco::GenParticle*> TauProducts = TauDecayProducts(static_cast<const reco::GenParticle*>(dau));
-	      std::cout<<"k  :"<< k << std::endl;
+	      //	      std::cout<<"k  :"<< k << std::endl;
 	      MCTauandProd_midx.push_back(k);
 	      MCTauandProd_pdgid.push_back(std::vector<int>());
 	      MCTauandProd_charge.push_back(std::vector<int>());
