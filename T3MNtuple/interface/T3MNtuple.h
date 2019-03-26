@@ -333,7 +333,7 @@ private:
   std::vector<int> MC_charge;
   std::vector<int> MC_midx;
   std::vector<int> MC_status;
-
+  bool MC_isReco;
   // Signal particles Ds, B0, Bp
   std::vector<std::vector<double> > MCSignalParticle_p4;
   std::vector<int> MCSignalParticle_pdgid;

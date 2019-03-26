@@ -129,7 +129,10 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //  std::cout<<" ========================  new event =============== "<< std::endl;
   cnt_++;
   ClearEvent();
-  //  fillMCTruth(iEvent, iSetup);
+
+  /*
+
+  fillMCTruth(iEvent, iSetup);
   if(doThreeMuons_) Event_nsignal_candidates =   fillThreeMuons(iEvent, iSetup);
   if(Event_nsignal_candidates==0)
     {
@@ -150,10 +153,40 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	fillMCTruth(iEvent, iSetup);
       if(doL1_)
 	fillTrigger(iEvent, iSetup);
-
-
       output_tree->Fill();
     }
+  */
+
+  fillEventInfo(iEvent, iSetup);
+  if(doMC_)
+    fillMCTruth(iEvent, iSetup);
+
+  if(doThreeMuons_) 
+    Event_nsignal_candidates =   fillThreeMuons(iEvent, iSetup);
+
+  if(Event_nsignal_candidates==0)
+    {
+      if(doTwoMuonsAndTrack_) Event_ndsphipi_candidate = fillTwoMuonsAndTracks(iEvent, iSetup);
+    }
+  //  std::cout<<"   Event_nsignal_candidates   "  << Event_nsignal_candidates <<"  Event_ndsphipi_candidate  "<< Event_ndsphipi_candidate <<std::endl;
+  if(Event_nsignal_candidates!=0 or Event_ndsphipi_candidate!=0)
+    {
+      MC_isReco=1;
+      fillVertices(iEvent, iSetup);
+      if(doTracks_)
+        fillTracks(iEvent, iSetup);
+      if(doBJets_)
+        fillBTagJets(iEvent, iSetup);
+      if(doMuons_)
+        fillMuons(iEvent, iSetup);
+      if(doL1_)
+        fillTrigger(iEvent, iSetup);
+    }
+  output_tree->Fill();
+
+
+
+
   fillDsTree(iEvent, iSetup); // method by Jian
 }
  
@@ -3083,7 +3116,7 @@ T3MNtuple::beginJob()
       output_tree->Branch("MC_childpdgid", &MC_childpdgid);
       output_tree->Branch("MC_childidx", &MC_childidx);
       output_tree->Branch("MC_status", &MC_status);
-
+      output_tree->Branch("MC_isReco", &MC_isReco);
 
       output_tree->Branch("MCSignalParticle_p4", &MCSignalParticle_p4);
       output_tree->Branch("MCSignalParticle_pdgid", &MCSignalParticle_pdgid);
@@ -3349,6 +3382,7 @@ void T3MNtuple::ClearEvent() {
 
 
   if (doMC_) {
+    MC_isReco=0;
     MC_p4.clear();
     MC_pdgid.clear();
     MC_charge.clear();
