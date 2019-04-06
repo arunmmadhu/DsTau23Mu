@@ -3141,7 +3141,7 @@ T3MNtuple::beginJob()
   output_tree->Branch("TwoMuonsTrack_Trackindex",&TwoMuonsTrack_Trackindex);
   output_tree->Branch("TwoMuonsTrack_SV_Chi2",&TwoMuonsTrack_SV_Chi2);
   output_tree->Branch("TwoMuonsTrack_SV_NDF",&TwoMuonsTrack_SV_NDF);
-  output_tree->Branch("TwoMuonsTrack_TriggerMatch_dR",&ThreeMuons_TriggerMatch_dR);
+  output_tree->Branch("TwoMuonsTrack_TriggerMatch_dR",&TwoMuonsTrack_TriggerMatch_dR);
 
   output_tree->Branch("Jet_BTagCVSB", &Jet_BTagCVSB);
   output_tree->Branch("Jet_BTagMVA", &Jet_BTagMVA);

@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 T3MTree = cms.EDAnalyzer('T3MNtuple',
                          mid = cms.int32(15),
-                         MuonPtCut = cms.double(2.0),
+                         MuonPtCut = cms.double(1.0),
                          MuonEtaCut = cms.double(2.4),
                          TrackPtCut = cms.double(1.0),
                          TrackEtaCut = cms.double(2.4),
@@ -13,7 +13,7 @@ T3MTree = cms.EDAnalyzer('T3MNtuple',
                          doTracks = cms.bool(True), # do fillTracks
                          doMuons = cms.bool(True), # do fillMuons
                          do3mutuple = cms.bool(True),
-                         doMC = cms.bool(True),
+                         doMC = cms.bool(False),
                          doL1 = cms.bool(True),
                          doBJets = cms.bool(False),
                          doThreeMuons = cms.bool(True),
