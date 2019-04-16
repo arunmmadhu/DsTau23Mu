@@ -10,6 +10,7 @@ class DataMCType{
 	     Ds_Tau=40,
 	     B0_Tau=60,
 	     Bp_Tau=90,
+	     MinBias=120,
 	     unknown=999
 	     // add here more MC types
   };
