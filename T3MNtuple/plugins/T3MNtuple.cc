@@ -183,10 +183,6 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         fillTrigger(iEvent, iSetup);
     }
   output_tree->Fill();
-
-
-
-
   fillDsTree(iEvent, iSetup); // method by Jian
 }
  
@@ -784,28 +780,29 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
       
 
       int ssbit(0);
-      if(reco::Muon::CutBasedIdLoose 	    )ssbit|=1<<0;
-      if(reco::Muon::CutBasedIdMedium 	    )ssbit|=1<<1;
-      if(reco::Muon::CutBasedIdMediumPrompt )ssbit|=1<<2;
-      if(reco::Muon::CutBasedIdTight 	    )ssbit|=1<<3;
-      if(reco::Muon::CutBasedIdGlobalHighPt )ssbit|=1<<4;
-      if(reco::Muon::CutBasedIdTrkHighPt    )ssbit|=1<<5;
-      if(reco::Muon::PFIsoVeryLoose 	    )ssbit|=1<<6;
-      if(reco::Muon::PFIsoLoose 	    )ssbit|=1<<7;
-      if(reco::Muon::PFIsoMedium 	    )ssbit|=1<<8;
-      if(reco::Muon::PFIsoTight 	    )ssbit|=1<<9;
-      if(reco::Muon::PFIsoVeryTight 	    )ssbit|=1<<10;
-      if(reco::Muon::TkIsoLoose 	    )ssbit|=1<<11;
-      if(reco::Muon::TkIsoTight 	    )ssbit|=1<<12;
-      if(reco::Muon::SoftCutBasedId 	    )ssbit|=1<<13;
-      if(reco::Muon::SoftMvaId 	            )ssbit|=1<<14;
-      if(reco::Muon::MvaLoose 		    )ssbit|=1<<15;
-      if(reco::Muon::MvaMedium 	            )ssbit|=1<<16; 
-      if(reco::Muon::MvaTight 		    )ssbit|=1<<17;
-      if(reco::Muon::MiniIsoLoose 	    )ssbit|=1<<18;
-      if(reco::Muon::MiniIsoMedium 	    )ssbit|=1<<19;
-      if(reco::Muon::MiniIsoTight 	    )ssbit|=1<<20;
-      if(reco::Muon::MiniIsoVeryTight       )ssbit|=1<<21;
+      if(RefMuon->passed(reco::Muon::CutBasedIdLoose))ssbit|=1<<0;
+      if(RefMuon->passed(reco::Muon::CutBasedIdMedium))ssbit|=1<<1;
+      if(RefMuon->passed(reco::Muon::CutBasedIdMediumPrompt))ssbit|=1<<2;
+      if(RefMuon->passed(reco::Muon::CutBasedIdTight))ssbit|=1<<3;
+      if(RefMuon->passed(reco::Muon::CutBasedIdGlobalHighPt))ssbit|=1<<4;
+      if(RefMuon->passed(reco::Muon::CutBasedIdTrkHighPt))ssbit|=1<<5;
+      if(RefMuon->passed(reco::Muon::PFIsoVeryLoose))ssbit|=1<<6;
+      if(RefMuon->passed(reco::Muon::PFIsoLoose))ssbit|=1<<7;
+      if(RefMuon->passed(reco::Muon::PFIsoMedium))ssbit|=1<<8;
+      if(RefMuon->passed(reco::Muon::PFIsoTight))ssbit|=1<<9;
+      if(RefMuon->passed(reco::Muon::PFIsoVeryTight))ssbit|=1<<10;
+      if(RefMuon->passed(reco::Muon::TkIsoLoose))ssbit|=1<<11;
+      if(RefMuon->passed(reco::Muon::TkIsoTight))ssbit|=1<<12;
+      if(RefMuon->passed(reco::Muon::SoftCutBasedId))ssbit|=1<<13;
+      if(RefMuon->passed(reco::Muon::SoftMvaId))ssbit|=1<<14;
+      if(RefMuon->passed(reco::Muon::MvaLoose))ssbit|=1<<15;
+      if(RefMuon->passed(reco::Muon::MvaMedium))ssbit|=1<<16; 
+      if(RefMuon->passed(reco::Muon::MvaTight))ssbit|=1<<17;
+      if(RefMuon->passed(reco::Muon::MiniIsoLoose))ssbit|=1<<18;
+      if(RefMuon->passed(reco::Muon::MiniIsoMedium))ssbit|=1<<19;
+      if(RefMuon->passed(reco::Muon::MiniIsoTight))ssbit|=1<<20;
+      if(RefMuon->passed(reco::Muon::MiniIsoVeryTight))ssbit|=1<<21;
+      
 
       Muon_StandardSelection.push_back(ssbit);
       /////////////////////////////////////////////////////////////
