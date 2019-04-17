@@ -101,7 +101,8 @@ process.TFileService = cms.Service('TFileService',
 
 
 
-process.source.fileNames = ['/store/data/Run2017F/DoubleMuonLowMass/AOD/17Nov2017-v1/10000/EEC5ACC2-B802-E811-AF14-0CC47A0AD498.root']  # data file for debugs and test runs
+process.source.fileNames = ['file:MinimumBias_RECO_543.root']  # data file for debugs and test runs
+#process.source.fileNames = ['/store/data/Run2017F/DoubleMuonLowMass/AOD/17Nov2017-v1/10000/EEC5ACC2-B802-E811-AF14-0CC47A0AD498.root']  # data file for debugs and test runs
 #                            '/store/data/Run2017F/DoubleMuonLowMass/AOD/17Nov2017-v1/10000/825154B4-80FF-E711-ABFF-0025904CDDEC.root',
 #                            '/store/data/Run2017F/DoubleMuonLowMass/AOD/17Nov2017-v1/10000/F4E4B2B4-80FF-E711-805C-0025904C5DE0.root',
 #                            '/store/data/Run2017F/DoubleMuonLowMass/AOD/17Nov2017-v1/10000/EA5B3CB4-80FF-E711-8B32-0CC47AF9B32A.root',

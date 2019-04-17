@@ -1589,6 +1589,7 @@ void T3MNtuple::fillEventInfo(const edm::Event& iEvent, const edm::EventSetup& i
 
   DataMCType DMT;
   Event_DataMC_Type = DMT.GetType();
+  //  std::cout<<"Event_DataMC_Type  "<<Event_DataMC_Type << std::endl;
   if (Event_isRealData) {
     Event_DataMC_Type = DataMCType::Data;
   }
