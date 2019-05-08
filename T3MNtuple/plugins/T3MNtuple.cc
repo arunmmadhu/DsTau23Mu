@@ -183,7 +183,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         fillTrigger(iEvent, iSetup);
     }
   output_tree->Fill();
-  fillDsTree(iEvent, iSetup); // method by Jian
+  //  fillDsTree(iEvent, iSetup); // method by Jian
 }
  
 
@@ -755,6 +755,9 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
       const reco::MuonPFIsolation PFIso03 = RefMuon->pfIsolationR03();
       const reco::MuonPFIsolation PFIso04 = RefMuon->pfIsolationR04();
       
+
+
+
       Muon_numberOfChambers.push_back(RefMuon->numberOfChambers());
       Muon_isGlobalMuon.push_back(RefMuon->isGlobalMuon());
       Muon_isPFMuon.push_back(RefMuon->isPFMuon());
@@ -1014,6 +1017,10 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
       
       Muon_ptErrOverPt.push_back(RefMuon->muonBestTrack()->ptError()/RefMuon->muonBestTrack()->pt());
       
+      Muon_ptError.push_back(RefMuon->muonBestTrack()->ptError());
+      Muon_phiError.push_back(RefMuon->muonBestTrack()->phiError());
+      Muon_etaError.push_back(RefMuon->muonBestTrack()->etaError());
+
       Muon_isGoodMuon_TM2DCompatibility.push_back(muon::isGoodMuon(*RefMuon, muon::TM2DCompatibilityTight));
       Muon_isGoodMuon_TrackerMuonArbitrated.push_back(muon::isGoodMuon(*RefMuon,muon::TrackerMuonArbitrated));
       Muon_isGoodMuon_TMOneStationTight.push_back(muon::isGoodMuon(*RefMuon,muon::TMOneStationTight));
@@ -1249,15 +1256,11 @@ T3MNtuple::fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup
 
 	    reco::MuonRef TrackTriggMatch(muonCollection, iTwoMuTr.at(i));	
 	    TriggerMatch(triggerSummary,  TrackTriggMatch , TriggerMuonMatchingdr_, match);
-	    //	    std::cout<<"  i Mu index at filling step  "<< iTwoMuTr.at(i) <<"   "<< TrackTriggMatch->p4().Px()  <<std::endl;
 	  } else {
 	    TrackRef TrackTriggMatch = TrackRef(trackCollection, iTwoMuTr.at(i));
 	    TriggerMatch(triggerSummary,  TrackTriggMatch , TriggerMuonMatchingdr_, match);
 	    dump_track_index_to_fill.push_back(iTwoMuTr.at(i));
-	    //	    std::cout<<"  i track index at filling step  "<< iTwoMuTr.at(i) <<"   "<< track3->px()  <<std::endl;
-
 	  }
-	  
 	  iTrigMatchdR.push_back(match);
 	}
 	TwoMuonsTrack_TriggerMatch_dR.push_back(iTrigMatchdR);
@@ -1318,11 +1321,11 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
     reco::MuonRef Muon2(muonCollection, iThreeMuon.at(1));
     reco::MuonRef Muon3(muonCollection, iThreeMuon.at(2));
 
-    TLorentzVector mv1,mv2,mv3;
+    //    TLorentzVector mv1,mv2,mv3;
 
-    mv1.SetPtEtaPhiM(Muon1->pt(), Muon1->eta(), Muon1->phi(), 0.106);
-    mv2.SetPtEtaPhiM(Muon2->pt(), Muon2->eta(), Muon2->phi(), 0.106);
-    mv3.SetPtEtaPhiM(Muon3->pt(), Muon3->eta(), Muon3->phi(), 0.106);
+    //    mv1.SetPtEtaPhiM(Muon1->pt(), Muon1->eta(), Muon1->phi(), 0.106);
+    //    mv2.SetPtEtaPhiM(Muon2->pt(), Muon2->eta(), Muon2->phi(), 0.106);
+    //    mv3.SetPtEtaPhiM(Muon3->pt(), Muon3->eta(), Muon3->phi(), 0.106);
 
 
     //    TrackRef track1 = Muon1->globalTrack();
@@ -1362,21 +1365,30 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	for ( auto &iMuon :  iThreeMuon ) {
 	  float match;
 	  reco::MuonRef MuonTriggMatch(muonCollection, iMuon);
+	  TLorentzVector mut;
+
+	  //	  mut.SetPtEtaPhiM(MuonTriggMatch->pt(), MuonTriggMatch->eta(), MuonTriggMatch->phi(), 0.106);
+	  //	  mut.Print();
+
+
+
 	  TriggerMatch(triggerSummary,  MuonTriggMatch , TriggerMuonMatchingdr_, match);
 	  iTrigMatchdR.push_back(match);
-	  //	  std::cout<<" iTrigMatchdR   " << match << std::endl;
+
 	}
 	ThreeMuons_TriggerMatch_dR.push_back(iTrigMatchdR);
-
       }
     }
   }
   return ThreeMuons_idx.size();
 }
+/*
+*/
 
 template<class T>
 void T3MNtuple::TriggerMatch(edm::Handle<trigger::TriggerEvent> &triggerSummary,  T obj, double drmax, float &match) {
   match = 999.;
+  drmax = 1.;
   std::vector<trigger::TriggerObject> trgobjs = triggerSummary->getObjects();
   edm::InputTag MuonFilterTag = edm::InputTag("hltTau3muTkVertexFilter", "", "HLT"); 
   size_t MuonFilterIndex = (*triggerSummary).filterIndex(MuonFilterTag); 
@@ -1386,11 +1398,11 @@ void T3MNtuple::TriggerMatch(edm::Handle<trigger::TriggerEvent> &triggerSummary,
       double dr = reco::deltaR(trgobjs.at(KEYS.at(ipart)).eta(), trgobjs.at(KEYS.at(ipart)).phi(), obj->eta(), obj->phi());
       if (dr < drmax) {
 	match = dr;
+	drmax = dr;
       }
     }
   }
 }
-
 
 
 
@@ -2020,6 +2032,16 @@ void T3MNtuple::fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSet
   mv1.SetPtEtaPhiM(mu[0].pt(), mu[0].eta(), mu[0].phi(), 0.106);
   mv2.SetPtEtaPhiM(mu[1].pt(), mu[1].eta(), mu[1].phi(), 0.106);
   mv3.SetPtEtaPhiM(t3->pt(), t3->eta(), t3->phi(), n_reco>2?0.106:0.140);
+
+  if(n_reco> 2){
+    //  std::cout<<"Ds Tree  "<< std::endl;
+  //  mv1.Print();
+    //  mv2.Print();
+    //  mv3.Print();
+  }
+
+
+
   m2mu_12 = (mv1+mv2).M();
   if(n_reco==2 && abs(m2mu_12-1.02)>0.02)return;
   m2mu_23 = (mv2+mv3).M();
@@ -2062,9 +2084,14 @@ void T3MNtuple::fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSet
     const trigger::TriggerObject & to1 = MuonLegObjects[it];
     const trigger::TriggerObject & to2 = MuonLegObjects[it+1];
     const trigger::TriggerObject & to3 = MuonLegObjects[it+2];
-
     bool mat1 = false, mat2 = false, mat3 = false;
     for(int i = 0; i < 2 ; i++) {
+      if(n_reco> 2){
+	//      std::cout<<"  dr1  "<< deltaR(mu[i].eta(), mu[i].phi(), to1.eta(), to1.phi()) << std::endl;
+	//      std::cout<<"  dr2  "<< deltaR(mu[i].eta(), mu[i].phi(), to2.eta(), to2.phi()) << std::endl;
+	//      std::cout<<"  dr3  "<< deltaR(mu[i].eta(), mu[i].phi(), to3.eta(), to3.phi()) << std::endl;
+      }
+
       if(deltaR(mu[i].eta(), mu[i].phi(), to1.eta(), to1.phi())<0.03 && abs(mu[i].pt()-to1.pt())/mu[i].pt()<0.1) mat1=true;
       if(deltaR(mu[i].eta(), mu[i].phi(), to2.eta(), to2.phi())<0.03 && abs(mu[i].pt()-to2.pt())/mu[i].pt()<0.1) mat2=true;
       if(n_reco>2)if(deltaR(mu[i].eta(), mu[i].phi(), to3.eta(), to3.phi())<0.03 && abs(mu[i].pt()-to3.pt())/mu[i].pt()<0.1) mat3=true;
@@ -2078,7 +2105,7 @@ void T3MNtuple::fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSet
 
     if(mat1 && mat2 && mat3) {trigmat_new = 1; break;}
   }
-  //  std::cout<<"trigmat_new  "<< trigmat_new << std::endl;
+  std::cout<<"trigmat_new  "<< trigmat_new << std::endl;
 
 
 
@@ -3068,6 +3095,10 @@ T3MNtuple::beginJob()
   output_tree->Branch("Muon_calEnergy_emS9",&Muon_calEnergy_emS9);
   output_tree->Branch("Muon_calEnergy_em",&Muon_calEnergy_em);
 
+  output_tree->Branch("Muon_ptError",&Muon_ptError);
+  output_tree->Branch("Muon_phiError",&Muon_phiError);
+  output_tree->Branch("Muon_etaError",&Muon_etaError);
+
   output_tree->Branch("Muon_segmentCompatibility",&Muon_segmentCompatibility);
   output_tree->Branch("Muon_caloCompatibility",&Muon_caloCompatibility);
   output_tree->Branch("Muon_isGoodMuon_TM2DCompatibility",&Muon_isGoodMuon_TM2DCompatibility);
@@ -3358,6 +3389,10 @@ void T3MNtuple::ClearEvent() {
 
   Muon_segmentCompatibility.clear();
   Muon_caloCompatibility.clear();
+
+  Muon_ptError.clear();
+  Muon_phiError.clear();
+  Muon_etaError.clear();
 
   Muon_innerTrack_validFraction.clear();
   Muon_innerTrack_pixelLayersWithMeasurement.clear();

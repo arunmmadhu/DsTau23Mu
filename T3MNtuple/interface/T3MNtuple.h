@@ -291,6 +291,8 @@ private:
   std::vector<std::vector<double> > Muon_par;
   std::vector<std::vector<double> > Muon_cov;
 
+
+
   std::vector<int>   Muon_hitPattern_pixelLayerwithMeas;
   std::vector<int>   Muon_numberOfMatchedStations;
   std::vector<float> Muon_normChi2;
@@ -309,6 +311,10 @@ private:
   std::vector<double> Muon_innerTrack_numberOfLostTrackerInnerHits;
   std::vector<double> Muon_innerTrack_numberOfLostTrackerOuterHits;
   std::vector<double> Muon_innerTrack_normalizedChi2;
+
+  std::vector<double> Muon_ptError;
+  std::vector<double> Muon_phiError;
+  std::vector<double> Muon_etaError;
 
   std::vector<double> Muon_vmuonhitcomb_reco;
   std::vector<double> Muon_rpchits_reco;
