@@ -43,6 +43,7 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
 {
   gtUtil_ = new L1TGlobalUtil(iConfig, consumesCollector(), *this, algInputTag_, algInputTag_);
   doMC_ = iConfig.getParameter<bool>("doMC");
+  doFullMC_ = iConfig.getParameter<bool>("doFullMC");
   wideSB_ = iConfig.getParameter<bool>("wideSB");
   do2mu_ = iConfig.getParameter<bool>("do2mu");
   passhlt_ = iConfig.getParameter<bool>("passhlt");
@@ -114,8 +115,14 @@ bool T3MNtuple::getTrackMatch(edm::Handle<std::vector<reco::Track> > &trackColle
 
 
 bool T3MNtuple::isGoodGenParticle(const reco::GenParticle &GenPar){
-  if (GenPar.p4().Pt() > 0.2) return true;
+
+
   int id = abs(GenPar.pdgId());
+  if(doFullMC_){
+    if(id == 21 || id == 1 || id == 2 || id ==3 || id == 4 || id == 5 || id == 6) return false;
+    if(id == 22 && GenPar.p4().Pt() < 0.5 ) return false;
+  }
+  //  std::cout<<" all gens pt:    "<< GenPar.p4().Pt()<< "   id:   "<< abs(GenPar.pdgId()) << std::endl;
   if (id == PDGInfo::Ds_plus) return true;
   if (id == PDGInfo::B_plus) return true;
   if (id == PDGInfo::B_0) return true;
@@ -183,7 +190,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         fillTrigger(iEvent, iSetup);
     }
   output_tree->Fill();
-  //  fillDsTree(iEvent, iSetup); // method by Jian
+  //  fillDsTree(iEvent, iSetup); 
 }
  
 
@@ -1074,44 +1081,46 @@ T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     {
       Handle<GenParticleCollection> genParticles;
       iEvent.getByToken(genToken_, genParticles);
-      /*
-      for (reco::GenParticleCollection::const_iterator itr = genParticles->begin(); itr != genParticles->end(); ++itr) {
-	if ( !isGoodGenParticle(*itr) ) continue;
-	MC_pdgid.push_back(itr->pdgId());
-	MC_charge.push_back(itr->charge());
-	std::vector<float> iMC_p4;
-	iMC_p4.push_back(itr->p4().E());
-	iMC_p4.push_back(itr->p4().Px());
-	iMC_p4.push_back(itr->p4().Py());
-	iMC_p4.push_back(itr->p4().Pz());
-
-	MC_p4.push_back(iMC_p4);
-	MC_midx.push_back(-1);
-	MC_status.push_back(itr->status());
-	MC_childpdgid.push_back(std::vector<int>());
-	MC_childidx.push_back(std::vector<int>());
+      if(doFullMC_){
 	
-      }
-      unsigned int i = 0;
-      for (reco::GenParticleCollection::const_iterator itr = genParticles->begin(); itr != genParticles->end(); ++itr) {
-	if ( !isGoodGenParticle(*itr) ) continue;
-	for (unsigned int d = 0; d < itr->numberOfDaughters(); d++) {
-	  const reco::GenParticle *dau = static_cast<const reco::GenParticle*>(itr->daughter(d));
-	  unsigned int j = 0;
-	  for (reco::GenParticleCollection::const_iterator jtr = genParticles->begin(); jtr != genParticles->end(); ++jtr){
-	    if ( !isGoodGenParticle(*jtr) ) continue;
-	    if (dau->status() == jtr->status() && dau->p4() == jtr->p4() && dau->pdgId() == jtr->pdgId() && dau->numberOfMothers() == jtr->numberOfMothers()
-		&& dau->numberOfDaughters() == jtr->numberOfDaughters()) {
-	      MC_midx.at(j) = i;
-	      MC_childidx.at(i).push_back(j);
-	      MC_childpdgid.at(i).push_back(dau->pdgId());
-	    }
-	    j++;
-	  }
+	for (reco::GenParticleCollection::const_iterator itr = genParticles->begin(); itr != genParticles->end(); ++itr) {
+	  if ( !isGoodGenParticle(*itr) ) continue;
+	  MC_pdgid.push_back(itr->pdgId());
+	  MC_charge.push_back(itr->charge());
+	  std::vector<float> iMC_p4;
+	  iMC_p4.push_back(itr->p4().E());
+	  iMC_p4.push_back(itr->p4().Px());
+	  iMC_p4.push_back(itr->p4().Py());
+	  iMC_p4.push_back(itr->p4().Pz());
+	  
+	  MC_p4.push_back(iMC_p4);
+	  MC_midx.push_back(-1);
+	  MC_status.push_back(itr->status());
+	  MC_childpdgid.push_back(std::vector<int>());
+	  MC_childidx.push_back(std::vector<int>());
+	  
 	}
-	i++;
+	unsigned int i = 0;
+	for (reco::GenParticleCollection::const_iterator itr = genParticles->begin(); itr != genParticles->end(); ++itr) {
+	  if ( !isGoodGenParticle(*itr) ) continue;
+	  for (unsigned int d = 0; d < itr->numberOfDaughters(); d++) {
+	    const reco::GenParticle *dau = static_cast<const reco::GenParticle*>(itr->daughter(d));
+	    unsigned int j = 0;
+	    for (reco::GenParticleCollection::const_iterator jtr = genParticles->begin(); jtr != genParticles->end(); ++jtr){
+	      if ( !isGoodGenParticle(*jtr) ) continue;
+	      if (dau->status() == jtr->status() && dau->p4() == jtr->p4() && dau->pdgId() == jtr->pdgId() && dau->numberOfMothers() == jtr->numberOfMothers()
+		  && dau->numberOfDaughters() == jtr->numberOfDaughters()) {
+		MC_midx.at(j) = i;
+		MC_childidx.at(i).push_back(j);
+		MC_childpdgid.at(i).push_back(dau->pdgId());
+	      }
+	      j++;
+	    }
+	  }
+	  i++;
+	}
       }
-      */
+      
       DataMCType DMT;
       unsigned int k(0);
       for (reco::GenParticleCollection::const_iterator itr = genParticles->begin(); itr != genParticles->end(); ++itr) {
@@ -3138,6 +3147,7 @@ T3MNtuple::beginJob()
   output_tree->Branch("Muon_cov", &Muon_cov);
 
   if(doMC_){
+    if(doFullMC_){
       output_tree->Branch("MC_p4", &MC_p4);
       output_tree->Branch("MC_pdgid", &MC_pdgid);
       output_tree->Branch("MC_charge", &MC_charge);
@@ -3145,8 +3155,8 @@ T3MNtuple::beginJob()
       output_tree->Branch("MC_childpdgid", &MC_childpdgid);
       output_tree->Branch("MC_childidx", &MC_childidx);
       output_tree->Branch("MC_status", &MC_status);
+    }
       output_tree->Branch("MC_isReco", &MC_isReco);
-
       output_tree->Branch("MCSignalParticle_p4", &MCSignalParticle_p4);
       output_tree->Branch("MCSignalParticle_pdgid", &MCSignalParticle_pdgid);
       output_tree->Branch("MCSignalParticle_childpdgid", &MCSignalParticle_childpdgid);

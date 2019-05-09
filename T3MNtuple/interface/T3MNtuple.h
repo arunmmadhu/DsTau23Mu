@@ -11,7 +11,7 @@
      [Notes on implementation]
 */
 //
-// Original Author:  Vladimir Cherepanov, Jian Wang
+// Original Author:  Vladimir Cherepanov
 //         Created:  Thu, 17 Jan 2019 15:04:27 GMT
 //
 //
@@ -421,7 +421,7 @@ private:
 
 
 
-  bool doMC_, wideSB_, do2mu_, passhlt_, doTracks_, doMuons_, 
+  bool doMC_, doFullMC_, wideSB_, do2mu_, passhlt_, doTracks_, doMuons_, 
     do3mutuple_, doL1_, doThreeMuons_, doTwoMuonsAndTrack_, doBJets_;
   double TriggerMuonMatchingdr_;
 
