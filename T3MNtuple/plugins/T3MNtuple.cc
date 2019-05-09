@@ -465,12 +465,12 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
   Vertex final_pv = MatchedPrimaryVertex;  
   if(pvvertex.isValid()) final_pv = Vertex(pvvertex);
-  math::XYZPoint pv1P = math::XYZPoint(final_pv.x(), final_pv.y(), final_pv.z());
+  math::XYZPoint pvPoint = math::XYZPoint(final_pv.x(), final_pv.y(), final_pv.z());
 
   std::vector<double> iVertex_d0_reco;
-  iVertex_d0_reco.push_back(abs(iTransientTracks.at(0).track().dxy(pv1P)));
-  iVertex_d0_reco.push_back(abs(iTransientTracks.at(1).track().dxy(pv1P)));
-  iVertex_d0_reco.push_back(abs(iTransientTracks.at(2).track().dxy(pv1P)));
+  iVertex_d0_reco.push_back(abs(iTransientTracks.at(0).track().dxy(TheSecondaryVertexPoint)));
+  iVertex_d0_reco.push_back(abs(iTransientTracks.at(1).track().dxy(TheSecondaryVertexPoint)));
+  iVertex_d0_reco.push_back(abs(iTransientTracks.at(2).track().dxy(TheSecondaryVertexPoint)));
   Vertex_d0_reco.push_back(iVertex_d0_reco);
 
   TLorentzVector LV1=TLorentzVector(particles_p4.at(index).at(0).at(1), particles_p4.at(index).at(0).at(2), particles_p4.at(index).at(0).at(3),particles_p4.at(index).at(0).at(0));
@@ -497,7 +497,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
   Vertex_d0sig_reco.push_back(iVertex_d0sig_reco);
 
-  TVector3 dv2D_reco(final_pv.position().x() - pv1P.x(), final_pv.position().y() - pv1P.y(), 0);
+  TVector3 dv2D_reco(-final_pv.position().x() + TheSecondaryVertexPoint.x(), -final_pv.position().y() + TheSecondaryVertexPoint.y(), 0);
   TVector3 vtauxy(ThreeCandidate.Px(), ThreeCandidate.Py(), 0);
   fv_cosdphi = dv2D_reco.Dot(vtauxy)/(dv2D_reco.Perp()*vtauxy.Perp());
   VertexDistanceXY vdistXY;
@@ -509,7 +509,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   Vertex_2Ddisplacement.push_back(iVertex_2Ddisplacement);
 
   TVector3 vtauxyz(ThreeCandidate.Px(), ThreeCandidate.Py(), ThreeCandidate.Pz());
-  TVector3 dv3D_reco(final_pv.position().x() - pv1P.x(), final_pv.position().y() - pv1P.y(), final_pv.position().z() - pv1P.z());
+  TVector3 dv3D_reco(-final_pv.position().x() + TheSecondaryVertexPoint.x(), -final_pv.position().y() + TheSecondaryVertexPoint.y(), -final_pv.position().z() + TheSecondaryVertexPoint.z());
   fv_cosdphi3D = dv3D_reco.Dot(vtauxyz)/(dv3D_reco.Mag()*vtauxyz.Mag());
   VertexDistance3D dist;
   std::vector<double> iVertex_3Ddisplacement;
@@ -608,9 +608,9 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
 
 
-    double dz_primaryvertex=abs(t.dz(pv1P));
+    double dz_primaryvertex=abs(t.dz(pvPoint));
     if(!(dz_primaryvertex < 1))continue;
-    double dxy_primaryvertex = abs(t.dxy(pv1P));
+    double dxy_primaryvertex = abs(t.dxy(pvPoint));
     if(dxy_primaryvertex>0.1) N_trk0p1++;
     if(dxy_primaryvertex>0.2) N_trk0p2++;
     if(dxy_primaryvertex>0.5) N_trk0p5++;
