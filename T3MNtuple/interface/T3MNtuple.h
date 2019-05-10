@@ -138,6 +138,7 @@ private:
   bool AcceptedMuon(reco::MuonRef RefMuon);
   bool getTrackMatch(edm::Handle<std::vector<reco::Track> > &trackCollection, reco::TrackRef &refTrack, int &match);
   bool isGoodGenParticle(const reco::GenParticle &GenPar);
+  bool SkipThisParticle(const reco::GenParticle &GenPar);
   std::vector<const reco::GenParticle* > TauDecayProducts(const reco::GenParticle *Tau);
 
   double /*filterbadGlbMuon*/ gen_flavor, nmu_mom, hlt_doublemu4_lmnrt, hlt_doublemu3_tau3mu, l1_triplemu0, l1_doublemu0,

@@ -114,14 +114,20 @@ bool T3MNtuple::getTrackMatch(edm::Handle<std::vector<reco::Track> > &trackColle
 
 
 
+bool T3MNtuple::SkipThisParticle(const reco::GenParticle &GenPar){
+
+  int id = abs(GenPar.pdgId());
+  if(id == 21 || id == 1 || id == 2 || id ==3 || id == 4 || id == 5 || id == 6) return true;
+  if(id == 22 && GenPar.p4().Pt() < 0.3 ) return true;
+  return false;
+
+
+}
+
 bool T3MNtuple::isGoodGenParticle(const reco::GenParticle &GenPar){
 
 
   int id = abs(GenPar.pdgId());
-  if(doFullMC_){
-    if(id == 21 || id == 1 || id == 2 || id ==3 || id == 4 || id == 5 || id == 6) return false;
-    if(id == 22 && GenPar.p4().Pt() < 0.5 ) return false;
-  }
   //  std::cout<<" all gens pt:    "<< GenPar.p4().Pt()<< "   id:   "<< abs(GenPar.pdgId()) << std::endl;
   if (id == PDGInfo::Ds_plus) return true;
   if (id == PDGInfo::B_plus) return true;
@@ -1084,7 +1090,7 @@ T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if(doFullMC_){
 	
 	for (reco::GenParticleCollection::const_iterator itr = genParticles->begin(); itr != genParticles->end(); ++itr) {
-	  if ( !isGoodGenParticle(*itr) ) continue;
+	  if(SkipThisParticle(*itr)) continue;
 	  MC_pdgid.push_back(itr->pdgId());
 	  MC_charge.push_back(itr->charge());
 	  std::vector<float> iMC_p4;
@@ -1102,12 +1108,12 @@ T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
 	unsigned int i = 0;
 	for (reco::GenParticleCollection::const_iterator itr = genParticles->begin(); itr != genParticles->end(); ++itr) {
-	  if ( !isGoodGenParticle(*itr) ) continue;
+	  if(SkipThisParticle(*itr)) continue;
 	  for (unsigned int d = 0; d < itr->numberOfDaughters(); d++) {
 	    const reco::GenParticle *dau = static_cast<const reco::GenParticle*>(itr->daughter(d));
 	    unsigned int j = 0;
 	    for (reco::GenParticleCollection::const_iterator jtr = genParticles->begin(); jtr != genParticles->end(); ++jtr){
-	      if ( !isGoodGenParticle(*jtr) ) continue;
+	      if(SkipThisParticle(*jtr)) continue;
 	      if (dau->status() == jtr->status() && dau->p4() == jtr->p4() && dau->pdgId() == jtr->pdgId() && dau->numberOfMothers() == jtr->numberOfMothers()
 		  && dau->numberOfDaughters() == jtr->numberOfDaughters()) {
 		MC_midx.at(j) = i;
