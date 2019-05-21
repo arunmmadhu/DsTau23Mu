@@ -435,7 +435,10 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   iprimaryVertex_Pos.push_back(MatchedPrimaryVertex.y());
   iprimaryVertex_Pos.push_back(MatchedPrimaryVertex.z());
   Vertex_MatchedPrimaryVertex.push_back(iprimaryVertex_Pos);
- 
+
+
+
+
 
   vector<TransientTrack> primaryvertexTransientTracks;// remove muon candidate from the PV to perform refit
   for(Vertex::trackRef_iterator itk = MatchedPrimaryVertex.tracks_begin(); itk != MatchedPrimaryVertex.tracks_end(); itk++) {
@@ -468,6 +471,27 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   }
   Vertex_MatchedRefitPrimaryVertex.push_back(iRefitprimaryVertex_Pos);
 
+  TMatrixTSym<double> pvcov(3);
+  math::Error<3>::type pvCov;
+  MatchedPrimaryVertex.fill(pvCov);
+
+  for(int i=0;i<LorentzVectorParticle::NVertex;i++){
+    for(int j=i;j<LorentzVectorParticle::NVertex;j++){
+      pvcov(i, j) = pvCov(i, j);
+      pvcov(j, i) = pvCov(i, j);
+    }
+  }
+ 
+  std::vector<double>  pv_cov;
+  for(int i=0;i<LorentzVectorParticle::NVertex;i++){
+    for(int j=i;j<LorentzVectorParticle::NVertex;j++){
+      pv_cov.push_back(pvcov(i, j));
+
+      std::cout<<"  pvcov(i, j) "<< pvcov(i, j) << std::endl;
+    }
+  }
+
+  Vertex_MatchedRefitPrimaryVertex_covariance.push_back(pv_cov);
 
   Vertex final_pv = MatchedPrimaryVertex;  
   if(pvvertex.isValid()) final_pv = Vertex(pvvertex);
@@ -514,14 +538,22 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   iVertex_2Ddisplacement.push_back(distXY.value()*fv_cosdphi * m3mu_reco/vtauxy.Perp());
   Vertex_2Ddisplacement.push_back(iVertex_2Ddisplacement);
 
+  std::cout<<"  "<< distXY.value() <<"  " << distXY.significance() << "   "<< distXY.value()*fv_cosdphi * m3mu_reco/vtauxy.Perp() <<std::endl;
+
   TVector3 vtauxyz(ThreeCandidate.Px(), ThreeCandidate.Py(), ThreeCandidate.Pz());
   TVector3 dv3D_reco(-final_pv.position().x() + TheSecondaryVertexPoint.x(), -final_pv.position().y() + TheSecondaryVertexPoint.y(), -final_pv.position().z() + TheSecondaryVertexPoint.z());
   fv_cosdphi3D = dv3D_reco.Dot(vtauxyz)/(dv3D_reco.Mag()*vtauxyz.Mag());
   VertexDistance3D dist;
+
+  std::cout<<"  "<< dist.distance(Vertex(final_pv), final_pv).value() <<"  " << dist.distance(Vertex(final_pv), final_pv).significance() << "   "<< fv_d3D*fv_cosdphi3D*m3mu_reco/ThreeCandidate.P() <<std::endl;
+
   std::vector<double> iVertex_3Ddisplacement;
   iVertex_3Ddisplacement.push_back(dist.distance(Vertex(final_pv), final_pv).value());
   iVertex_3Ddisplacement.push_back(dist.distance(Vertex(final_pv), final_pv).significance());
   iVertex_3Ddisplacement.push_back(fv_d3D*fv_cosdphi3D*m3mu_reco/ThreeCandidate.P());
+
+
+
   Vertex_3Ddisplacement.push_back(iVertex_3Ddisplacement);
 
 
@@ -3206,6 +3238,7 @@ T3MNtuple::beginJob()
   output_tree->Branch("Vertex_MatchedPrimaryVertex",&Vertex_MatchedPrimaryVertex);
   output_tree->Branch("Vertex_RefitPVisValid",&Vertex_RefitPVisValid);
   output_tree->Branch("Vertex_MatchedRefitPrimaryVertex",&Vertex_MatchedRefitPrimaryVertex);
+  output_tree->Branch("Vertex_MatchedRefitPrimaryVertex_covariance",&Vertex_MatchedRefitPrimaryVertex_covariance);
   output_tree->Branch("Vertex_d0_reco",&Vertex_d0_reco);
   output_tree->Branch("Vertex_d0sig_reco",&Vertex_d0sig_reco);
   output_tree->Branch("Vertex_2Ddisplacement",&Vertex_2Ddisplacement);
@@ -3486,6 +3519,7 @@ void T3MNtuple::ClearEvent() {
   Vertex_MatchedPrimaryVertex.clear();
   Vertex_RefitPVisValid.clear();
   Vertex_MatchedRefitPrimaryVertex.clear();
+  Vertex_MatchedRefitPrimaryVertex_covariance.clear();
   Vertex_d0_reco.clear();
   Vertex_d0sig_reco.clear();
   Vertex_2Ddisplacement.clear();

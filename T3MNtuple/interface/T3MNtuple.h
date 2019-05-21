@@ -398,6 +398,7 @@ private:
 
   std::vector<bool>  Vertex_RefitPVisValid;
   std::vector<std::vector<double> > Vertex_MatchedRefitPrimaryVertex;
+  std::vector<std::vector<double> > Vertex_MatchedRefitPrimaryVertex_covariance;
   std::vector<std::vector<double> > Vertex_d0_reco;
   std::vector<std::vector<double> > Vertex_d0sig_reco;
 
