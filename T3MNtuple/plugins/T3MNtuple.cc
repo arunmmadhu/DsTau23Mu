@@ -1536,7 +1536,7 @@ T3MNtuple::findTwoMuonsAndTrackCandidates(const edm::Event& iEvent, const edm::E
   for (reco::MuonCollection::const_iterator iMuon = muonCollection->begin(); iMuon != muonCollection->end(); ++iMuon, Muon_index++) {
     reco::MuonRef RefMuon(muonCollection, Muon_index);
     if((RefMuon->pt() < MuonPtCut_) || (std::fabs(RefMuon->eta()) > MuonEtaCut_)) continue;
-    if(RefMuon->isPFMuon() && RefMuon->isGlobalMuon())  preselected_muon_idx.push_back(Muon_index);
+    if(RefMuon->isPFMuon() && (RefMuon->isTrackerMuon() || RefMuon->isGlobalMuon()))  preselected_muon_idx.push_back(Muon_index);
   }
   
   if(preselected_muon_idx.size() > 1){
