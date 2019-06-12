@@ -313,8 +313,8 @@ private:
   std::vector<int>   Muon_numberofValidPixelHits;
   std::vector<int>   Muon_numberOfMatches;
   std::vector<int>   Muon_trackerLayersWithMeasurement;
-  std::vector<bool>  Muon_segmentCompatibility;
-  std::vector<bool>  Muon_caloCompatibility;
+  std::vector<double>  Muon_segmentCompatibility;
+  std::vector<double>  Muon_caloCompatibility;
 
   std::vector<double> Muon_innerTrack_validFraction;
   std::vector<double> Muon_innerTrack_pixelLayersWithMeasurement;
