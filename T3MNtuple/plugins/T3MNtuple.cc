@@ -688,7 +688,9 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   
   isolation2.push_back(relative_iso05);
   isolation2.push_back(sumalltracks05);
+  isolation2.push_back(mindist);
   isolation2.push_back(mindist05);
+
   
   isolation3.push_back(relative_mu1_iso);
   isolation3.push_back(relative_mu2_iso);
