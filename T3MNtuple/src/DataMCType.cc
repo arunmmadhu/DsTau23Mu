@@ -20,7 +20,7 @@ unsigned int DataMCType::GetType(TString name){
   if(name=="ds_phipi")  return Ds_PhiPi;
   if(name=="b0_tau")    return B0_Tau;
   if(name=="bp_tau")    return Bp_Tau;
-  if(name=="minbias")    return MinBias;
+  if(name=="minbias")   return MinBias;
 
 
   std::cout << "ERROR: Data/MC Type " << name << " UNKNOWN!!!! " << std::endl;

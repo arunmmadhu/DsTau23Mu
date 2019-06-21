@@ -63,6 +63,7 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
 
   DataMCType DMT;
   Event_DataMC_Type=DMT.GetType(sampleType_);
+
 }
 
 
@@ -559,21 +560,16 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   iVertex_2Ddisplacement.push_back(distXY.value()*fv_cosdphi * m3mu_reco/vtauxy.Perp());
   Vertex_2Ddisplacement.push_back(iVertex_2Ddisplacement);
 
-  //  std::cout<<"  "<< distXY.value() <<"  " << distXY.significance() << "   "<< distXY.value()*fv_cosdphi * m3mu_reco/vtauxy.Perp() <<std::endl;
 
   TVector3 vtauxyz(ThreeCandidate.Px(), ThreeCandidate.Py(), ThreeCandidate.Pz());
   TVector3 dv3D_reco(-final_pv.position().x() + TheSecondaryVertexPoint.x(), -final_pv.position().y() + TheSecondaryVertexPoint.y(), -final_pv.position().z() + TheSecondaryVertexPoint.z());
   fv_cosdphi3D = dv3D_reco.Dot(vtauxyz)/(dv3D_reco.Mag()*vtauxyz.Mag());
   VertexDistance3D dist;
 
-  //  std::cout<<"  "<< dist.distance(Vertex(final_pv), final_pv).value() <<"  " << dist.distance(Vertex(final_pv), final_pv).significance() << "   "<< fv_d3D*fv_cosdphi3D*m3mu_reco/ThreeCandidate.P() <<std::endl;
-
   std::vector<double> iVertex_3Ddisplacement;
   iVertex_3Ddisplacement.push_back(dist.distance(Vertex(transVtx), final_pv).value());
   iVertex_3Ddisplacement.push_back(dist.distance(Vertex(transVtx), final_pv).significance());
   iVertex_3Ddisplacement.push_back(fv_d3D*fv_cosdphi3D*m3mu_reco/ThreeCandidate.P());
-
-
 
   Vertex_3Ddisplacement.push_back(iVertex_3Ddisplacement);
 
@@ -1188,6 +1184,8 @@ T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if (DMT.isSignalParticle(itr->pdgId())) {
 	  MCSignalParticle_childpdgid.push_back(std::vector<int>());
 	  MCSignalParticle_childp4.push_back(std::vector<std::vector<double> >());
+	  MCSignalParticle_Sourcepdgid.push_back(std::vector<int>());
+	  MCSignalParticle_Sourcep4.push_back(std::vector<std::vector<double> >());
 	  MCSignalParticle_pdgid.push_back(itr->pdgId());
 	  MCSignalParticle_charge.push_back(itr->charge());
 	  MCSignalParticle_Tauidx.push_back(std::vector<unsigned int>());
@@ -1198,7 +1196,19 @@ T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  iSig_p4.push_back(itr->p4().Py());
 	  iSig_p4.push_back(itr->p4().Pz());
 	  MCSignalParticle_p4.push_back(iSig_p4);
-	  //	  std::cout<<"Signal particle  "<<   PDGInfo::pdgIdToName(itr->pdgId()) << std::endl;
+
+	  for (unsigned int i = 0; i < itr->numberOfMothers(); i++){
+	    const reco::Candidate *mot = itr->mother(i);
+	    std::vector<double> iSourcep4;
+	    iSourcep4.push_back(mot->p4().E());
+	    iSourcep4.push_back(mot->p4().Px());
+	    iSourcep4.push_back(mot->p4().Py());
+	    iSourcep4.push_back(mot->p4().Pz());
+
+	    MCSignalParticle_Sourcepdgid.at(MCSignalParticle_Sourcepdgid.size() - 1).push_back(mot->pdgId());
+	    MCSignalParticle_Sourcep4.at(MCSignalParticle_Sourcepdgid.size() - 1).push_back(iSourcep4);
+	  }
+
 	  // look for daughter tau
 	  for (unsigned int i = 0; i < itr->numberOfDaughters(); i++){
 	    const reco::Candidate *dau = itr->daughter(i);
@@ -1210,18 +1220,15 @@ T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	    MCSignalParticle_childpdgid.at(MCSignalParticle_childpdgid.size() - 1).push_back(dau->pdgId());
 	    MCSignalParticle_childp4.at(MCSignalParticle_childpdgid.size() - 1).push_back(ichildp4);
-	    //	    std::cout<<"Signal particles product  "<< PDGInfo::pdgIdToName(dau->pdgId())<< std::endl;
 	    if (abs(dau->pdgId()) == PDGInfo::tau_minus) {
 	      unsigned int tauidx = MCTauandProd_p4.size();
 	      MCSignalParticle_Tauidx.at(MCSignalParticle_Tauidx.size() - 1).push_back(tauidx);
 	      // Analysis the tau decay
 	      std::vector<const reco::GenParticle*> TauProducts = TauDecayProducts(static_cast<const reco::GenParticle*>(dau));
-	      //	      std::cout<<"k  :"<< k << std::endl;
 	      MCTauandProd_midx.push_back(k);
 	      MCTauandProd_pdgid.push_back(std::vector<int>());
 	      MCTauandProd_charge.push_back(std::vector<int>());
 	      MCTauandProd_p4.push_back(std::vector<std::vector<double> >());
-	      //std::cout<<"In case of tau, tauidx: "<< tauidx << std::endl;
 	      for (unsigned int i = 0; i < TauProducts.size(); i++) {
 		MCTauandProd_pdgid.at(tauidx).push_back(TauProducts.at(i)->pdgId());
 		MCTauandProd_charge.at(tauidx).push_back(TauProducts.at(i)->charge());
@@ -3263,12 +3270,15 @@ T3MNtuple::beginJob()
       output_tree->Branch("MCSignalParticle_pdgid", &MCSignalParticle_pdgid);
       output_tree->Branch("MCSignalParticle_childpdgid", &MCSignalParticle_childpdgid);
       output_tree->Branch("MCSignalParticle_childp4", &MCSignalParticle_childp4);
+      output_tree->Branch("MCSignalParticle_Sourcepdgid", &MCSignalParticle_Sourcepdgid);
+      output_tree->Branch("MCSignalParticle_Sourcep4", &MCSignalParticle_Sourcep4);
       output_tree->Branch("MCSignalParticle_charge", &MCSignalParticle_charge);
       output_tree->Branch("MCSignalParticle_Tauidx", &MCSignalParticle_Tauidx);
       output_tree->Branch("MCTauandProd_p4", &MCTauandProd_p4);
       output_tree->Branch("MCTauandProd_pdgid", &MCTauandProd_pdgid);
       output_tree->Branch("MCTauandProd_midx", &MCTauandProd_midx);
       output_tree->Branch("MCTauandProd_charge", &MCTauandProd_charge);
+
   }
 
 
@@ -3564,6 +3574,8 @@ void T3MNtuple::ClearEvent() {
     MCTau_DecayBitMask.clear();
     MCSignalParticle_childpdgid.clear();
     MCSignalParticle_childp4.clear();
+    MCSignalParticle_Sourcepdgid.clear();
+    MCSignalParticle_Sourcep4.clear();
   }
 
 
