@@ -94,7 +94,7 @@ bool T3MNtuple::isGoodTrack(const Track &track) {
 
 
 bool T3MNtuple::AcceptedMuon(reco::MuonRef RefMuon) {
-  if((RefMuon->pt() > MuonPtCut_) || (abs(RefMuon->eta()) < MuonEtaCut_)){
+  if((RefMuon->pt() > MuonPtCut_) && (abs(RefMuon->eta()) < MuonEtaCut_)){
     if(RefMuon->isPFMuon() &&  ( RefMuon->isGlobalMuon() || RefMuon->isTrackerMuon()))  return true;
   }
   return false;
@@ -1617,15 +1617,22 @@ T3MNtuple::findThreeMuonsCandidates(const edm::Event& iEvent, const edm::EventSe
     //    if((RefMuon->pt() < MuonPtCut_) || (abs(RefMuon->eta()) > MuonEtaCut_)) continue;
     //    if(RefMuon->isPFMuon() &&  ( RefMuon->isGlobalMuon() || RefMuon->isTrackerMuon()))  preselected_muon_idx.push_back(Muon_index);
   }
+
   if(preselected_muon_idx.size() > 2){
     for(size_t i = 0; i < preselected_muon_idx.size()-1; ++ i){
+
       std::vector<unsigned int> dump_index;
       reco::MuonRef  Muon1(muonCollection, preselected_muon_idx.at(i));
       for(size_t j = i+1; j < preselected_muon_idx.size(); ++ j){
 	reco::MuonRef  Muon2(muonCollection, preselected_muon_idx.at(j));
-	double dz_12 = abs(Muon2->innerTrack()->dz(beamSpotHandle->position())-Muon1->innerTrack()->dz(beamSpotHandle->position()));  //   Check that two muons are 
+
+	double dz_12 = abs(Muon2->vz()-Muon1->vz());  //  INFN
+	//	double dz_12 = abs(Muon2->innerTrack()->dz(beamSpotHandle->position())-Muon1->innerTrack()->dz(beamSpotHandle->position()));  //   Check that two muons are 
 	double dr_12 = deltaR(Muon1->eta(), Muon1->phi(), Muon2->eta(), Muon2->phi());                                                //   not far from each other
 	if(dz_12>0.5 ||  dr_12>0.8)continue; // - to be checked  -  this is previsou req.
+
+	//	std::cout<<"  "<< <<std::endl;
+
 	if(j<preselected_muon_idx.size()-1){
 	  for(size_t k = j+1; k < preselected_muon_idx.size(); ++ k){
 	    reco::MuonRef  Muon3(muonCollection, preselected_muon_idx.at(k));
@@ -1633,9 +1640,17 @@ T3MNtuple::findThreeMuonsCandidates(const edm::Event& iEvent, const edm::EventSe
 	    if(Muon1->pt()>2.5)number_of_muons_pt2p5++;
 	    if(Muon2->pt()>2.5)number_of_muons_pt2p5++;
 	    if(Muon3->pt()>2.5)number_of_muons_pt2p5++;
+
+	    if(Muon1->pt() < 1 or Muon2->pt() <1 or Muon3->pt()<1)std::cout<<"Wrong pt!!!"<< std::endl;
+
+
 	    if(number_of_muons_pt2p5<2)continue;  //  Not sure it is needed; Commented.
-	    double dz_23 = abs(Muon3->innerTrack()->dz(beamSpotHandle->position())-Muon2->innerTrack()->dz(beamSpotHandle->position()));
-	    double dz_31 = abs(Muon3->innerTrack()->dz(beamSpotHandle->position())-Muon1->innerTrack()->dz(beamSpotHandle->position()));
+	    //	    double dz_23 = abs(Muon3->innerTrack()->dz(beamSpotHandle->position())-Muon2->innerTrack()->dz(beamSpotHandle->position()));
+	    //	    double dz_31 = abs(Muon3->innerTrack()->dz(beamSpotHandle->position())-Muon1->innerTrack()->dz(beamSpotHandle->position()));
+
+	    double dz_23 = abs(Muon3->vz() - Muon2->vz());
+	    double dz_31 = abs(Muon3->vz() - Muon1->vz());
+
 	    double dr_23 = deltaR(Muon3->eta(), Muon3->phi(), Muon2->eta(), Muon2->phi());
 	    double dr_31 = deltaR(Muon3->eta(), Muon3->phi(), Muon1->eta(), Muon1->phi());
 	    
