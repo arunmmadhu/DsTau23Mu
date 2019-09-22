@@ -119,7 +119,7 @@ bool T3MNtuple::SkipThisParticle(const reco::GenParticle &GenPar){
 
   int id = abs(GenPar.pdgId());
   if(id == 21 || id == 1 || id == 2 || id ==3 || id == 4 || id == 5 || id == 6) return true;
-  if(id == 22 && GenPar.p4().Pt() < 0.3 ) return true;
+  if(id == 22 && GenPar.p4().Pt() < 0.1 ) return true;
   return false;
 
 
@@ -144,33 +144,6 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   cnt_++;
   ClearEvent();
 
-  /*
-
-  fillMCTruth(iEvent, iSetup);
-  if(doThreeMuons_) Event_nsignal_candidates =   fillThreeMuons(iEvent, iSetup);
-  if(Event_nsignal_candidates==0)
-    {
-      if(doTwoMuonsAndTrack_) Event_ndsphipi_candidate = fillTwoMuonsAndTracks(iEvent, iSetup);
-    }
-  //  std::cout<<"   Event_nsignal_candidates   "  << Event_nsignal_candidates <<"  Event_ndsphipi_candidate  "<< Event_ndsphipi_candidate <<std::endl;
-  if(Event_nsignal_candidates!=0 or Event_ndsphipi_candidate!=0)
-    {
-      fillEventInfo(iEvent, iSetup);
-      fillVertices(iEvent, iSetup);
-      if(doTracks_)
-	fillTracks(iEvent, iSetup);
-      if(doBJets_)
-	fillBTagJets(iEvent, iSetup);
-      if(doMuons_)
-	fillMuons(iEvent, iSetup);
-      if(doMC_)
-	fillMCTruth(iEvent, iSetup);
-      if(doL1_)
-	fillTrigger(iEvent, iSetup);
-      output_tree->Fill();
-    }
-  */
-
   fillEventInfo(iEvent, iSetup);
   if(doMC_)
     fillMCTruth(iEvent, iSetup);
@@ -178,11 +151,9 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   if(doThreeMuons_) 
     Event_nsignal_candidates =   fillThreeMuons(iEvent, iSetup);
 
-  if(Event_nsignal_candidates==0)
-    {
-      if(doTwoMuonsAndTrack_) Event_ndsphipi_candidate = fillTwoMuonsAndTracks(iEvent, iSetup);
-    }
-  //  std::cout<<"   Event_nsignal_candidates   "  << Event_nsignal_candidates <<"  Event_ndsphipi_candidate  "<< Event_ndsphipi_candidate <<std::endl;
+  if(doTwoMuonsAndTrack_)
+    Event_ndsphipi_candidate = fillTwoMuonsAndTracks(iEvent, iSetup);
+  
   if(Event_nsignal_candidates!=0 or Event_ndsphipi_candidate!=0)
     {
       MC_isReco=1;
@@ -1575,7 +1546,7 @@ T3MNtuple::findTwoMuonsAndTrackCandidates(const edm::Event& iEvent, const edm::E
 	      double dr31 = deltaR(track.eta(), track.phi(), Muon1->eta(), Muon1->phi());
 
 	      if(dr23 > 1.2 || dr31 > 1.2)    continue;
-	      if(dr23 < 0.02 || dr31 < 0.02)  continue;
+	      if(dr23 < 0.01 || dr31 < 0.01)  continue;
 	      
 	      if( abs(Muon1->charge() + Muon2->charge() + track.charge())>1.1 ) continue;  // check the charge
 
