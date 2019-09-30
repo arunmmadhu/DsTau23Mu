@@ -106,11 +106,11 @@ process.TFileService = cms.Service('TFileService',
 
 
 
-process.source.fileNames =['/store/mc/RunIIFall17DRPremix/BdToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/270000/AC2BE19D-A946-E911-B9D1-0CC47A5FBE31.root',
-                           '/store/mc/RunIIFall17DRPremix/BdToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/270000/B854E6AE-A946-E911-A2BE-0CC47A5FA3B9.root',
-                           '/store/mc/RunIIFall17DRPremix/BdToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/270000/92305211-F247-E911-9D1D-0CC47A5FC679.root',
-                           '/store/mc/RunIIFall17DRPremix/BdToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/270000/16D24F4C-1C47-E911-BE09-549F351EDC46.root',
-                           '/store/mc/RunIIFall17DRPremix/BdToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/2710000/8446C82F-6B46-E911-B9A7-0242AC1C0502.root']
+#process.source.fileNames =['/store/mc/RunIIFall17DRPremix/BdToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/270000/AC2BE19D-A946-E911-B9D1-0CC47A5FBE31.root',
+#                           '/store/mc/RunIIFall17DRPremix/BdToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/270000/B854E6AE-A946-E911-A2BE-0CC47A5FA3B9.root',
+#                           '/store/mc/RunIIFall17DRPremix/BdToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/270000/92305211-F247-E911-9D1D-0CC47A5FC679.root',
+#                           '/store/mc/RunIIFall17DRPremix/BdToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/270000/16D24F4C-1C47-E911-BE09-549F351EDC46.root',
+#                           '/store/mc/RunIIFall17DRPremix/BdToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/2710000/8446C82F-6B46-E911-B9A7-0242AC1C0502.root']
  
 #process.source.fileNames =['/store/mc/RunIIFall17DRPremix/BdToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/270000/AC2BE19D-A946-E911-B9D1-0CC47A5FBE31.root']
     
@@ -145,6 +145,21 @@ process.source.fileNames =['/store/mc/RunIIFall17DRPremix/BdToTau_To3Mu_MuFilter
 #    #                        'root://cms-xrd-global.cern.ch//store/user/fsimone/DsPhiPi/crab_crab_DsPhiPi_13TeV_RECO/190225_141742/0000/DsPhiPi_13TeV_RECO_5.root']
 #process.source.fileNames = ['file:/afs/cern.ch/work/c/cherepan/InputTest/custom_DsTau3Mu_13TeV_RECO_crab350_9078.root']
 
+
+
+
+
+process.source.fileNames = ['root://xrootd-cms.infn.it//store/user/fsimone/DsPhiPi/crab_crab_DsPhiPi_13TeV_RECO/190225_141742/0000/DsPhiPi_13TeV_RECO_520.root',
+                            'root://xrootd-cms.infn.it//store/user/fsimone/DsPhiPi/crab_crab_DsPhiPi_13TeV_RECO/190225_141742/0000/DsPhiPi_13TeV_RECO_942.root',
+                            'root://xrootd-cms.infn.it//store/user/fsimone/DsPhiPi/crab_crab_DsPhiPi_13TeV_RECO/190225_141742/0000/DsPhiPi_13TeV_RECO_763.root',
+                            'root://xrootd-cms.infn.it//store/user/fsimone/DsPhiPi/crab_crab_DsPhiPi_13TeV_RECO/190225_141742/0000/DsPhiPi_13TeV_RECO_122.root',
+                            'root://xrootd-cms.infn.it//store/user/fsimone/DsPhiPi/crab_crab_DsPhiPi_13TeV_RECO/190225_141742/0000/DsPhiPi_13TeV_RECO_405.root',
+                            'root://xrootd-cms.infn.it//store/user/fsimone/DsPhiPi/crab_crab_DsPhiPi_13TeV_RECO/190225_141742/0000/DsPhiPi_13TeV_RECO_332.root',
+                            'root://xrootd-cms.infn.it//store/user/fsimone/DsPhiPi/crab_crab_DsPhiPi_13TeV_RECO/190225_141742/0000/DsPhiPi_13TeV_RECO_986.root',
+                            'root://xrootd-cms.infn.it//store/user/fsimone/DsPhiPi/crab_crab_DsPhiPi_13TeV_RECO/190225_141742/0000/DsPhiPi_13TeV_RECO_635.root',
+                            'root://xrootd-cms.infn.it//store/user/fsimone/DsPhiPi/crab_crab_DsPhiPi_13TeV_RECO/190225_141742/0000/DsPhiPi_13TeV_RECO_27.root',
+                            'root://xrootd-cms.infn.it//store/user/fsimone/DsPhiPi/crab_crab_DsPhiPi_13TeV_RECO/190225_141742/0000/DsPhiPi_13TeV_RECO_988.root',
+                            'root://xrootd-cms.infn.it//store/user/fsimone/DsPhiPi/crab_crab_DsPhiPi_13TeV_RECO/190225_141742/0000/DsPhiPi_13TeV_RECO_219.root']
 
 
 
