@@ -83,10 +83,11 @@ T3MNtuple::~T3MNtuple()
 
 bool T3MNtuple::isGoodTrack(const Track &track) {
   if(track.pt()>TrackPtCut_){
-    if(abs(track.eta())<TrackEtaCut_){
-      if(track.hitPattern().trackerLayersWithMeasurement()>5){
-	if(track.hitPattern().pixelLayersWithMeasurement()>1) return true;
-      }
+    if(fabs(track.eta())<TrackEtaCut_){return true;
+      //      if(track.hitPattern().trackerLayersWithMeasurement()>5){
+      //	if(track.hitPattern().pixelLayersWithMeasurement()>1) return true;
+      //      }
+      //    }
     }
   }
   return false;
@@ -1553,14 +1554,18 @@ T3MNtuple::findTwoMuonsAndTrackCandidates(const edm::Event& iEvent, const edm::E
 	    //	    std::cout<<"Muons charge  "<< Muon1->charge() + Muon2->charge() <<"  dz and dr   " << dz_12 << "  "<< dr_12<< std::endl;
 	    unsigned int Track_index = 0;
 	    //	    std::cout<<"loop over tracks "<< std::endl;
+	    //	    std::cout<<" Muons pT   "<< Muon1->pt() << "  "<< Muon2->pt() <<std::endl;
 	    for (reco::TrackCollection::const_iterator iTrack = trackCollection->begin(); iTrack != trackCollection->end(); ++iTrack, Track_index++)
 	      {
 		const reco::Track track = (*iTrack);
 
 
-		if(isGoodTrack(track)){
+		if(isGoodTrack(track))
+
+
+		  {
 		  //		  std::cout<<"isGoodTrack(track)----  " << isGoodTrack(track)  << std::endl;	    
-		  if(!(abs(track.dxy(beamSpotHandle->position())) < .3)  ||  !(abs(track.dz(beamSpotHandle->position())) < 20)) continue;   // check if the tracks is far from the BS.   
+		  //if(!(abs(track.dxy(beamSpotHandle->position())) < .3)  ||  !(abs(track.dz(beamSpotHandle->position())) < 20)) continue;   // check if the tracks is far from the BS.   
 		    
 		  //		  double dz23 = abs(track.dz(beamSpotHandle->position())-Muon2->innerTrack()->dz(beamSpotHandle->position()));  // if the POCA of the track candidate is far from the muons - continue
 		  //		  double dz31 = abs(track.dz(beamSpotHandle->position())-Muon1->innerTrack()->dz(beamSpotHandle->position()));
@@ -1570,9 +1575,11 @@ T3MNtuple::findTwoMuonsAndTrackCandidates(const edm::Event& iEvent, const edm::E
 		  
 		  double dr23 = deltaR(track.eta(), track.phi(), Muon2->eta(), Muon2->phi());
 		  double dr31 = deltaR(track.eta(), track.phi(), Muon1->eta(), Muon1->phi());
-		  
-		  //		  std::cout<<"0.01 < dr23 && dr31 < 1.2   "<< dr23 << "   "<< dr31 <<  "     dz23  && dz31 > 0.5  "<< dz23 <<"   "<< dz31 << std::endl;
+		  //		  2.883
 
+		  //		  if(fabs(track.pt() - 1.61)< 0.02 and track.eta()  < 0) {
+		  //		    std::cout<<"0.01 < dr23 && dr31 < 1.2   "<< dr23 << "   "<< dr31 <<  "     dz23  && dz31 < 0.5  "<< dz23 <<"   "<< dz31 << std::endl;
+		  //		    std::cout<<"track pt  "<< track.pt()<< "     "<< track.eta()<<std::endl;}
 		  if(dr23 > 1.2  || dr31 > 1.2 )  continue;
 		  if(dr23 < 0.01 || dr31 < 0.01)  continue;
 		  if(dz23 > 0.5  || dz31 > 0.5 )  continue;
@@ -1727,7 +1734,7 @@ void T3MNtuple::fillTrigger(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 void T3MNtuple::fillEventInfo(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  /*  std::cout<<"event number:    "<< iEvent.id().event() << std::endl;
+  /* std::cout<<"event number:    "<< iEvent.id().event() << std::endl;
   if(iEvent.id().event()==60832475 ||
      iEvent.id().event()==83877883 ||
      iEvent.id().event()==95019701 ||
