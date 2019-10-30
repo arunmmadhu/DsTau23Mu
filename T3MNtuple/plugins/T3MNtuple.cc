@@ -317,8 +317,6 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
       TheSecondaryVertexPoint = math::XYZPoint(transVtx.position().x(), transVtx.position().y(), transVtx.position().z());
       vector<TransientTrack>::const_iterator trkIt = transVtx.refittedTracks().begin();
 
-      //      std::cout<<" refitted tracks size "<< transVtx.refittedTracks().size() << std::endl;
-    
       for(; trkIt != transVtx.refittedTracks().end(); ++ trkIt) {
       std::vector<double> irefitted_tracks_p4;
 	const Track & trkrefit = trkIt->track();
@@ -481,8 +479,6 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
       pv_cov.push_back(pvcov(i, j));
     }
   }
-
-
 
 
   Vertex_MatchedRefitPrimaryVertex_covariance.push_back(pv_cov);
@@ -680,15 +676,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   Vertex_Isolation4.push_back(isolation4);
   index++;
   }
-
-
-
-  //N_Sv = 0; // to be filled later
-  for(size_t isv = 0; isv < svs->size(); isv++) {
-    //    const Vertex & sv = (*svs)[isv];
-    //    if(abs(sv.p4().M()-0.498)<.03 && sv.tracksSize()==2)continue; // no Ks
-    //    std::cout<<"Secondary Vertex Mass  "<< sv.p4().M() << "    nSV   "<< isv <<std::endl;
-  }
+ 
   return;
 }
 
@@ -1384,16 +1372,6 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
     reco::MuonRef Muon2(muonCollection, iThreeMuon.at(1));
     reco::MuonRef Muon3(muonCollection, iThreeMuon.at(2));
 
-    //    TLorentzVector mv1,mv2,mv3;
-
-    //    mv1.SetPtEtaPhiM(Muon1->pt(), Muon1->eta(), Muon1->phi(), 0.106);
-    //    mv2.SetPtEtaPhiM(Muon2->pt(), Muon2->eta(), Muon2->phi(), 0.106);
-    //    mv3.SetPtEtaPhiM(Muon3->pt(), Muon3->eta(), Muon3->phi(), 0.106);
-
-
-    //    TrackRef track1 = Muon1->globalTrack();
-    //    TrackRef track2 = Muon2->globalTrack();
-    //    TrackRef track3 = Muon3->globalTrack();
 
 
     TrackRef track1 = Muon1->innerTrack();
