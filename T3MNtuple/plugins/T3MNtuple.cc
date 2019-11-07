@@ -55,11 +55,11 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
   doBJets_ = iConfig.getParameter<bool>("doBJets");
   doThreeMuons_=  iConfig.getParameter<bool>("doThreeMuons");
   doTwoMuonsAndTrack_= iConfig.getParameter<bool>("doTwoMuonsAndTrack");
-  MuonPtCut_ = iConfig.getParameter<double>("MuonPtCut"); //default: 2.0
-  MuonEtaCut_ = iConfig.getParameter<double>("MuonEtaCut"); //default: 2.5
+  MuonPtCut_ = iConfig.getParameter<double>("MuonPtCut"); //default: 1.0
+  MuonEtaCut_ = iConfig.getParameter<double>("MuonEtaCut"); //default: 2.4
 
-  TrackPtCut_ = iConfig.getParameter<double>("TrackPtCut"); //default: 1.5
-  TrackEtaCut_ = iConfig.getParameter<double>("TrackEtaCut"); //default: 2.5
+  TrackPtCut_ = iConfig.getParameter<double>("TrackPtCut"); //default: 1.0
+  TrackEtaCut_ = iConfig.getParameter<double>("TrackEtaCut"); //default: 2.4
 
   DataMCType DMT;
   Event_DataMC_Type=DMT.GetType(sampleType_);
@@ -84,10 +84,9 @@ T3MNtuple::~T3MNtuple()
 bool T3MNtuple::isGoodTrack(const Track &track) {
   if(track.pt()>TrackPtCut_){
     if(fabs(track.eta())<TrackEtaCut_){return true;
-      //      if(track.hitPattern().trackerLayersWithMeasurement()>5){
-      //	if(track.hitPattern().pixelLayersWithMeasurement()>1) return true;
-      //      }
-      //    }
+      if(track.hitPattern().trackerLayersWithMeasurement()>5){
+    	if(track.hitPattern().pixelLayersWithMeasurement()>1) return true;
+      }
     }
   }
   return false;
@@ -130,7 +129,6 @@ bool T3MNtuple::isGoodGenParticle(const reco::GenParticle &GenPar){
 
 
   int id = abs(GenPar.pdgId());
-  //  std::cout<<" all gens pt:    "<< GenPar.p4().Pt()<< "   id:   "<< abs(GenPar.pdgId()) << std::endl;
   if (id == PDGInfo::Ds_plus) return true;
   if (id == PDGInfo::B_plus) return true;
   if (id == PDGInfo::B_0) return true;
@@ -432,7 +430,6 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
       if(deltaR(iTransientTracks.at(0).track().eta(), iTransientTracks.at(0).track().phi(), (**itk).eta(), (**itk).phi())<0.01)continue;
       if(deltaR(iTransientTracks.at(1).track().eta(), iTransientTracks.at(1).track().phi(), (**itk).eta(), (**itk).phi())<0.01)continue;
       if(deltaR(iTransientTracks.at(2).track().eta(), iTransientTracks.at(2).track().phi(), (**itk).eta(), (**itk).phi())<0.01)continue;
-
     }
     primaryvertexTransientTracks.push_back(theB->build(**itk));
   }
@@ -451,9 +448,9 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   Vertex_RefitPVisValid.push_back(pvvertex.isValid());
   std::vector<double> iRefitprimaryVertex_Pos;
   if(FitPVOk && pvvertex.isValid()){
-    iRefitprimaryVertex_Pos.push_back(MatchedPrimaryVertex.position().x());
-    iRefitprimaryVertex_Pos.push_back(MatchedPrimaryVertex.position().y());
-    iRefitprimaryVertex_Pos.push_back(MatchedPrimaryVertex.position().z());
+    iRefitprimaryVertex_Pos.push_back(pvvertex.position().x());
+    iRefitprimaryVertex_Pos.push_back(pvvertex.position().y());
+    iRefitprimaryVertex_Pos.push_back(pvvertex.position().z());
   }
   Vertex_MatchedRefitPrimaryVertex.push_back(iRefitprimaryVertex_Pos);
 
@@ -1286,7 +1283,7 @@ T3MNtuple::fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup
     if(FitOk){
       if(transVtx.totalChiSquared() < 100){
 	//	if((mv1 + mv2).M() < phimassmin_ || (mv1 + mv2).M() > phimassmax_)   // renmove that
-	  { //----  di-muon mass constraint
+	  {
 
 	TwoMuonsTrack_idx.push_back(iTwoMuTr);
 	TwoMuonsTrack_SV_Chi2.push_back(transVtx.totalChiSquared());
@@ -1311,7 +1308,7 @@ T3MNtuple::fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup
       }
     }
   }
-  //  std::cout<<" How much returned ?? " << TwoMuonsTrack_idx.size()  << std::endl;
+
   return TwoMuonsTrack_idx.size();
 
 
@@ -1553,7 +1550,6 @@ T3MNtuple::findTwoMuonsAndTrackCandidates(const edm::Event& iEvent, const edm::E
       }
     }
   }
-  //  std::cout<<" how much to return  "<< TwoMuonsPlusTrackCollection.size() <<std::endl;
   return TwoMuonsPlusTrackCollection;
 }
 
@@ -2031,7 +2027,7 @@ void T3MNtuple::fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSet
     }
   }
 
-  //cout<<MuonLegObjects.size()<<"\t"<<n_reco<<endl;
+
 
   if(n_reco >= 3 && doMC_){
 
@@ -2046,12 +2042,10 @@ void T3MNtuple::fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSet
       const GenParticle & p = (*genParticles2)[i];
       //const Candidate * mom = p.mother();
 
-      //if(abs(p.pdgId())==13)cout<<p.status()<<" mom: "<<mom->pdgId()<<endl;
       if(p.charge()==0)continue;
       if(p.status()!=1)continue;
       if(p.p()<2.5)continue;
       if(abs(p.eta())>2.45)continue;
-      //double dpt=3*(0.6+abs(p.eta()))/100;
 
       const Candidate * mom = p.mother();
 
@@ -2110,7 +2104,7 @@ void T3MNtuple::fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSet
   mv3.SetPtEtaPhiM(t3->pt(), t3->eta(), t3->phi(), n_reco>2?0.106:0.140);
 
   if(n_reco> 2){
-    std::cout<<"Ds Tree  "<< std::endl;
+    //    std::cout<<"Ds Tree  "<< std::endl;
   //  mv1.Print();
     //  mv2.Print();
     //  mv3.Print();
@@ -2316,22 +2310,6 @@ void T3MNtuple::fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSet
     comp2d_reco[i] = muon::isGoodMuon(mu[i], muon::TM2DCompatibilityTight);
     calocomp_reco[i] = muon::caloCompatibility(mu[i]);
     segmcomp_reco[i] = muon::segmentCompatibility(mu[i]);
-    //segmcomp_0[i] = scnew(mu[i], reco::Muon::SegmentAndTrackArbitration, 0);
-    //segmcomp_1[i] = scnew(mu[i], reco::Muon::SegmentAndTrackArbitration, 1);
-    //segmcomp_2[i] = scnew(mu[i], reco::Muon::SegmentAndTrackArbitration, 2);
-    //segmcomp_3[i] = scnew(mu[i], reco::Muon::SegmentAndTrackArbitration, 3);
-    //segmcomp_4[i] = scnew(mu[i], reco::Muon::SegmentAndTrackArbitration, 4);
-    //segmcomp_5[i] = scnew(mu[i], reco::Muon::SegmentAndTrackArbitration, 5);
-    //segmcomp_6[i] = scnew(mu[i], reco::Muon::SegmentAndTrackArbitration, 6);
-    //segmcomp_7[i] = scnew(mu[i], reco::Muon::SegmentAndTrackArbitration, 7);
-
-    //if(mu[i].pt()<8 && abs(mu[i].eta())<1.2 && mu[i].isGlobalMuon()) 
-    //
-    //if(mu[i].isGlobalMuon()) {
-    //  cout<<endl<<"mu "<<i<<"  p: "<<mu[i].p()<<"  eta: "<<mu[i].eta()<<"  nOMS: "<<nOMS_reco[i]
-    //      <<"  pdgid: "<<pdgid_reco[i]<<"  momid: "<<momid_reco[i]<<endl;
-    //  cout<<"segmComp  Old: "<<segmcomp_reco[i]<<"  New: "<<scnew(mu[i], reco::Muon::SegmentAndTrackArbitration, 7)<<endl;
-    //}
     trkhp_reco[i] = mu[i].innerTrack()->quality(TrackBase::highPurity);
     pf_reco[i] = mu[i].isPFMuon();
     rpcmu_reco[i] = mu[i].isRPCMuon();
@@ -2372,7 +2350,7 @@ void T3MNtuple::fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSet
     trigmat_reco[i] = 0;
     for(size_t it = 0; it < MuonLegObjects.size(); it ++) {
       const trigger::TriggerObject & to = MuonLegObjects[it];
-      //if(i==0)cout<<"hlt  mu"<<it<<"  "<<to.id()<<" "<<to.pt()<<" "<<to.eta()<<" "<<to.phi()<<endl;
+
       if(deltaR(eta_reco[i], phi_reco[i], to.eta(), to.phi())<0.03 && abs(pt_reco[i]-to.pt())/pt_reco[i]<0.1)trigmat_reco[i] = to.id();  // was 0.05 and 0.3
     } 
 
@@ -2589,7 +2567,6 @@ void T3MNtuple::fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSet
       pv2_nC = pv2_tC/pv2.degreesOfFreedom();
     }
   }
-  //cout<<pv0.x()-pv1.position().x()<<"  "<<pv0.y()-pv1.position().y()<<"  "<<pv0.z()-pv1.position().z()<<"  "<<endl;
 
   Vertex pvv = pv0;  // the final PV
   if(pv1.isValid()) pvv = Vertex(pv1);
