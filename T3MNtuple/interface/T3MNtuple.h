@@ -144,6 +144,8 @@ private:
   bool isGoodGenParticle(const reco::GenParticle &GenPar);
   bool SkipThisParticle(const reco::GenParticle &GenPar);
   std::vector<const reco::GenParticle* > TauDecayProducts(const reco::GenParticle *Tau);
+  std::vector<int> SortByPt(std::vector<TLorentzVector> invec);
+
 
   double /*filterbadGlbMuon*/ gen_flavor, nmu_mom, hlt_doublemu4_lmnrt, hlt_doublemu3_tau3mu, l1_triplemu0, l1_doublemu0,
     prescale_triplemu0, prescale_doublemu_10_0, prescale_doublemu0_eta1p6,
@@ -215,6 +217,8 @@ private:
   //=======  Muons ===
   std::vector<std::vector<double> > Muon_p4;
   std::vector<std::vector<double> > Muon_Poca;
+
+
   std::vector<bool> Muon_isGlobalMuon;
   std::vector<bool> Muon_isStandAloneMuon;
   std::vector<bool> Muon_isTrackerMuon;
@@ -354,6 +358,7 @@ private:
   bool MC_isReco;
   // Signal particles Ds, B0, Bp
   std::vector<std::vector<double> > MCSignalParticle_p4;
+  std::vector<std::vector<double> > MCSignalParticle_Vertex;
   std::vector<int> MCSignalParticle_pdgid;
   std::vector<std::vector<int> > MCSignalParticle_childpdgid;
   std::vector<std::vector<std::vector<double> > > MCSignalParticle_childp4;
@@ -425,9 +430,22 @@ private:
   std::vector<std::vector<float> > Vertex_Isolation3;
   std::vector<std::vector<float> > Vertex_Isolation4;
 
+  std::vector<std::vector<std::vector<double> > > IsolationBranch_Trackp4;
 
 
+  std::vector<std::vector<std::vector<double> > > IsolationTrack_p4;
+  std::vector<std::vector<double> > IsolationTrack_charge;
+  std::vector<std::vector<double> > IsolationTrack_quality;
 
+  std::vector<std::vector<double> > IsolationTrack_dxySV;
+  std::vector<std::vector<double> > IsolationTrack_dzSV;
+
+  std::vector<std::vector<double> > IsolationTrack_dxyPV;
+  std::vector<std::vector<double> > IsolationTrack_dzPV;
+
+  std::vector<std::vector<double> > IsolationTrack_DocaMu1;
+  std::vector<std::vector<double> > IsolationTrack_DocaMu2;
+  std::vector<std::vector<double> > IsolationTrack_DocaMu3;
 
   std::vector<string>  Trigger_l1name;
   std::vector<int> Trigger_l1decision;
@@ -435,6 +453,11 @@ private:
 
   std::vector<string>  Trigger_hltname;
   std::vector<int> Trigger_hltdecision;
+
+  std::vector<std::vector<double> > SV_pos;
+  std::vector<double> SV_Mass;
+  std::vector<std::vector<double> >   SV_PosCovariance;
+  std::vector<std::vector<std::vector<double> > >  SV_Track_P4;
 
 
 

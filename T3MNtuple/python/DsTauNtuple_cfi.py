@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 T3MTree = cms.EDAnalyzer('T3MNtuple',
                          mid = cms.int32(15),
-                         MuonPtCut = cms.double(1.0),
+                         MuonPtCut = cms.double(2.0),
                          MuonEtaCut = cms.double(2.4),
                          TrackPtCut = cms.double(1.0),
                          TrackEtaCut = cms.double(2.4),
@@ -13,14 +13,14 @@ T3MTree = cms.EDAnalyzer('T3MNtuple',
                          doTracks = cms.bool(True), # do fillTracks
                          doMuons = cms.bool(True), # do fillMuons
                          do3mutuple = cms.bool(True),
-                         doMC = cms.bool(False),  # Set in other instance, here only for local tests
+                         doMC = cms.bool(True),  # Set in other instance, here only for local tests
                          doFullMC = cms.bool(False),   # Set in other instance, here only for local tests
                          doL1 = cms.bool(True),
                          doBJets = cms.bool(False),
                          doThreeMuons = cms.bool(True),
                          doTwoMuonsAndTrack = cms.bool(True),
                          TriggerMuonMatchingdr = cms.untracked.double(0.3),
-                         DataMCType    = cms.untracked.string("ds_phipi"), #Defaut: data. Have a look at src/DataMCType.cc for available types   Set in other instance, here only for local tests
+                         DataMCType    = cms.untracked.string("ds_tau"), #Defaut: data. Have a look at src/DataMCType.cc for available types   Set in other instance, here only for local tests
                          muons = cms.InputTag("muons"),
                          pvs = cms.InputTag("offlinePrimaryVertices"),
                          svs = cms.InputTag("inclusiveSecondaryVertices"),
