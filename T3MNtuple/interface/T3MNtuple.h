@@ -357,20 +357,20 @@ private:
   std::vector<int> MC_status;
   bool MC_isReco;
   // Signal particles Ds, B0, Bp
-  std::vector<std::vector<double> > MCSignalParticle_p4;
-  std::vector<std::vector<double> > MCSignalParticle_Vertex;
+  std::vector<std::vector<float> > MCSignalParticle_p4;
+  std::vector<std::vector<float> > MCSignalParticle_Vertex;
   std::vector<int> MCSignalParticle_pdgid;
   std::vector<std::vector<int> > MCSignalParticle_childpdgid;
-  std::vector<std::vector<std::vector<double> > > MCSignalParticle_childp4;
+  std::vector<std::vector<std::vector<float> > > MCSignalParticle_childp4;
   std::vector<std::vector<int> > MCSignalParticle_Sourcepdgid;
-  std::vector<std::vector<std::vector<double> > > MCSignalParticle_Sourcep4;
+  std::vector<std::vector<std::vector<float> > > MCSignalParticle_Sourcep4;
   std::vector<int> MCSignalParticle_charge;
-  std::vector<std::vector<double> > MCSignalParticle_Poca;
+  std::vector<std::vector<float> > MCSignalParticle_Poca;
   std::vector<std::vector<unsigned int> > MCSignalParticle_Tauidx;
 
   // MC Tau Info
-  std::vector<std::vector<std::vector<double> > > MCTauandProd_p4;
-  std::vector<std::vector<std::vector<double> > > MCTauandProd_Vertex;
+  std::vector<std::vector<std::vector<float> > > MCTauandProd_p4;
+  std::vector<std::vector<std::vector<float> > > MCTauandProd_Vertex;
   std::vector<std::vector<int> > MCTauandProd_pdgid;
   std::vector<unsigned int>  MCTauandProd_midx;
   std::vector<std::vector<int> > MCTauandProd_charge;
@@ -430,22 +430,22 @@ private:
   std::vector<std::vector<float> > Vertex_Isolation3;
   std::vector<std::vector<float> > Vertex_Isolation4;
 
-  std::vector<std::vector<std::vector<double> > > IsolationBranch_Trackp4;
+  std::vector<std::vector<std::vector<float> > > IsolationBranch_Trackp4;
 
 
-  std::vector<std::vector<std::vector<double> > > IsolationTrack_p4;
-  std::vector<std::vector<double> > IsolationTrack_charge;
-  std::vector<std::vector<double> > IsolationTrack_quality;
+  std::vector<std::vector<std::vector<float> > > IsolationTrack_p4;
+  std::vector<std::vector<int> > IsolationTrack_charge;
+  std::vector<std::vector<float> > IsolationTrack_quality;
 
-  std::vector<std::vector<double> > IsolationTrack_dxySV;
-  std::vector<std::vector<double> > IsolationTrack_dzSV;
+  std::vector<std::vector<float> > IsolationTrack_dxySV;
+  std::vector<std::vector<float> > IsolationTrack_dzSV;
 
-  std::vector<std::vector<double> > IsolationTrack_dxyPV;
-  std::vector<std::vector<double> > IsolationTrack_dzPV;
+  std::vector<std::vector<float> > IsolationTrack_dxyPV;
+  std::vector<std::vector<float> > IsolationTrack_dzPV;
 
-  std::vector<std::vector<double> > IsolationTrack_DocaMu1;
-  std::vector<std::vector<double> > IsolationTrack_DocaMu2;
-  std::vector<std::vector<double> > IsolationTrack_DocaMu3;
+  std::vector<std::vector<float> > IsolationTrack_DocaMu1;
+  std::vector<std::vector<float> > IsolationTrack_DocaMu2;
+  std::vector<std::vector<float> > IsolationTrack_DocaMu3;
 
   std::vector<string>  Trigger_l1name;
   std::vector<int> Trigger_l1decision;
@@ -454,10 +454,10 @@ private:
   std::vector<string>  Trigger_hltname;
   std::vector<int> Trigger_hltdecision;
 
-  std::vector<std::vector<double> > SV_pos;
-  std::vector<double> SV_Mass;
-  std::vector<std::vector<double> >   SV_PosCovariance;
-  std::vector<std::vector<std::vector<double> > >  SV_Track_P4;
+  std::vector<std::vector<float> > SV_pos;
+  std::vector<float> SV_Mass;
+  std::vector<std::vector<float> >   SV_PosCovariance;
+  std::vector<std::vector<std::vector<float> > >  SV_Track_P4;
 
 
 

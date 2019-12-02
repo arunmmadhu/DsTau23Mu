@@ -17,7 +17,7 @@ double T3MNtuple::MuonPtCut_(-1.);
 double T3MNtuple::MuonEtaCut_(999);
 double T3MNtuple::TrackPtCut_(-1.);
 double T3MNtuple::TrackEtaCut_(999);
-double T3MNtuple::phimassmin_(1.4);
+double T3MNtuple::phimassmin_(1.7);
 double T3MNtuple::phimassmax_(3.0);
 
 
@@ -587,7 +587,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   //    Here fill the isolation
 
   
-  IsolationBranch_Trackp4.push_back(std::vector<std::vector<double> >());
+  IsolationBranch_Trackp4.push_back(std::vector<std::vector<float> >());
 
 
   for(Vertex::trackRef_iterator itk = MatchedPrimaryVertex.tracks_begin(); itk != MatchedPrimaryVertex.tracks_end(); itk++) {
@@ -595,7 +595,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
     if(deltaR(iTransientTracks.at(1).track().eta(), iTransientTracks.at(1).track().phi(), (**itk).eta(), (**itk).phi())<0.01)continue;
     if(deltaR(iTransientTracks.at(2).track().eta(), iTransientTracks.at(2).track().phi(), (**itk).eta(), (**itk).phi())<0.01)continue;
  
-    std::vector<double> iIsolationBranch_Track_p4;
+    std::vector<float> iIsolationBranch_Track_p4;
 
     iIsolationBranch_Track_p4.push_back(sqrt(pow((**itk).p(),2.0) + pow(PDGInfo::pi_mass(),2.0)));
     iIsolationBranch_Track_p4.push_back((**itk).px());
@@ -641,17 +641,17 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   std::vector<int> sortedindices = SortByPt(MuLVs);
 
   
-  IsolationTrack_p4.push_back(std::vector<std::vector<double> >());
-  std::vector<double > iIsolationTrack_dxySV;
-  std::vector<double > iIsolationTrack_dzSV;
+  IsolationTrack_p4.push_back(std::vector<std::vector<float> >());
+  std::vector<float> iIsolationTrack_dxySV;
+  std::vector<float> iIsolationTrack_dzSV;
+  std::vector<float> iIsolationTrack_dxyPV;
+  std::vector<float> iIsolationTrack_dzPV;
+  std::vector<float> iIsolationTrack_DocaMu1;
+  std::vector<float> iIsolationTrack_DocaMu2;
+  std::vector<float> iIsolationTrack_DocaMu3;
+  std::vector<int>   iIsolationTrack_charge;
 
-  std::vector<double > iIsolationTrack_dxyPV;
-  std::vector<double > iIsolationTrack_dzPV;
-  std::vector<double > iIsolationTrack_DocaMu1;
-  std::vector<double > iIsolationTrack_DocaMu2;
-  std::vector<double > iIsolationTrack_DocaMu3;
-  std::vector<double > iIsolationTrack_charge;
-
+  //  std::cout<<" track size  "<< trackCollection->size() << std::endl;
   for(size_t i = 0; i < trackCollection->size(); i++) {
     const Track & t = (*trackCollection)[i];
 
@@ -661,10 +661,10 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
     if(deltaR(LV2.Eta(), LV2.Phi(), t.eta(), t.phi())<0.01)continue;
     if(deltaR(LV3.Eta(), LV3.Phi(), t.eta(), t.phi())<0.01)continue;
 
+    if(abs(t.dz(pvPoint))< 0.5 && t.quality(TrackBase::tight) && sqrt(t.px()*t.px() + t.py()*t.py() ) > 0.8){
 
-    if(abs(t.dz(pvPoint))< 1 && t.quality(TrackBase::tight)){
-
-      std::vector<double> iIsolation_Track_p4;
+      //      std::cout<<"pT:  "<< sqrt(t.px()*t.px() + t.py()*t.py() ) << std::endl;
+      std::vector<float> iIsolation_Track_p4;
 
       iIsolation_Track_p4.push_back(sqrt(pow(t.p(),2.0) + pow(PDGInfo::pi_mass(),2.0)));
       iIsolation_Track_p4.push_back(t.px());
@@ -819,15 +819,15 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   
   for(size_t isv = 0; isv < svs->size(); isv++) {
     const Vertex & sv = (*svs)[isv];
-    SV_Track_P4.push_back(std::vector<std::vector<double> >());
-    std::vector<double> iSV_pos;
+    SV_Track_P4.push_back(std::vector<std::vector<float> >());
+    std::vector<float> iSV_pos;
     iSV_pos.push_back(sv.x());
     iSV_pos.push_back(sv.y());
     iSV_pos.push_back(sv.z());
     SV_pos.push_back(iSV_pos);
     SV_Mass.push_back(sv.p4().M());
 
-    TMatrixTSym<double> sv_cov(LorentzVectorParticle::NVertex);
+    TMatrixTSym<float> sv_cov(LorentzVectorParticle::NVertex);
 
     math::Error<3>::type sv_Cov;
     sv.fill(sv_Cov);
@@ -839,7 +839,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
       }
     }
 
-    std::vector<double>  sv_covariance;
+    std::vector<float>  sv_covariance;
     for (int i = 0; i < LorentzVectorParticle::NVertex; i++) {
       for (int j = i; j < LorentzVectorParticle::NVertex; j++) {
 	sv_covariance.push_back(sv_cov(i, j));
@@ -847,7 +847,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
     }
     SV_PosCovariance.push_back(sv_covariance);
     for(Vertex::trackRef_iterator itk = sv.tracks_begin(); itk != sv.tracks_end(); itk++) {
-      std::vector<double>  iSV_TrackP4;
+      std::vector<float>  iSV_TrackP4;
       iSV_TrackP4.push_back(sqrt(pow((**itk).p(),2.0) + pow(PDGInfo::pi_mass(),2.0)));
       iSV_TrackP4.push_back((**itk).px());
       iSV_TrackP4.push_back((**itk).py());
@@ -1249,7 +1249,7 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	for (int i = 0; i < trackparticle.NParameters(); i++) {
 	  Muon_par.at(ntp).push_back(trackparticle.Parameter(i));
 	  for (int j = i; j < trackparticle.NParameters(); j++) {
-	    Muon_cov.at(ntp).push_back(trackparticle.Covariance(i, j));
+	    //	    Muon_cov.at(ntp).push_back(trackparticle.Covariance(i, j)); // comment out to keep sizee low, this is unused variable
 	  }
 	}
       } else {
@@ -1319,21 +1319,21 @@ T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       for (reco::GenParticleCollection::const_iterator itr = genParticles->begin(); itr != genParticles->end(); ++itr) {
 	if (DMT.isSignalParticle(itr->pdgId())) {
 	  MCSignalParticle_childpdgid.push_back(std::vector<int>());
-	  MCSignalParticle_childp4.push_back(std::vector<std::vector<double> >());
+	  MCSignalParticle_childp4.push_back(std::vector<std::vector<float> >());
 	  MCSignalParticle_Sourcepdgid.push_back(std::vector<int>());
-	  MCSignalParticle_Sourcep4.push_back(std::vector<std::vector<double> >());
+	  MCSignalParticle_Sourcep4.push_back(std::vector<std::vector<float> >());
 	  MCSignalParticle_pdgid.push_back(itr->pdgId());
 	  MCSignalParticle_charge.push_back(itr->charge());
 	  MCSignalParticle_Tauidx.push_back(std::vector<unsigned int>());
 	
-	  std::vector<double> iSig_p4;
+	  std::vector<float> iSig_p4;
 	  iSig_p4.push_back(itr->p4().E());
 	  iSig_p4.push_back(itr->p4().Px());
 	  iSig_p4.push_back(itr->p4().Py());
 	  iSig_p4.push_back(itr->p4().Pz());
 	  MCSignalParticle_p4.push_back(iSig_p4);
 
-	  std::vector<double> iSig_Vertex;
+	  std::vector<float> iSig_Vertex;
 	  iSig_Vertex.push_back(itr->vx());
 	  iSig_Vertex.push_back(itr->vy());
 	  iSig_Vertex.push_back(itr->vz());
@@ -1341,7 +1341,7 @@ T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	  for (unsigned int i = 0; i < itr->numberOfMothers(); i++){
 	    const reco::Candidate *mot = itr->mother(i);
-	    std::vector<double> iSourcep4;
+	    std::vector<float> iSourcep4;
 	    iSourcep4.push_back(mot->p4().E());
 	    iSourcep4.push_back(mot->p4().Px());
 	    iSourcep4.push_back(mot->p4().Py());
@@ -1354,7 +1354,7 @@ T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  // look for daughter tau
 	  for (unsigned int i = 0; i < itr->numberOfDaughters(); i++){
 	    const reco::Candidate *dau = itr->daughter(i);
-	    std::vector<double> ichildp4;
+	    std::vector<float> ichildp4;
 	    ichildp4.push_back(dau->p4().E());
 	    ichildp4.push_back(dau->p4().Px());
 	    ichildp4.push_back(dau->p4().Py());
@@ -1370,11 +1370,11 @@ T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      MCTauandProd_midx.push_back(k);
 	      MCTauandProd_pdgid.push_back(std::vector<int>());
 	      MCTauandProd_charge.push_back(std::vector<int>());
-	      MCTauandProd_p4.push_back(std::vector<std::vector<double> >());
+	      MCTauandProd_p4.push_back(std::vector<std::vector<float> >());
 	      for (unsigned int i = 0; i < TauProducts.size(); i++) {
 		MCTauandProd_pdgid.at(tauidx).push_back(TauProducts.at(i)->pdgId());
 		MCTauandProd_charge.at(tauidx).push_back(TauProducts.at(i)->charge());
-		std::vector<double> iTauandProd_p4;
+		std::vector<float> iTauandProd_p4;
 		iTauandProd_p4.push_back(TauProducts.at(i)->p4().E());
 		iTauandProd_p4.push_back(TauProducts.at(i)->p4().Px());
 		iTauandProd_p4.push_back(TauProducts.at(i)->p4().Py());
@@ -1441,8 +1441,6 @@ T3MNtuple::fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup
     mv1.SetPtEtaPhiM(Muon1->pt(), Muon1->eta(), Muon1->phi(), 0.106);
     mv2.SetPtEtaPhiM(Muon2->pt(), Muon2->eta(), Muon2->phi(), 0.106);
 
-
-
     TrackRef track1 = Muon1->innerTrack();
     TrackRef track2 = Muon2->innerTrack();
     TrackRef track3 = TrackRef(trackCollection, iTwoMuTr.at(2));
@@ -1466,7 +1464,7 @@ T3MNtuple::fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup
     
     if(FitOk){
       if(transVtx.totalChiSquared() < 100){
-	//	if((mv1 + mv2).M() < phimassmin_ || (mv1 + mv2).M() > phimassmax_)   // renmove that
+	if( (mv1 + mv2).M() < phimassmin_)// || (mv1 + mv2).M() > phimassmax_)   // renmove that
 	{
 	  TwoMuonsTrack_idx.push_back(iTwoMuTr);
 	  TwoMuonsTrack_SV_Chi2.push_back(transVtx.totalChiSquared());
@@ -1492,7 +1490,6 @@ T3MNtuple::fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup
   }
   
   return TwoMuonsTrack_idx.size();
-
 
 }
 
@@ -1612,7 +1609,7 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  for (int i = 0; i < signalTau.NParameters(); i++) {
 	    signalTau_lvp.at(ntp).push_back(signalTau.Parameter(i));
 	    for (int j = i; j < signalTau.NParameters(); j++) {
-	      signalTau_cov.at(ntp).push_back(signalTau.Covariance(i, j));
+	      //	      signalTau_cov.at(ntp).push_back(signalTau.Covariance(i, j));// comment out to keep size low
 	    }
 	  }
 	}
@@ -1693,9 +1690,9 @@ T3MNtuple::findTwoMuonsAndTrackCandidates(const edm::Event& iEvent, const edm::E
 
 
         double dr_12 = deltaR(Muon1->eta(), Muon1->phi(), Muon2->eta(), Muon2->phi());                                                //   not far from each othe
-	if(abs(Muon1->charge() + Muon2->charge()) !=0 ) continue;
+	//	if(abs(Muon1->charge() + Muon2->charge()) !=0 ) continue;
 
-	if(dz_12 < 1.0 &&  dr_12<1.5)
+	if(dz_12 < 0.5 &&  dr_12<0.8)
 	  { // - to be checked
 	    unsigned int Track_index = 0;
 	    for (reco::TrackCollection::const_iterator iTrack = trackCollection->begin(); iTrack != trackCollection->end(); ++iTrack, Track_index++)
@@ -1709,9 +1706,9 @@ T3MNtuple::findTwoMuonsAndTrackCandidates(const edm::Event& iEvent, const edm::E
 		  double dr23 = deltaR(track.eta(), track.phi(), Muon2->eta(), Muon2->phi());
 		  double dr31 = deltaR(track.eta(), track.phi(), Muon1->eta(), Muon1->phi());
 
-		  if(dr23 > 1.5  || dr31 > 1.5 )  continue;
+		  if(dr23 > 0.8  || dr31 > 0.8 )  continue;
 		  if(dr23 < 0.01 || dr31 < 0.01)  continue;
-		  if(dz23 > 1.0  || dz31 > 1.0 )  continue;
+		  if(dz23 > 0.5  || dz31 > 0.5 )  continue;
 		  
 		  if( abs(Muon1->charge() + Muon2->charge() + track.charge())>1.1 ) continue;  // check the charge
 
@@ -1763,7 +1760,7 @@ T3MNtuple::findThreeMuonsCandidates(const edm::Event& iEvent, const edm::EventSe
 
 	double dz_12 = abs(Muon2->vz()-Muon1->vz());  //  INFN
 	double dr_12 = deltaR(Muon1->eta(), Muon1->phi(), Muon2->eta(), Muon2->phi());                                                //   not far from each other
-	if(dz_12>1.0 ||  dr_12>1.5)continue; // - to be checked  -  this is previsou req.
+	if(dz_12>0.5 ||  dr_12>0.8)continue; // - to be checked  -  this is previsou req.
 
 
 	if(j<preselected_muon_idx.size()-1){
@@ -1787,8 +1784,8 @@ T3MNtuple::findThreeMuonsCandidates(const edm::Event& iEvent, const edm::EventSe
 	    double dr_23 = deltaR(Muon3->eta(), Muon3->phi(), Muon2->eta(), Muon2->phi());
 	    double dr_31 = deltaR(Muon3->eta(), Muon3->phi(), Muon1->eta(), Muon1->phi());
 	    
-	    if(dr_23>1.5 || dr_31>1.5)continue; 
-	    if(dz_23>1.0 || dz_31>1.0)continue; 
+	    if(dr_23>0.8 || dr_31>0.8)continue; 
+	    if(dz_23>0.5 || dz_31>0.5)continue; 
 	    if(abs(Muon1->charge()+Muon2->charge()+Muon3->charge())>1.1)continue;
 	    dump_index.push_back(preselected_muon_idx.at(i));
 	    dump_index.push_back(preselected_muon_idx.at(j));
@@ -1850,7 +1847,7 @@ void T3MNtuple::fillTrigger(const edm::Event& iEvent, const edm::EventSetup& iSe
   for (size_t i_hlt = 0; i_hlt != triggerBitsH->size(); ++i_hlt)
     {
       string hltName = triggerNames.triggerName(i_hlt);
-      //      if(hltName.find("HLT_DoubleMu") != string::npos)
+      if(hltName.find("HLT_DoubleMu") != string::npos  or hltName.find("HLT_Mu") != string::npos )
 	{
 	  Trigger_hltname.push_back(hltName);
 	  Trigger_hltdecision.push_back(triggerBitsH->accept(i_hlt ));
@@ -3433,7 +3430,7 @@ T3MNtuple::beginJob()
 
 
 
-  output_tree->Branch("IsolationBranch_Trackp4", &IsolationBranch_Trackp4);
+  //  output_tree->Branch("IsolationBranch_Trackp4", &IsolationBranch_Trackp4);
 
 
 
