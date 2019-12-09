@@ -364,6 +364,7 @@ private:
   std::vector<std::vector<std::vector<float> > > MCSignalParticle_childp4;
   std::vector<std::vector<int> > MCSignalParticle_Sourcepdgid;
   std::vector<std::vector<std::vector<float> > > MCSignalParticle_Sourcep4;
+  std::vector<std::vector<float> >  MCSignalParticle_SourceVertex;
   std::vector<int> MCSignalParticle_charge;
   std::vector<std::vector<float> > MCSignalParticle_Poca;
   std::vector<std::vector<unsigned int> > MCSignalParticle_Tauidx;
@@ -415,12 +416,16 @@ private:
   std::vector<std::vector<double > > Vertex_pair_quality;
   double Vertex_N_primary;
   std::vector<std::vector<double > > Vertex_MatchedPrimaryVertex;
+  std::vector<std::vector<double > > Vertex_SecondBestPrimaryVertex;
 
   std::vector<bool>  Vertex_RefitPVisValid;
   std::vector<std::vector<double> > Vertex_MatchedRefitPrimaryVertex;
   std::vector<std::vector<double> > Vertex_MatchedRefitPrimaryVertex_covariance;
   std::vector<std::vector<double> > Vertex_d0_reco;
+  std::vector<std::vector<double> > Vertex_dz_reco;
   std::vector<std::vector<double> > Vertex_d0sig_reco;
+  std::vector<std::vector<double> > Vertex_d0BeamSpot_reco;
+  std::vector<std::vector<double> > Vertex_d0BeamSpot_reco_sig;
 
   std::vector<std::vector<double> > Vertex_2Ddisplacement;
   std::vector<std::vector<double> > Vertex_3Ddisplacement;
@@ -456,7 +461,8 @@ private:
 
   std::vector<std::vector<float> > SV_pos;
   std::vector<float> SV_Mass;
-  std::vector<std::vector<float> >   SV_PosCovariance;
+  std::vector<std::vector<int> > SV_TrackCharge;
+  std::vector<std::vector<float> > SV_PosCovariance;
   std::vector<std::vector<std::vector<float> > >  SV_Track_P4;
 
 
