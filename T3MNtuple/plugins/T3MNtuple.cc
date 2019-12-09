@@ -463,7 +463,6 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   dump_pv_index_to_fill.push_back(primaryvertex_index);
 
 
-
   std::vector<double>  iprimaryVertex_Pos;
   iprimaryVertex_Pos.push_back(MatchedPrimaryVertex.x());
   iprimaryVertex_Pos.push_back(MatchedPrimaryVertex.y());
@@ -483,7 +482,6 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
 
   const Vertex & SecondBestPrimaryVertex = (*pvs)[secondbest_primaryvertex_index];
-  //  std::cout<<" dz  "<< SecondBestPrimaryVertex.z()  - MatchedPrimaryVertex.z() << std::endl;
   std::vector<double> iSecondBestprimaryVertex_Pos;
 
   iSecondBestprimaryVertex_Pos.push_back(SecondBestPrimaryVertex.x());
@@ -545,11 +543,10 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
   Vertex final_pv = MatchedPrimaryVertex;  
   if(pvvertex.isValid()) final_pv = Vertex(pvvertex);
+
   math::XYZPoint pvPoint = math::XYZPoint(final_pv.x(), final_pv.y(), final_pv.z());
   math::XYZPoint bsPoint = math::XYZPoint(beamSpotHandle->position().x(), beamSpotHandle->position().y(), beamSpotHandle->position().z());
 
-
-  //  std::cout<<"reco  "<< final_pv.z() << std::endl;
 
 
   std::vector<double> iVertex_d0BeamSpot_reco;
@@ -581,7 +578,20 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
   Vertex_d0BeamSpot_reco_sig.push_back(iVertex_d0BeamSpot_reco_sig);
 
-  //double 
+
+  std::vector<double> iVertex_d0SV_reco;
+  iVertex_d0SV_reco.push_back(abs(iTransientTracks.at(0).track().dxy(TheSecondaryVertexPoint)));
+  iVertex_d0SV_reco.push_back(abs(iTransientTracks.at(1).track().dxy(TheSecondaryVertexPoint)));
+  iVertex_d0SV_reco.push_back(abs(iTransientTracks.at(2).track().dxy(TheSecondaryVertexPoint)));
+  Vertex_d0SV_reco.push_back(iVertex_d0SV_reco);
+
+
+  std::vector<double> iVertex_dzSV_reco;
+  iVertex_dzSV_reco.push_back(abs(iTransientTracks.at(0).track().dz(TheSecondaryVertexPoint)));
+  iVertex_dzSV_reco.push_back(abs(iTransientTracks.at(1).track().dz(TheSecondaryVertexPoint)));
+  iVertex_dzSV_reco.push_back(abs(iTransientTracks.at(2).track().dz(TheSecondaryVertexPoint)));
+  Vertex_dzSV_reco.push_back(iVertex_dzSV_reco);
+
 
 
   std::vector<double> iVertex_d0_reco;
@@ -619,6 +629,11 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   std::pair<bool, Measurement1D> ip2d_3 = IPTools::signedTransverseImpactParameter(iTransientTracks.at(2), dir3, final_pv);
 
 
+  std::pair<bool, Measurement1D> ip2dSV_1 = IPTools::signedTransverseImpactParameter(iTransientTracks.at(0), dir1, transVtx);
+  std::pair<bool, Measurement1D> ip2dSV_2 = IPTools::signedTransverseImpactParameter(iTransientTracks.at(1), dir2, transVtx);
+  std::pair<bool, Measurement1D> ip2dSV_3 = IPTools::signedTransverseImpactParameter(iTransientTracks.at(2), dir3, transVtx);
+
+
   //  std::pair<bool, Measurement1D> ipBS2d_1 = IPTools::signedTransverseImpactParameter(iTransientTracks.at(0), dir1, );
   //  std::pair<bool, Measurement1D> ipBS2d_2 = IPTools::signedTransverseImpactParameter(iTransientTracks.at(1), dir2, final_pv);
   //  std::pair<bool, Measurement1D> ipBS2d_3 = IPTools::signedTransverseImpactParameter(iTransientTracks.at(2), dir3, final_pv);
@@ -629,6 +644,14 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   if(ip2d_2.first){ iVertex_d0sig_reco.push_back(abs(ip2d_2.second.value()/ip2d_2.second.error()));} else{iVertex_d0sig_reco.push_back(-1);}
   if(ip2d_3.first){ iVertex_d0sig_reco.push_back(abs(ip2d_3.second.value()/ip2d_3.second.error()));} else{iVertex_d0sig_reco.push_back(-1);}
   Vertex_d0sig_reco.push_back(iVertex_d0sig_reco);
+
+
+
+  std::vector<double> iVertex_d0sigSV_reco;
+  if(ip2dSV_1.first){ iVertex_d0sigSV_reco.push_back(abs(ip2dSV_1.second.value()/ip2dSV_1.second.error()));} else{iVertex_d0sigSV_reco.push_back(-1);}
+  if(ip2dSV_2.first){ iVertex_d0sigSV_reco.push_back(abs(ip2dSV_2.second.value()/ip2dSV_2.second.error()));} else{iVertex_d0sigSV_reco.push_back(-1);}
+  if(ip2dSV_3.first){ iVertex_d0sigSV_reco.push_back(abs(ip2dSV_3.second.value()/ip2dSV_3.second.error()));} else{iVertex_d0sigSV_reco.push_back(-1);}
+  Vertex_d0sigSV_reco.push_back(iVertex_d0sigSV_reco);
 
 
   TVector3 dv2D_reco(-final_pv.position().x() + TheSecondaryVertexPoint.x(), -final_pv.position().y() + TheSecondaryVertexPoint.y(), 0);
@@ -674,10 +697,8 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
     iIsolationBranch_Track_p4.push_back((**itk).pz());
 
     IsolationBranch_Trackp4.at(IsolationBranch_Trackp4.size() - 1).push_back(iIsolationBranch_Track_p4);
-    //   std::cout<<"   dz of tracks from PV  "<< (**itk).dz(pvPoint)<< std::endl;
   }
   
-  //  std::cout<<" temp vector size   "<< TempVector.size() << "  IsolationBrnach     "<< IsolationBranch_Trackp4.size()<< std::endl;
 
   //  former Isolation
   float minmuon_pt(999.), maxmuon_dr(0.);
@@ -722,7 +743,6 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   std::vector<float> iIsolationTrack_DocaMu3;
   std::vector<int>   iIsolationTrack_charge;
 
-  //  std::cout<<" track size  "<< trackCollection->size() << std::endl;
   for(size_t i = 0; i < trackCollection->size(); i++) {
     const Track & t = (*trackCollection)[i];
 
@@ -732,14 +752,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
     if(deltaR(LV2.Eta(), LV2.Phi(), t.eta(), t.phi())<0.01)continue;
     if(deltaR(LV3.Eta(), LV3.Phi(), t.eta(), t.phi())<0.01)continue;
 
-    //    std::cout<<"max muon dr  "<< maxmuon_dr << "    "<< deltaR(LV1.Eta(), LV1.Phi(), t.eta(), t.phi()) <<"  "<<deltaR(LV2.Eta(), LV2.Phi(), t.eta(), t.phi())<<"   "<<
-    //      deltaR(LV3.Eta(), LV3.Phi(), t.eta(), t.phi()) << std::endl;
-
-
-    //    if(abs(t.dz(pvPoint))< 0.5 && t.quality(TrackBase::tight) && sqrt(t.px()*t.px() + t.py()*t.py() ) > 0.8  && deltaR(t.eta(), t.phi(), LVTau.Eta(), LVTau.Phi()) < 1.){
     if(abs(t.dz(pvPoint))< 0.5 && t.quality(TrackBase::tight) && sqrt(t.px()*t.px() + t.py()*t.py() ) > 0.8  && deltaR(t.eta(), t.phi(), LVTau.Eta(), LVTau.Phi()) < 1.){
-
-      //      std::cout<<"pT:  "<< sqrt(t.px()*t.px() + t.py()*t.py() ) << std::endl;
       std::vector<float> iIsolation_Track_p4;
 
       iIsolation_Track_p4.push_back(sqrt(pow(t.p(),2.0) + pow(PDGInfo::pi_mass(),2.0)));
@@ -853,9 +866,6 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   IsolationTrack_DocaMu3.push_back(iIsolationTrack_DocaMu3);
   IsolationTrack_charge.push_back(iIsolationTrack_charge);
 
-
-
-
   relative_iso = sumptalltracks/LVTau.Pt();
   relative_iso05 = sumptalltracks05/LVTau.Pt();
   relative_mu1_iso = pt_trk_1/LV1.Pt(); relative_mu2_iso = pt_trk_2/LV2.Pt(); relative_mu3_iso = pt_trk_3/LV3.Pt();
@@ -937,7 +947,6 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
     }
     SV_TrackCharge.push_back(iSV_Trackcharge);
   }
-
   
   return;
 }
@@ -3525,10 +3534,13 @@ T3MNtuple::beginJob()
   output_tree->Branch("Vertex_MatchedRefitPrimaryVertex",&Vertex_MatchedRefitPrimaryVertex);
   output_tree->Branch("Vertex_MatchedRefitPrimaryVertex_covariance",&Vertex_MatchedRefitPrimaryVertex_covariance);
   output_tree->Branch("Vertex_d0_reco",&Vertex_d0_reco);
+  output_tree->Branch("Vertex_dz_reco",&Vertex_dz_reco);
+  output_tree->Branch("Vertex_d0SV_reco",&Vertex_d0SV_reco);
+  output_tree->Branch("Vertex_dzSV_reco",&Vertex_dzSV_reco);
   output_tree->Branch("Vertex_d0BeamSpot_reco",&Vertex_d0BeamSpot_reco);
   output_tree->Branch("Vertex_d0BeamSpot_reco_sig",&Vertex_d0BeamSpot_reco_sig);
-  output_tree->Branch("Vertex_dz_reco",&Vertex_dz_reco);
   output_tree->Branch("Vertex_d0sig_reco",&Vertex_d0sig_reco);
+  output_tree->Branch("Vertex_d0sigSV_reco",&Vertex_d0sigSV_reco);
   output_tree->Branch("Vertex_2Ddisplacement",&Vertex_2Ddisplacement);
   output_tree->Branch("Vertex_3Ddisplacement",&Vertex_3Ddisplacement);
   output_tree->Branch("Vertex_Isolation1",&Vertex_Isolation1);
@@ -3852,7 +3864,10 @@ void T3MNtuple::ClearEvent() {
   Vertex_MatchedRefitPrimaryVertex_covariance.clear();
   Vertex_d0_reco.clear();
   Vertex_dz_reco.clear();
+  Vertex_d0SV_reco.clear();
+  Vertex_dzSV_reco.clear();
   Vertex_d0sig_reco.clear();
+  Vertex_d0sigSV_reco.clear();
   Vertex_d0BeamSpot_reco.clear();
   Vertex_d0BeamSpot_reco_sig.clear();
   Vertex_2Ddisplacement.clear();

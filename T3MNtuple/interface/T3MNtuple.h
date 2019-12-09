@@ -423,7 +423,10 @@ private:
   std::vector<std::vector<double> > Vertex_MatchedRefitPrimaryVertex_covariance;
   std::vector<std::vector<double> > Vertex_d0_reco;
   std::vector<std::vector<double> > Vertex_dz_reco;
+  std::vector<std::vector<double> > Vertex_d0SV_reco;
+  std::vector<std::vector<double> > Vertex_dzSV_reco;
   std::vector<std::vector<double> > Vertex_d0sig_reco;
+  std::vector<std::vector<double> > Vertex_d0sigSV_reco;
   std::vector<std::vector<double> > Vertex_d0BeamSpot_reco;
   std::vector<std::vector<double> > Vertex_d0BeamSpot_reco_sig;
 
