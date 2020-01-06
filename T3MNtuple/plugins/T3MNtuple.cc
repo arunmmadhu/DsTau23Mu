@@ -297,6 +297,9 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
       particles_p4.push_back(iparticle_p4);
     }
   }
+
+
+
   unsigned int index(0);
   for ( auto &iTransientTracks :  signalTracksCollection ) {
     Vertex_signal_KF_pos.push_back(std::vector<double> ());
@@ -446,8 +449,8 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   //  find here the primary vertex with the best
   //  alignement to the tri-muon 
   double dphi_pv = -1.0;
-  size_t primaryvertex_index;
-  for(size_t vertex_index = 0; vertex_index  < pvs->size(); vertex_index++) {
+  unsigned int primaryvertex_index;
+  for(unsigned int vertex_index = 0; vertex_index  < pvs->size(); vertex_index++) {
     const Vertex & pvertex = (*pvs)[vertex_index];
     TVector3 Dv3D_reco(transVtx.position().x() - pvertex.x(), transVtx.position().y() - pvertex.y(), transVtx.position().z() - pvertex.z());
     double Cosdphi_3D = Dv3D_reco.Dot(ThreeCandidate.Vect())/(Dv3D_reco.Mag()*ThreeCandidate.Vect().Mag());
@@ -457,7 +460,6 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
     }
   }
 
-  
   const Vertex & MatchedPrimaryVertex = (*pvs)[primaryvertex_index];
   dump_pv_index_to_fill.push_back(primaryvertex_index);
 
@@ -469,9 +471,9 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   Vertex_MatchedPrimaryVertex.push_back(iprimaryVertex_Pos);
 
   double tempdz(99.);
-  size_t secondbest_primaryvertex_index;
-  for(size_t vertex_index = 0; vertex_index  < pvs->size(); vertex_index++) {
-    if(vertex_index==primaryvertex_index) continue;
+  unsigned int secondbest_primaryvertex_index;
+  for(unsigned int vertex_index = 0; vertex_index  < pvs->size(); vertex_index++) {
+    if(vertex_index == primaryvertex_index) continue;
     const Vertex & temp_pv = (*pvs)[vertex_index];
     if(fabs(temp_pv.z() -  MatchedPrimaryVertex.z()) < tempdz ){
       tempdz = fabs(temp_pv.z() -  MatchedPrimaryVertex.z());
@@ -482,11 +484,23 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
   const Vertex & SecondBestPrimaryVertex = (*pvs)[secondbest_primaryvertex_index];
   std::vector<double> iSecondBestprimaryVertex_Pos;
-
-  iSecondBestprimaryVertex_Pos.push_back(SecondBestPrimaryVertex.x());
-  iSecondBestprimaryVertex_Pos.push_back(SecondBestPrimaryVertex.y());
-  iSecondBestprimaryVertex_Pos.push_back(SecondBestPrimaryVertex.z());
+  if( pvs->size()>1){
+    iSecondBestprimaryVertex_Pos.push_back(SecondBestPrimaryVertex.x());
+    iSecondBestprimaryVertex_Pos.push_back(SecondBestPrimaryVertex.y());
+    iSecondBestprimaryVertex_Pos.push_back(SecondBestPrimaryVertex.z());
+  }else{
+    iSecondBestprimaryVertex_Pos.push_back(-99.);
+    iSecondBestprimaryVertex_Pos.push_back(-99.);
+    iSecondBestprimaryVertex_Pos.push_back(-99.);
+  }
   Vertex_SecondBestPrimaryVertex.push_back(iSecondBestprimaryVertex_Pos);
+
+
+
+
+
+
+
 
   vector<TransientTrack> primaryvertexTransientTracks;// remove muon candidates from the PV to perform refit
   for(Vertex::trackRef_iterator itk = MatchedPrimaryVertex.tracks_begin(); itk != MatchedPrimaryVertex.tracks_end(); itk++) {
@@ -501,6 +515,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   KalmanVertexFitter pv_fit(true);
   bool FitPVOk(true);
   TransientVertex pvvertex;
+
   if(primaryvertexTransientTracks.size() >1){
     try {
       pvvertex =  pv_fit.vertex(primaryvertexTransientTracks);
@@ -556,7 +571,6 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
 
   std::vector<double> iVertex_d0BeamSpot_reco_sig;
-
   double d0ErrorToBs_1  = sqrt( iTransientTracks.at(0).track().d0Error() * iTransientTracks.at(0).track().d0Error() +
 				0.5*  beamSpotHandle->BeamWidthX()* beamSpotHandle->BeamWidthX()+
 				0.5*  beamSpotHandle->BeamWidthY()* beamSpotHandle->BeamWidthY() );
@@ -637,7 +651,6 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   //  std::pair<bool, Measurement1D> ipBS2d_2 = IPTools::signedTransverseImpactParameter(iTransientTracks.at(1), dir2, final_pv);
   //  std::pair<bool, Measurement1D> ipBS2d_3 = IPTools::signedTransverseImpactParameter(iTransientTracks.at(2), dir3, final_pv);
 
-
   std::vector<double> iVertex_d0sig_reco;
   if(ip2d_1.first){ iVertex_d0sig_reco.push_back(abs(ip2d_1.second.value()/ip2d_1.second.error()));} else{iVertex_d0sig_reco.push_back(-1);}
   if(ip2d_2.first){ iVertex_d0sig_reco.push_back(abs(ip2d_2.second.value()/ip2d_2.second.error()));} else{iVertex_d0sig_reco.push_back(-1);}
@@ -674,7 +687,6 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   iVertex_3Ddisplacement.push_back(dist.distance(Vertex(transVtx), final_pv).significance());
   iVertex_3Ddisplacement.push_back(fv_d3D*fv_cosdphi3D*m3mu_reco/ThreeCandidate.P());
   Vertex_3Ddisplacement.push_back(iVertex_3Ddisplacement);
-  
 
 
   ///////////////////////////////////////////////////////////////
@@ -785,7 +797,6 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
       if(DocaMuon3.status()){ iIsolationTrack_DocaMu3.push_back(DocaMuon3.distance());}
       else iIsolationTrack_DocaMu3.push_back(-1);
-
     }
   //--------------------------- Isolation Branch
 
@@ -946,7 +957,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
     }
     SV_TrackCharge.push_back(iSV_Trackcharge);
   }
-  
+
   return;
 }
 
@@ -1598,7 +1609,7 @@ T3MNtuple::fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup
       }
     }
   }
-  
+ 
   return TwoMuonsTrack_idx.size();
 
 }

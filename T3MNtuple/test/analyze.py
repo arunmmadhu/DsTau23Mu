@@ -12,7 +12,7 @@ options.register('globalTag',
                  "Global Tag")
 
 options.register('nEvents',
-                 1000, #default value
+                 -1, #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Maximum number of processed events")
@@ -162,8 +162,14 @@ process.TFileService = cms.Service('TFileService',
 
 
 
+#process.source.fileNames = ['/store/data/Run2017D/DoubleMuonLowMass/AOD/17Nov2017-v1/50000/C00EBA82-B1E5-E711-AFE3-A4BF0101DBED.root']
+process.source.fileNames = ['/store/data/Run2017D/DoubleMuonLowMass/AOD/17Nov2017-v1/70000/5A3F7AD8-36E9-E711-B981-1866DA85D72E.root']
 
-process.source.fileNames = ['/store/mc/RunIIFall17DRPremix/DsToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/70000/FA2225BE-7549-E911-ADE0-3417EBE64BE8.root']
+
+#rocess.source.fileNames = ['/store/mc/RunIIFall17DRPremix/DsToPhiPi_ToMuMu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v2/40000/00F4657A-6B9D-E911-AB11-F4E9D4BC7740.root']
+
+
+#process.source.fileNames = ['/store/mc/RunIIFall17DRPremix/DsToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/70000/FA2225BE-7549-E911-ADE0-3417EBE64BE8.root']
 #                            '/store/mc/RunIIFall17DRPremix/DsToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/70000/FE77FABB-8148-E911-87C2-B026283447B0.root']
 
  
