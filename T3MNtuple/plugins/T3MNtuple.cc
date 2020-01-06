@@ -142,7 +142,8 @@ std::vector<int> T3MNtuple::SortByPt(std::vector<TLorentzVector> invec){
 
 bool T3MNtuple::AcceptedMuon(reco::MuonRef RefMuon) {
   if((RefMuon->pt() > MuonPtCut_) && (abs(RefMuon->eta()) < MuonEtaCut_)){
-    if(RefMuon->isPFMuon() &&  ( RefMuon->isGlobalMuon() || RefMuon->isTrackerMuon()))   return true;
+    if(   /*RefMuon->isPFMuon() &&*/  ( RefMuon->isGlobalMuon() || RefMuon->isTrackerMuon()))   return true;
+
 	  //if(RefMuon->innerTrack().isNonnull() && RefMuon->innerTrack()->hitPattern().numberOfValidPixelHits() > 0)      return true;
   }
   return false;
@@ -197,9 +198,8 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   if(doThreeMuons_) {
     Event_nsignal_candidates =   fillThreeMuons(iEvent, iSetup);
-    
   }
-  //  if(doTwoMuonsAndTrack_)     Event_ndsphipi_candidate = fillTwoMuonsAndTracks(iEvent, iSetup);
+  if(doTwoMuonsAndTrack_)     Event_ndsphipi_candidate = fillTwoMuonsAndTracks(iEvent, iSetup);
   //  std::cout<<"  "<< Event_nsignal_candidates << "   "<< Event_ndsphipi_candidate << std::endl;
   if(Event_nsignal_candidates!=0 or Event_ndsphipi_candidate!=0)
     {
@@ -298,7 +298,6 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
     }
   }
   unsigned int index(0);
-  ///  std::cout<<" signalTracksCollection  "<< signalTracksCollection.size() << std::endl;
   for ( auto &iTransientTracks :  signalTracksCollection ) {
     Vertex_signal_KF_pos.push_back(std::vector<double> ());
     Vertex_signal_KF_cov.push_back(std::vector<double> ());
@@ -646,7 +645,6 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   Vertex_d0sig_reco.push_back(iVertex_d0sig_reco);
 
 
-
   std::vector<double> iVertex_d0sigSV_reco;
   if(ip2dSV_1.first){ iVertex_d0sigSV_reco.push_back(abs(ip2dSV_1.second.value()/ip2dSV_1.second.error()));} else{iVertex_d0sigSV_reco.push_back(-1);}
   if(ip2dSV_2.first){ iVertex_d0sigSV_reco.push_back(abs(ip2dSV_2.second.value()/ip2dSV_2.second.error()));} else{iVertex_d0sigSV_reco.push_back(-1);}
@@ -752,6 +750,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
     if(deltaR(LV2.Eta(), LV2.Phi(), t.eta(), t.phi())<0.01)continue;
     if(deltaR(LV3.Eta(), LV3.Phi(), t.eta(), t.phi())<0.01)continue;
 
+    //    if(abs(t.dz(pvPoint))< 0.5 && t.quality(TrackBase::tight) && sqrt(t.px()*t.px() + t.py()*t.py() ) > 0.5){//  && deltaR(t.eta(), t.phi(), LVTau.Eta(), LVTau.Phi()) < 1.){
     if(abs(t.dz(pvPoint))< 0.5 && t.quality(TrackBase::tight) && sqrt(t.px()*t.px() + t.py()*t.py() ) > 0.8  && deltaR(t.eta(), t.phi(), LVTau.Eta(), LVTau.Phi()) < 1.){
       std::vector<float> iIsolation_Track_p4;
 
@@ -1488,7 +1487,7 @@ T3MNtuple::fillMCTruth(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		iTauandProd_vertex.push_back(TauProducts.at(i)->vx());
 		iTauandProd_vertex.push_back(TauProducts.at(i)->vy());
 		iTauandProd_vertex.push_back(TauProducts.at(i)->vz());
-
+		//		std::cout<<"  iTauandProd_p4   "<<iTauandProd_p4.size() << std::endl;
 		MCTauandProd_p4.at(tauidx).push_back(iTauandProd_p4);
 		MCTauandProd_Vertex.at(tauidx).push_back(iTauandProd_vertex);
 	      }
