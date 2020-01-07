@@ -471,7 +471,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   Vertex_MatchedPrimaryVertex.push_back(iprimaryVertex_Pos);
 
   double tempdz(99.);
-  unsigned int secondbest_primaryvertex_index;
+  unsigned int secondbest_primaryvertex_index(0);
   for(unsigned int vertex_index = 0; vertex_index  < pvs->size(); vertex_index++) {
     if(vertex_index == primaryvertex_index) continue;
     const Vertex & temp_pv = (*pvs)[vertex_index];
