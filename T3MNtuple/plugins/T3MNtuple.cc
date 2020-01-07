@@ -329,7 +329,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
     KalmanVertexFitter kvf(true);
     bool FitOk(true);
     try {
-      transVtx = kvf.vertex(iTransientTracks); //KalmanVertexFitter
+      transVtx = kvf.vertex(iTransientTracks); 
     } catch (...) {
       FitOk = false;
     }
@@ -497,11 +497,6 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
 
 
-
-
-
-
-
   vector<TransientTrack> primaryvertexTransientTracks;// remove muon candidates from the PV to perform refit
   for(Vertex::trackRef_iterator itk = MatchedPrimaryVertex.tracks_begin(); itk != MatchedPrimaryVertex.tracks_end(); itk++) {
     if((**itk).pt()>1) {
@@ -628,11 +623,6 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
   TLorentzVector LVTau = LV1 + LV2 + LV3;
   m3mu_reco = LVTau.M();
   
-  //  std::cout<<"  LV1  "<< LV1.Pt() << std::endl;
-  //  std::cout<<"  LV2  "<< LV2.Pt() << std::endl;
-  //  std::cout<<"  LV3  "<< LV3.Pt() << std::endl;
-
-
   GlobalVector dir1(particles_p4.at(index).at(0).at(1), particles_p4.at(index).at(0).at(2), particles_p4.at(index).at(0).at(3));
   GlobalVector dir2(particles_p4.at(index).at(1).at(1), particles_p4.at(index).at(1).at(2), particles_p4.at(index).at(1).at(3));
   GlobalVector dir3(particles_p4.at(index).at(2).at(1), particles_p4.at(index).at(2).at(2), particles_p4.at(index).at(2).at(3));
@@ -762,7 +752,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
     if(deltaR(LV2.Eta(), LV2.Phi(), t.eta(), t.phi())<0.01)continue;
     if(deltaR(LV3.Eta(), LV3.Phi(), t.eta(), t.phi())<0.01)continue;
 
-    //    if(abs(t.dz(pvPoint))< 0.5 && t.quality(TrackBase::tight) && sqrt(t.px()*t.px() + t.py()*t.py() ) > 0.5){//  && deltaR(t.eta(), t.phi(), LVTau.Eta(), LVTau.Phi()) < 1.){
+    //if(abs(t.dz(pvPoint))< 0.5 && t.quality(TrackBase::tight) && sqrt(t.px()*t.px() + t.py()*t.py() ) > 0.5){//  && deltaR(t.eta(), t.phi(), LVTau.Eta(), LVTau.Phi()) < 1.){
     if(abs(t.dz(pvPoint))< 0.5 && t.quality(TrackBase::tight) && sqrt(t.px()*t.px() + t.py()*t.py() ) > 0.8  && deltaR(t.eta(), t.phi(), LVTau.Eta(), LVTau.Phi()) < 1.){
       std::vector<float> iIsolation_Track_p4;
 
