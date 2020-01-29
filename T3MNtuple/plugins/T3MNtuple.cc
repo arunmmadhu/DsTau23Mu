@@ -142,7 +142,12 @@ std::vector<int> T3MNtuple::SortByPt(std::vector<TLorentzVector> invec){
 
 bool T3MNtuple::AcceptedMuon(reco::MuonRef RefMuon) {
   if((RefMuon->pt() > MuonPtCut_) && (abs(RefMuon->eta()) < MuonEtaCut_)){
-    if(   /*RefMuon->isPFMuon() &&*/  ( RefMuon->isGlobalMuon() || RefMuon->isTrackerMuon()))   return true;
+    //    if(   /*RefMuon->isPFMuon() &&*/  ( RefMuon->isGlobalMuon() || RefMuon->isTrackerMuon()))   return true;
+    //    if(   /*RefMuon->isPFMuon() &&*/  ( RefMuon->isGlobalMuon() || RefMuon->isTrackerMuon()) and 
+    //	  RefMuon->innerTrack().isNonnull() && RefMuon->innerTrack()->hitPattern().numberOfValidPixelHits() > 0)   return true;
+
+    if( RefMuon->innerTrack().isNonnull() && RefMuon->innerTrack()->hitPattern().numberOfValidPixelHits() > 0)   return true;
+
 
 	  //if(RefMuon->innerTrack().isNonnull() && RefMuon->innerTrack()->hitPattern().numberOfValidPixelHits() > 0)      return true;
   }
@@ -1676,7 +1681,7 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
       FitOk = false;
     
     if(transVtx.isValid()){
-      if(transVtx.totalChiSquared() < 100.)   //remove for sync
+      //      if(transVtx.totalChiSquared() < 100.)   //remove for sync
 	{ // very loose/ ndf =3
 
       int ntp = signalTau_lvp.size();
@@ -1737,6 +1742,7 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	
 	TriggerMatch(triggerSummary,  MuonTriggMatch, TriggerMuonMatchingdr_, match);
 	iTrigMatchdR.push_back(match);
+	//	std::cout<<" match  "<< match << std::endl;
 	
       }
       ThreeMuons_TriggerMatch_dR.push_back(iTrigMatchdR);
@@ -1752,6 +1758,8 @@ void T3MNtuple::TriggerMatch(edm::Handle<trigger::TriggerEvent> &triggerSummary,
   drmax = 1.;
   std::vector<trigger::TriggerObject> trgobjs = triggerSummary->getObjects();
   edm::InputTag MuonFilterTag = edm::InputTag("hltTau3muTkVertexFilter", "", "HLT"); 
+
+  //hltdstau3muDisplaced3muFltr //  the filter for 2018- Bhargav
   size_t MuonFilterIndex = (*triggerSummary).filterIndex(MuonFilterTag); 
   if(MuonFilterIndex < (*triggerSummary).sizeFilters()) {
     const trigger::Keys &KEYS = (*triggerSummary).filterKeys(MuonFilterIndex);
@@ -1871,7 +1879,7 @@ T3MNtuple::findThreeMuonsCandidates(const edm::Event& iEvent, const edm::EventSe
 
 	double dz_12 = abs(Muon2->vz()-Muon1->vz());  //  INFN
 	double dr_12 = deltaR(Muon1->eta(), Muon1->phi(), Muon2->eta(), Muon2->phi());                                                //   not far from each other
-	if(dz_12>0.5 ||  dr_12>0.8)continue; // - to be checked  -  this is previsou req.
+	//	if(dz_12>0.5 ||  dr_12>0.8)continue; // - to be checked  -  this is previsou req.
 
 
 	if(j<preselected_muon_idx.size()-1){
@@ -1895,8 +1903,8 @@ T3MNtuple::findThreeMuonsCandidates(const edm::Event& iEvent, const edm::EventSe
 	    double dr_23 = deltaR(Muon3->eta(), Muon3->phi(), Muon2->eta(), Muon2->phi());
 	    double dr_31 = deltaR(Muon3->eta(), Muon3->phi(), Muon1->eta(), Muon1->phi());
 	    
-	    if(dr_23>0.8 || dr_31>0.8)continue; 
-	    if(dz_23>0.5 || dz_31>0.5)continue; 
+	    //	    if(dr_23>0.8 || dr_31>0.8)continue; 
+	    //	    if(dz_23>0.5 || dz_31>0.5)continue; 
 	    if(abs(Muon1->charge()+Muon2->charge()+Muon3->charge())>1.1)continue;
 	    dump_index.push_back(preselected_muon_idx.at(i));
 	    dump_index.push_back(preselected_muon_idx.at(j));
