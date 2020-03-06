@@ -26,6 +26,7 @@ double T3MNtuple::phimassmax_(3.0);
 //
 T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
   TriggerMuonMatchingdr_(iConfig.getUntrackedParameter("TriggerMuonMatchingdr", (double) 0.3)),
+  WhatData_(iConfig.getUntrackedParameter<string>("WhatData","2017")),
   muonToken_(consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
   btagCvsBToken_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("btagsCvsB"))),
   btagCSVToken_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("btagsCSV"))),
@@ -44,7 +45,6 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
   gtUtil_ = new L1TGlobalUtil(iConfig, consumesCollector(), *this, algInputTag_, algInputTag_);
   doMC_ = iConfig.getParameter<bool>("doMC");
   doFullMC_ = iConfig.getParameter<bool>("doFullMC");
-  WhatData_ =  iConfig.getParameter<string>("WhatData");
   wideSB_ = iConfig.getParameter<bool>("wideSB");
   do2mu_ = iConfig.getParameter<bool>("do2mu");
   passhlt_ = iConfig.getParameter<bool>("passhlt");
@@ -211,6 +211,8 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   if(doThreeMuons_) {
     Event_nsignal_candidates =   fillThreeMuons(iEvent, iSetup);
+    cout<<"Number of signal candidates = "<<Event_nsignal_candidates<<endl;
+    cout<<"Number of dsphipi candidates = "<<Event_ndsphipi_candidate<<endl;
   }
 
   if(doTwoMuonsAndTrack_)     Event_ndsphipi_candidate = fillTwoMuonsAndTracks(iEvent, iSetup);
@@ -1816,9 +1818,7 @@ T3MNtuple::findTwoMuonsAndTrackCandidates(const edm::Event& iEvent, const edm::E
 
 	double dz_12 = abs(Muon2->vz()-Muon1->vz());  // like NFN for sync
 	// double dz_12 = abs(Muon2->innerTrack()->dz(beamSpotHandle->position())-Muon1->innerTrack()->dz(beamSpotHandle->position()));  //   Check that two muons are
-
-
-        double dr_12 = deltaR(Muon1->eta(), Muon1->phi(), Muon2->eta(), Muon2->phi());                                                //   not far from each othe
+   double dr_12 = deltaR(Muon1->eta(), Muon1->phi(), Muon2->eta(), Muon2->phi());                                                //   not far from each othe
 	// if(abs(Muon1->charge() + Muon2->charge()) !=0 ) continue;
 
 	if(dz_12 < 0.5 &&  dr_12<0.8)
