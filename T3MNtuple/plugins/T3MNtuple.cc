@@ -150,7 +150,7 @@ bool T3MNtuple::AcceptedMuon(reco::MuonRef RefMuon) {
     //    if( RefMuon->innerTrack().isNonnull() && RefMuon->innerTrack()->hitPattern().numberOfValidPixelHits() > 0)   return true;
 
 
-    if(RefMuon->innerTrack().isNonnull() && RefMuon->innerTrack()->hitPattern().numberOfValidPixelHits() > 0 && RefMuon->isPFMuon() && 
+    if(RefMuon->innerTrack().isNonnull() && RefMuon->innerTrack()->hitPattern().numberOfValidPixelHits() > 0 && 
        ( RefMuon->isGlobalMuon() || RefMuon->isTrackerMuon()))      return true;
 
 
