@@ -44,6 +44,7 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
   gtUtil_ = new L1TGlobalUtil(iConfig, consumesCollector(), *this, algInputTag_, algInputTag_);
   doMC_ = iConfig.getParameter<bool>("doMC");
   doFullMC_ = iConfig.getParameter<bool>("doFullMC");
+  WhatData_ =  iConfig.getParameter<string>("WhatData");
   wideSB_ = iConfig.getParameter<bool>("wideSB");
   do2mu_ = iConfig.getParameter<bool>("do2mu");
   passhlt_ = iConfig.getParameter<bool>("passhlt");
@@ -1763,9 +1764,12 @@ void T3MNtuple::TriggerMatch(edm::Handle<trigger::TriggerEvent> &triggerSummary,
   match = 999.;
   drmax = 1.;
   std::vector<trigger::TriggerObject> trgobjs = triggerSummary->getObjects();
-  edm::InputTag MuonFilterTag = edm::InputTag("hltTau3muTkVertexFilter", "", "HLT"); 
+  edm::InputTag MuonFilterTag;
+  if(WhatData_=="2017")  MuonFilterTag = edm::InputTag("hltTau3muTkVertexFilter", "", "HLT"); 
+  if(WhatData_=="2018")  MuonFilterTag = edm::InputTag("hltdstau3muDisplaced3muFltr", "", "HLT"); 
+  //  if(WhatData_=="Parked")  edm::InputTag MuonFilterTag = edm::InputTag("hltdstau3muDisplaced3muFltr", "", "HLT"); 
 
-  //hltdstau3muDisplaced3muFltr //  the filter for 2018- Bhargav
+
   size_t MuonFilterIndex = (*triggerSummary).filterIndex(MuonFilterTag); 
   if(MuonFilterIndex < (*triggerSummary).sizeFilters()) {
     const trigger::Keys &KEYS = (*triggerSummary).filterKeys(MuonFilterIndex);

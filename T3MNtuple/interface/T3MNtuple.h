@@ -472,7 +472,9 @@ private:
 
   bool doMC_, doFullMC_, wideSB_, do2mu_, passhlt_, doTracks_, doMuons_, 
     do3mutuple_, doL1_, doThreeMuons_, doTwoMuonsAndTrack_, doBJets_;
+  string WhatData_;
   double TriggerMuonMatchingdr_;
+
 
   size_t mid_, n_reco, n_sv, njet20, ifar, ipv_gen, ipv1, ipv2;
 
