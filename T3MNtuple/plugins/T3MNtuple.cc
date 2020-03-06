@@ -146,10 +146,13 @@ bool T3MNtuple::AcceptedMuon(reco::MuonRef RefMuon) {
     //    if(   /*RefMuon->isPFMuon() &&*/  ( RefMuon->isGlobalMuon() || RefMuon->isTrackerMuon()) and 
     //	  RefMuon->innerTrack().isNonnull() && RefMuon->innerTrack()->hitPattern().numberOfValidPixelHits() > 0)   return true;
 
-    if( RefMuon->innerTrack().isNonnull() && RefMuon->innerTrack()->hitPattern().numberOfValidPixelHits() > 0)   return true;
+    //    if( RefMuon->innerTrack().isNonnull() && RefMuon->innerTrack()->hitPattern().numberOfValidPixelHits() > 0)   return true;
 
 
-	  //if(RefMuon->innerTrack().isNonnull() && RefMuon->innerTrack()->hitPattern().numberOfValidPixelHits() > 0)      return true;
+    if(RefMuon->innerTrack().isNonnull() && RefMuon->innerTrack()->hitPattern().numberOfValidPixelHits() > 0 && RefMuon->isPFMuon() && 
+       ( RefMuon->isGlobalMuon() || RefMuon->isTrackerMuon()))      return true;
+
+
   }
   return false;
 }
@@ -201,9 +204,14 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   if(doMC_)
     fillMCTruth(iEvent, iSetup);
 
+  if(doL1_)
+    fillTrigger(iEvent, iSetup);
+
+
   if(doThreeMuons_) {
     Event_nsignal_candidates =   fillThreeMuons(iEvent, iSetup);
   }
+
   if(doTwoMuonsAndTrack_)     Event_ndsphipi_candidate = fillTwoMuonsAndTracks(iEvent, iSetup);
   //  std::cout<<"  "<< Event_nsignal_candidates << "   "<< Event_ndsphipi_candidate << std::endl;
   if(Event_nsignal_candidates!=0 or Event_ndsphipi_candidate!=0)
@@ -216,8 +224,6 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         fillBTagJets(iEvent, iSetup);
       if(doMuons_)
         fillMuons(iEvent, iSetup);
-      if(doL1_)
-        fillTrigger(iEvent, iSetup);
     }
   output_tree->Fill();
   //  fillDsTree(iEvent, iSetup); 
@@ -1681,7 +1687,7 @@ T3MNtuple::fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
       FitOk = false;
     
     if(transVtx.isValid()){
-      //      if(transVtx.totalChiSquared() < 100.)   //remove for sync
+      if(transVtx.totalChiSquared() < 100.)   //remove for sync
 	{ // very loose/ ndf =3
 
       int ntp = signalTau_lvp.size();
@@ -1805,11 +1811,11 @@ T3MNtuple::findTwoMuonsAndTrackCandidates(const edm::Event& iEvent, const edm::E
 	reco::MuonRef  Muon2(muonCollection, preselected_muon_idx.at(j));
 
 	double dz_12 = abs(Muon2->vz()-Muon1->vz());  // like NFN for sync
-	//        double dz_12 = abs(Muon2->innerTrack()->dz(beamSpotHandle->position())-Muon1->innerTrack()->dz(beamSpotHandle->position()));  //   Check that two muons are
+	// double dz_12 = abs(Muon2->innerTrack()->dz(beamSpotHandle->position())-Muon1->innerTrack()->dz(beamSpotHandle->position()));  //   Check that two muons are
 
 
         double dr_12 = deltaR(Muon1->eta(), Muon1->phi(), Muon2->eta(), Muon2->phi());                                                //   not far from each othe
-	//	if(abs(Muon1->charge() + Muon2->charge()) !=0 ) continue;
+	// if(abs(Muon1->charge() + Muon2->charge()) !=0 ) continue;
 
 	if(dz_12 < 0.5 &&  dr_12<0.8)
 	  { // - to be checked
@@ -1879,8 +1885,7 @@ T3MNtuple::findThreeMuonsCandidates(const edm::Event& iEvent, const edm::EventSe
 
 	double dz_12 = abs(Muon2->vz()-Muon1->vz());  //  INFN
 	double dr_12 = deltaR(Muon1->eta(), Muon1->phi(), Muon2->eta(), Muon2->phi());                                                //   not far from each other
-	//	if(dz_12>0.5 ||  dr_12>0.8)continue; // - to be checked  -  this is previsou req.
-
+	if(dz_12>0.5 ||  dr_12>0.8)continue; // - to be checked  -  this is previsou req.
 
 	if(j<preselected_muon_idx.size()-1){
 	  for(size_t k = j+1; k < preselected_muon_idx.size(); ++ k){
@@ -1903,8 +1908,8 @@ T3MNtuple::findThreeMuonsCandidates(const edm::Event& iEvent, const edm::EventSe
 	    double dr_23 = deltaR(Muon3->eta(), Muon3->phi(), Muon2->eta(), Muon2->phi());
 	    double dr_31 = deltaR(Muon3->eta(), Muon3->phi(), Muon1->eta(), Muon1->phi());
 	    
-	    //	    if(dr_23>0.8 || dr_31>0.8)continue; 
-	    //	    if(dz_23>0.5 || dz_31>0.5)continue; 
+	    if(dr_23>0.8 || dr_31>0.8)continue; 
+	    if(dz_23>0.5 || dz_31>0.5)continue; 
 	    if(abs(Muon1->charge()+Muon2->charge()+Muon3->charge())>1.1)continue;
 	    dump_index.push_back(preselected_muon_idx.at(i));
 	    dump_index.push_back(preselected_muon_idx.at(j));
@@ -2001,7 +2006,6 @@ void T3MNtuple::fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSet
   iEvent.getByToken(bsToken_, beamSpotHandle);
   bs = *beamSpotHandle;
 
-
   Handle<VertexCollection> pvs;
   iEvent.getByToken(vtxToken_ , pvs);
   n_vtx = pvs->size();
@@ -2016,7 +2020,6 @@ void T3MNtuple::fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   Handle<TrackCollection> trks;
   iEvent.getByToken(trackToken_, trks);
-
 
   Handle<JetTagCollection> btagsCvsB;
   iEvent.getByToken(btagCvsBToken_, btagsCvsB);
@@ -2033,9 +2036,6 @@ void T3MNtuple::fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   Handle<BXVector<GlobalAlgBlk>> alg;
   iEvent.getByToken(algToken_,alg);
-
-
-
 
 
   //////////////////////////////
