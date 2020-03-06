@@ -211,8 +211,8 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   if(doThreeMuons_) {
     Event_nsignal_candidates =   fillThreeMuons(iEvent, iSetup);
-    cout<<"Number of signal candidates = "<<Event_nsignal_candidates<<endl;
-    cout<<"Number of dsphipi candidates = "<<Event_ndsphipi_candidate<<endl;
+    //cout<<"Number of signal candidates = "<<Event_nsignal_candidates<<endl;
+    //cout<<"Number of dsphipi candidates = "<<Event_ndsphipi_candidate<<endl;
   }
 
   if(doTwoMuonsAndTrack_)     Event_ndsphipi_candidate = fillTwoMuonsAndTracks(iEvent, iSetup);
