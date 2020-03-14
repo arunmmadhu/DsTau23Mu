@@ -12,7 +12,11 @@ class DataMCType{
 	     Bp_Tau=90,
 	     MinBias=120,
 	     Tau_3Mu2Nu=121,
-	     Ds_EtaMu=122,
+	     Ds_MuEtaMuMuGamma=122,
+	     Ds_MuEtaMuMuGammaPi0=124,
+	     Ds_MuEtaPrimeMuMuGamma=128,
+	     Ds_MuOmegaMuMuPi0=132,
+	     Ds_MuPhiMuMuGamma=142,
 	     unknown=999
 	     // add here more MC types
   };
