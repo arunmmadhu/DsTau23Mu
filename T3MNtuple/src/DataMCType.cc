@@ -25,7 +25,7 @@ unsigned int DataMCType::GetType(TString name){
   if(name=="ds_muetamumugammapi0")      return Ds_MuEtaMuMuGammaPi0;
   if(name=="ds_muetaprimemumugamma")    return Ds_MuEtaPrimeMuMuGamma;
   if(name=="ds_muomegamumupi0")         return Ds_MuOmegaMuMuPi0;
-  if(name=="ds_muphiMuMuGamma")         return Ds_MuPhiMuMuGamma;
+  if(name=="ds_muphimumugamma")         return Ds_MuPhiMuMuGamma;
   if(name=="minbias")                   return MinBias;
 
 
