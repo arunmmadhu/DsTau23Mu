@@ -47,6 +47,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
@@ -218,7 +219,6 @@ private:
   std::vector<std::vector<double> > Muon_p4;
   std::vector<std::vector<double> > Muon_Poca;
 
-
   std::vector<bool> Muon_isGlobalMuon;
   std::vector<bool> Muon_isStandAloneMuon;
   std::vector<bool> Muon_isTrackerMuon;
@@ -226,6 +226,7 @@ private:
   std::vector<bool> Muon_isIsolationValid;
   std::vector<bool> Muon_isQualityValid;
   std::vector<bool> Muon_isTimeValid;
+  std::vector<int>  Muon_expectedNnumberOfMatchedStations;
   std::vector<bool> Muon_isPFMuon;
   std::vector<bool> Muon_isRPCMuon;
 
@@ -233,10 +234,10 @@ private:
   std::vector<float> Muon_emVetoEt03;
   std::vector<float> Muon_hadEt03;
   std::vector<float> Muon_hadVetoEt03;
-  std::vector<int> Muon_nJets03;
-  std::vector<int> Muon_nTracks03;
-  std::vector<int> Muon_ID; // bitwise 0 - Loose, 1 - Soft, 2 - Medium, 3 - Tight, 4 - HiPt
-  std::vector<int> Muon_StandardSelection;
+  std::vector<int>   Muon_nJets03;
+  std::vector<int>   Muon_nTracks03;
+  std::vector<int>   Muon_ID; // bitwise 0 - Loose, 1 - Soft, 2 - Medium, 3 - Tight, 4 - HiPt
+  std::vector<int>   Muon_StandardSelection;
   std::vector<float> Muon_sumPt03;
   std::vector<float> Muon_trackerVetoPt03;
 
@@ -244,8 +245,8 @@ private:
   std::vector<float> Muon_emVetoEt05;
   std::vector<float> Muon_hadEt05;
   std::vector<float> Muon_hadVetoEt05;
-  std::vector<int> Muon_nJets05;
-  std::vector<int> Muon_nTracks05;
+  std::vector<int>   Muon_nJets05;
+  std::vector<int>   Muon_nTracks05;
   std::vector<float> Muon_sumPt05;
   std::vector<float> Muon_trackerVetoPt05;
 
@@ -265,10 +266,10 @@ private:
   std::vector<float> Muon_sumPhotonEtHighThreshold04;        // sum pt of PF photons with a higher threshold
   std::vector<float> Muon_sumPUPt04;                         // sum pt of charged Particles not from PV (for Pu corrections)
 
-  std::vector<int> Muon_numberOfChambers;
+  std::vector<int>   Muon_numberOfChambers;
   std::vector<unsigned int> Muon_Track_idx;
 
-  std::vector<bool> Muon_combinedQuality_updatedSta;
+  std::vector<bool>   Muon_combinedQuality_updatedSta;
   std::vector<double> Muon_combinedQuality_trkKink;
   std::vector<double> Muon_combinedQuality_glbKink;
   std::vector<double> Muon_combinedQuality_trkRelChi2;
@@ -292,11 +293,11 @@ private:
   std::vector<double>   Muon_calEnergy_emS9;
   std::vector<double>   Muon_calEnergy_em;
 
-  std::vector<int> Muon_charge;
-  std::vector<int> Muon_trackCharge;
-  std::vector<int> Muon_pdgid;
-  std::vector<double> Muon_B;
-  std::vector<double> Muon_M;
+  std::vector<int>      Muon_charge;
+  std::vector<int>      Muon_trackCharge;
+  std::vector<int>      Muon_pdgid;
+  std::vector<double>   Muon_B;
+  std::vector<double>   Muon_M;
   std::vector<std::vector<double> > Muon_par;
   std::vector<std::vector<double> > Muon_cov;
 
@@ -309,16 +310,17 @@ private:
   std::vector<std::vector<double> > signalTau_cov;
   std::vector<int> signalTau_isLVP;
 
-  std::vector<int>   Muon_hitPattern_pixelLayerwithMeas;
-  std::vector<int>   Muon_numberOfMatchedStations;
-  std::vector<float> Muon_normChi2;
-  std::vector<int>   Muon_hitPattern_numberOfValidMuonHits;
-  std::vector<int>   Muon_innerTrack_numberofValidHits;
-  std::vector<int>   Muon_numberofValidPixelHits;
-  std::vector<int>   Muon_numberOfMatches;
-  std::vector<int>   Muon_trackerLayersWithMeasurement;
+  std::vector<int>     Muon_hitPattern_pixelLayerwithMeas;
+  std::vector<int>     Muon_numberOfMatchedStations;
+  std::vector<float>   Muon_normChi2;
+  std::vector<int>     Muon_hitPattern_numberOfValidMuonHits;
+  std::vector<int>     Muon_innerTrack_numberofValidHits;
+  std::vector<int>     Muon_numberofValidPixelHits;
+  std::vector<int>     Muon_numberOfMatches;
+  std::vector<int>     Muon_trackerLayersWithMeasurement;
   std::vector<double>  Muon_segmentCompatibility;
   std::vector<double>  Muon_caloCompatibility;
+
 
   std::vector<double> Muon_innerTrack_validFraction;
   std::vector<double> Muon_innerTrack_pixelLayersWithMeasurement;
@@ -327,6 +329,18 @@ private:
   std::vector<double> Muon_innerTrack_numberOfLostTrackerInnerHits;
   std::vector<double> Muon_innerTrack_numberOfLostTrackerOuterHits;
   std::vector<double> Muon_innerTrack_normalizedChi2;
+
+
+  std::vector<std::vector<float> > Muon_dDxDz;
+  std::vector<std::vector<float> > Muon_dDyDz;
+  std::vector<std::vector<float> > Muon_dX;
+  std::vector<std::vector<float> > Muon_dY;
+  std::vector<std::vector<float> > Muon_pullX;
+  std::vector<std::vector<float> > Muon_pullY;
+  std::vector<std::vector<float> > Muon_pullDxDz;
+  std::vector<std::vector<float> > Muon_pullDyDz;
+  std::vector<std::vector<float> > numberOfSegments;
+
 
   std::vector<double> Muon_ptError;
   std::vector<double> Muon_phiError;
@@ -402,6 +416,7 @@ private:
 
   std::vector<std::vector<double > > Vertex_signal_dca_reco;
   std::vector<std::vector<double > > Vertex_signal_KF_pos;
+  std::vector<int >                  Vertex_NMuonsAssocWithPV;
   std::vector<std::vector<double > > Vertex_signal_KF_cov;
   std::vector<double> Vertex_signal_KF_Chi2;
   std::vector<std::vector<std::vector<double > > > Vertex_signal_KF_refittedTracksP4;
