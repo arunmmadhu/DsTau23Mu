@@ -33,6 +33,7 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
   btagMVAToken_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("btagsMVA"))),
   vtxToken_(consumes<VertexCollection>(iConfig.getParameter<InputTag>("pvs"))),
   svToken_(consumes<VertexCollection>(iConfig.getParameter<InputTag>("svs"))),
+  photonToken_(consumes<PhotonCollection>(iConfig.getParameter<edm::InputTag>("phos"))),
   trackToken_(consumes<TrackCollection>(iConfig.getParameter<InputTag>("trks"))),
   triggerToken_(consumes<TriggerResults>(iConfig.getParameter<InputTag>("triggerBitsH"))),
   trigeventToken_(consumes<trigger::TriggerEvent>(iConfig.getParameter<InputTag>("triggerSummary"))),
@@ -54,6 +55,7 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
   do3mutuple_ = iConfig.getParameter<bool>("do3mutuple");
   doL1_ = iConfig.getParameter<bool>("doL1");
   doBJets_ = iConfig.getParameter<bool>("doBJets");
+  doPhotons_ = iConfig.getParameter<bool>("doPhotons");
   doThreeMuons_=  iConfig.getParameter<bool>("doThreeMuons");
   doTwoMuonsAndTrack_= iConfig.getParameter<bool>("doTwoMuonsAndTrack");
   MuonPtCut_ = iConfig.getParameter<double>("MuonPtCut"); //default: 1.0
@@ -227,6 +229,9 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         fillBTagJets(iEvent, iSetup);
       if(doMuons_)
         fillMuons(iEvent, iSetup);
+      if(doPhotons_)
+	fillPhotons(iEvent, iSetup);
+
     }
   output_tree->Fill();
   //  fillDsTree(iEvent, iSetup); 
@@ -1154,7 +1159,7 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    iMuon_pullDyDz.push_back(RefMuon->pullDyDz(it,1));
 	    inumberOfSegments.push_back(RefMuon->numberOfSegments(it,1));
 	  }
-	  if(it > 4){  
+	  if(it > 4){  // now in csc
 	    iMuon_dDxDz.push_back(RefMuon->dDxDz(it - 4,2));
 	    iMuon_dDyDz.push_back(RefMuon->dDyDz(it - 4,2));
 	    iMuon_dX.push_back(RefMuon->dX(it - 4,2));
@@ -1168,7 +1173,6 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	}
 	
 
-
 	Muon_dDxDz.push_back(iMuon_dDxDz);
 	Muon_dDyDz.push_back(iMuon_dDyDz);
 	Muon_dX.push_back(iMuon_dX);
@@ -1178,6 +1182,7 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	Muon_pullDxDz.push_back(iMuon_pullDxDz);
 	Muon_pullDyDz.push_back(iMuon_pullDyDz);
 	numberOfSegments.push_back(inumberOfSegments);
+
 
 
 	iMuon_outerTrack_p4.push_back(RefMuon->outerTrack()->eta());
@@ -1273,7 +1278,11 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
       Muon_outerTrack_p4.push_back(iMuon_outerTrack_p4);
       Muon_innerTrack_p4.push_back(iMuon_innerTrack_p4);
       
-      
+    
+      Muon_timeAtIpInOut.push_back(RefMuon->time().timeAtIpInOut);
+      Muon_timeAtIpInOutErr.push_back(RefMuon->time().timeAtIpInOutErr);
+
+
       if (RefMuon->isIsolationValid()) {
 	Muon_emEt03.push_back(Iso03.emEt);
 	Muon_emVetoEt03.push_back(Iso03.emVetoEt);
@@ -1422,6 +1431,28 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }
   }
   
+}
+
+
+void 
+T3MNtuple::fillPhotons(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+
+  edm::Handle<std::vector<reco::Photon> > photons;
+  iEvent.getByToken(photonToken_, photons);
+  std::cout<<" Nphotons  "<<  photons->size() << std::endl;
+
+  for(unsigned int iPhoton = 0; iPhoton < photons->size(); iPhoton++){
+    reco::PhotonRef photon(photons,iPhoton);
+    std::vector<float>  iGammaP4;
+    iGammaP4.push_back(photon->p4().E());
+    iGammaP4.push_back(photon->p4().Px());
+    iGammaP4.push_back(photon->p4().Py());
+    iGammaP4.push_back(photon->p4().Pz());
+    Gamma_P4.push_back(iGammaP4);
+  }
+
+
 }
 
 void 
@@ -3427,6 +3458,10 @@ T3MNtuple::beginJob()
   output_tree->Branch("Muon_nJets05", &Muon_nJets05);
   output_tree->Branch("Muon_nTracks05", &Muon_nTracks05);
   output_tree->Branch("Muon_sumPt05", &Muon_sumPt05);
+  output_tree->Branch("Muon_timeAtIpInOut", &Muon_timeAtIpInOut);
+  output_tree->Branch("Muon_timeAtIpInOutErr", &Muon_timeAtIpInOutErr);
+
+
   output_tree->Branch("Muon_trackerVetoPt05", &Muon_trackerVetoPt05);
   output_tree->Branch("Muon_sumChargedHadronPt03", &Muon_sumChargedHadronPt03);
   output_tree->Branch("Muon_sumChargedParticlePt03", &Muon_sumChargedParticlePt03);
@@ -3530,6 +3565,8 @@ T3MNtuple::beginJob()
   output_tree->Branch("Muon_M", &Muon_M);
   output_tree->Branch("Muon_par", &Muon_par);
   output_tree->Branch("Muon_cov", &Muon_cov);
+
+  output_tree->Branch("Gamma_P4",&Gamma_P4);
 
   if(doMC_){
     if(doFullMC_){
@@ -3736,6 +3773,10 @@ void T3MNtuple::ClearEvent() {
   Event_nsignal_candidates=0;
   Event_ndsphipi_candidate=0;
  
+  //=======  Gammas ===
+  Gamma_P4.clear();
+
+
   //=======  Muons ===
   Muon_p4.clear();
   Muon_Poca.clear();
@@ -3770,6 +3811,12 @@ void T3MNtuple::ClearEvent() {
   Muon_nTracks05.clear();
   Muon_sumPt05.clear();
   Muon_trackerVetoPt05.clear();
+  Muon_timeAtIpInOut.clear();
+  Muon_timeAtIpInOutErr.clear();
+
+
+
+
 
   Muon_sumChargedHadronPt03.clear();
   Muon_sumChargedParticlePt03.clear();

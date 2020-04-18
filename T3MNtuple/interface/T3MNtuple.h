@@ -40,7 +40,9 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
+#include "DataFormats/MuonReco/interface/MuonTime.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "RecoMuon/MuonIdentification/interface/MuonCaloCompatibility.h"
 #include "DataFormats/MuonReco/interface/MuonShower.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -130,8 +132,9 @@ private:
   void fillTrigger(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void fillDsTree(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void fillBTagJets(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  int fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  int fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void fillPhotons(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  int  fillThreeMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  int  fillTwoMuonsAndTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void fillVertices(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
   std::vector<std::vector<unsigned int> > findThreeMuonsCandidates(const edm::Event& iEvent, const edm::EventSetup& iSetup);
@@ -215,6 +218,11 @@ private:
   std::vector<unsigned int> dump_pv_index_to_fill;
 
 
+
+  //=======  Gammas==
+  std::vector<std::vector<float> > Gamma_P4;
+
+
   //=======  Muons ===
   std::vector<std::vector<double> > Muon_p4;
   std::vector<std::vector<double> > Muon_Poca;
@@ -249,6 +257,11 @@ private:
   std::vector<int>   Muon_nTracks05;
   std::vector<float> Muon_sumPt05;
   std::vector<float> Muon_trackerVetoPt05;
+
+  std::vector<float> Muon_timeAtIpInOut;
+  std::vector<float> Muon_timeAtIpInOutErr;
+
+
 
   std::vector<float> Muon_sumChargedHadronPt03;              // sum-pt of charged Hadron
   std::vector<float> Muon_sumChargedParticlePt03;            // sum-pt of charged Particles(inludes e/mu)
@@ -486,7 +499,7 @@ private:
 
 
   bool doMC_, doFullMC_, wideSB_, do2mu_, passhlt_, doTracks_, doMuons_, 
-    do3mutuple_, doL1_, doThreeMuons_, doTwoMuonsAndTrack_, doBJets_;
+    do3mutuple_, doL1_, doThreeMuons_, doTwoMuonsAndTrack_, doBJets_, doPhotons_;
   double TriggerMuonMatchingdr_;
   string WhatData_;
 
@@ -516,6 +529,7 @@ private:
   EDGetTokenT<JetTagCollection> btagMVAToken_;
   EDGetTokenT<VertexCollection> vtxToken_;
   EDGetTokenT<VertexCollection> svToken_;
+  EDGetTokenT<PhotonCollection> photonToken_;
   EDGetTokenT<TrackCollection> trackToken_;
   EDGetTokenT<TriggerResults> triggerToken_;
   EDGetTokenT<trigger::TriggerEvent> trigeventToken_;
