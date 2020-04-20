@@ -1188,6 +1188,7 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	iMuon_outerTrack_p4.push_back(RefMuon->outerTrack()->eta());
 	iMuon_outerTrack_p4.push_back(RefMuon->outerTrack()->phi());
 	Muon_prod_inner_outer_charge.push_back(RefMuon->outerTrack()->charge()*RefMuon->innerTrack()->charge());
+
 	Muon_outerTrack_normalizedChi2.push_back(RefMuon->outerTrack()->normalizedChi2());
 	Muon_outerTrack_muonStationsWithValidHits.push_back(RefMuon->outerTrack()->hitPattern().muonStationsWithValidHits());
 	
@@ -1456,6 +1457,8 @@ T3MNtuple::fillPhotons(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     Gamma_e2x5.push_back(photon->e2x5());
     Gamma_e3x3.push_back(photon->e3x3());
     Gamma_e5x5.push_back(photon->e5x5());
+
+    Gamma_isPFPhoton.push_back(photon->isPFlowPhoton());
 
   }
 }
@@ -3571,15 +3574,16 @@ T3MNtuple::beginJob()
   output_tree->Branch("Muon_par", &Muon_par);
   output_tree->Branch("Muon_cov", &Muon_cov);
 
-  output_tree->Branch("Gamma_P4",&Gamma_P4);
-  output_tree->Branch("Gamma_hasPixelSeed",&Gamma_hasPixelSeed);
-  output_tree->Branch("Gamma_hasConversionTracks",&Gamma_hasConversionTracks);
-  output_tree->Branch("Gamma_e1x5",&Gamma_e1x5);
-  output_tree->Branch("Gamma_e2x5",&Gamma_e2x5);
-  output_tree->Branch("Gamma_e3x3",&Gamma_e3x3);
-  output_tree->Branch("Gamma_e5x5",&Gamma_e5x5);
-
-
+  if(doPhotons_){
+    output_tree->Branch("Gamma_P4",&Gamma_P4);
+    output_tree->Branch("Gamma_hasPixelSeed",&Gamma_hasPixelSeed);
+    output_tree->Branch("Gamma_hasConversionTracks",&Gamma_hasConversionTracks);
+    output_tree->Branch("Gamma_e1x5",&Gamma_e1x5);
+    output_tree->Branch("Gamma_e2x5",&Gamma_e2x5);
+    output_tree->Branch("Gamma_e3x3",&Gamma_e3x3);
+    output_tree->Branch("Gamma_e5x5",&Gamma_e5x5);
+    output_tree->Branch("Gamma_isPFPhoton",&Gamma_isPFPhoton);
+  }
   if(doMC_){
     if(doFullMC_){
       output_tree->Branch("MC_p4", &MC_p4);
@@ -3795,7 +3799,7 @@ void T3MNtuple::ClearEvent() {
   Gamma_e3x3.clear();
   Gamma_e5x5.clear();
 
-
+  Gamma_isPFPhoton.clear();
 
 
   //=======  Muons ===

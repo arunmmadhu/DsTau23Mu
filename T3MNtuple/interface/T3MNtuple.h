@@ -227,7 +227,7 @@ private:
   std::vector<float>               Gamma_e2x5;
   std::vector<float>               Gamma_e3x3;
   std::vector<float>               Gamma_e5x5;
-
+  std::vector<int>               Gamma_isPFPhoton;
 
 
   //=======  Muons ===

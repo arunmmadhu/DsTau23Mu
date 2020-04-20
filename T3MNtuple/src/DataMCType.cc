@@ -17,6 +17,7 @@ unsigned int DataMCType::GetType(TString name){
   StoreType(name);
   if(name=="data")                      return Data;
   if(name=="ds_tau")                    return Ds_Tau;
+  if(name=="b_tau")                     return B_Tau;
   if(name=="ds_phipi")                  return Ds_PhiPi;
   if(name=="b0_tau")                    return B0_Tau;
   if(name=="bp_tau")                    return Bp_Tau;

@@ -8,6 +8,7 @@ class DataMCType{
   enum Type {Data=1,
 	     Ds_PhiPi=30,
 	     Ds_Tau=40,
+	     B_Tau=50,
 	     B0_Tau=60,
 	     Bp_Tau=90,
 	     MinBias=120,
