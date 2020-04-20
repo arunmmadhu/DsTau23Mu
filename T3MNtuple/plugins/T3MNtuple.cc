@@ -1440,7 +1440,6 @@ T3MNtuple::fillPhotons(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   edm::Handle<std::vector<reco::Photon> > photons;
   iEvent.getByToken(photonToken_, photons);
-  std::cout<<" Nphotons  "<<  photons->size() << std::endl;
 
   for(unsigned int iPhoton = 0; iPhoton < photons->size(); iPhoton++){
     reco::PhotonRef photon(photons,iPhoton);
@@ -1450,9 +1449,15 @@ T3MNtuple::fillPhotons(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     iGammaP4.push_back(photon->p4().Py());
     iGammaP4.push_back(photon->p4().Pz());
     Gamma_P4.push_back(iGammaP4);
+
+    Gamma_hasPixelSeed.push_back(photon->hasPixelSeed());
+    Gamma_hasConversionTracks.push_back(photon->hasConversionTracks());
+    Gamma_e1x5.push_back(photon->e1x5());
+    Gamma_e2x5.push_back(photon->e2x5());
+    Gamma_e3x3.push_back(photon->e3x3());
+    Gamma_e5x5.push_back(photon->e5x5());
+
   }
-
-
 }
 
 void 
@@ -3567,6 +3572,13 @@ T3MNtuple::beginJob()
   output_tree->Branch("Muon_cov", &Muon_cov);
 
   output_tree->Branch("Gamma_P4",&Gamma_P4);
+  output_tree->Branch("Gamma_hasPixelSeed",&Gamma_hasPixelSeed);
+  output_tree->Branch("Gamma_hasConversionTracks",&Gamma_hasConversionTracks);
+  output_tree->Branch("Gamma_e1x5",&Gamma_e1x5);
+  output_tree->Branch("Gamma_e2x5",&Gamma_e2x5);
+  output_tree->Branch("Gamma_e3x3",&Gamma_e3x3);
+  output_tree->Branch("Gamma_e5x5",&Gamma_e5x5);
+
 
   if(doMC_){
     if(doFullMC_){
@@ -3775,6 +3787,15 @@ void T3MNtuple::ClearEvent() {
  
   //=======  Gammas ===
   Gamma_P4.clear();
+  Gamma_hasPixelSeed.clear();
+  Gamma_hasConversionTracks.clear();
+
+  Gamma_e1x5.clear();
+  Gamma_e2x5.clear();
+  Gamma_e3x3.clear();
+  Gamma_e5x5.clear();
+
+
 
 
   //=======  Muons ===
@@ -3813,9 +3834,6 @@ void T3MNtuple::ClearEvent() {
   Muon_trackerVetoPt05.clear();
   Muon_timeAtIpInOut.clear();
   Muon_timeAtIpInOutErr.clear();
-
-
-
 
 
   Muon_sumChargedHadronPt03.clear();
@@ -4048,3 +4066,4 @@ void T3MNtuple::ClearEvent() {
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(T3MNtuple);
+ 

@@ -221,6 +221,13 @@ private:
 
   //=======  Gammas==
   std::vector<std::vector<float> > Gamma_P4;
+  std::vector<int>                 Gamma_hasPixelSeed;
+  std::vector<int>                 Gamma_hasConversionTracks;
+  std::vector<float>               Gamma_e1x5;
+  std::vector<float>               Gamma_e2x5;
+  std::vector<float>               Gamma_e3x3;
+  std::vector<float>               Gamma_e5x5;
+
 
 
   //=======  Muons ===
