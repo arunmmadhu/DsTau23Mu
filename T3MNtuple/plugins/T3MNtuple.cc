@@ -1131,8 +1131,6 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
       std::vector<double> iMuon_outerTrack_p4;
       std::vector<double> iMuon_innerTrack_p4;
       if (RefMuon->isGlobalMuon()) {
-	Muon_numberofValidPixelHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfValidPixelHits());
-	Muon_trackerLayersWithMeasurement.push_back(RefMuon->innerTrack()->hitPattern().trackerLayersWithMeasurement());
 	Muon_hitPattern_numberOfValidMuonHits.push_back(RefMuon->globalTrack()->hitPattern().numberOfValidMuonHits());
 	Muon_normChi2.push_back(RefMuon->globalTrack()->normalizedChi2());
 
@@ -1239,8 +1237,6 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
       } else {
 	Muon_normChi2.push_back(0);
 	Muon_hitPattern_numberOfValidMuonHits.push_back(0);
-	Muon_trackerLayersWithMeasurement.push_back(0);
-	Muon_numberofValidPixelHits.push_back(0);
 	Muon_prod_inner_outer_charge.push_back(0);
 	Muon_outerTrack_normalizedChi2.push_back(0);
 	Muon_outerTrack_muonStationsWithValidHits.push_back(0);
@@ -1249,6 +1245,8 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
       }
       
       if (RefMuon->isTrackerMuon()) {
+	Muon_numberofValidPixelHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfValidPixelHits());
+	Muon_trackerLayersWithMeasurement.push_back(RefMuon->innerTrack()->hitPattern().trackerLayersWithMeasurement());
 	Muon_innerTrack_validFraction.push_back(RefMuon->innerTrack()->validFraction());
 	Muon_innerTrack_pixelLayersWithMeasurement.push_back(RefMuon->innerTrack()->hitPattern().pixelLayersWithMeasurement() );
 	Muon_innerTrack_numberOfValidTrackerHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfValidTrackerHits() );
@@ -1265,6 +1263,8 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	iMuon_innerTrack_p4.push_back(RefMuon->innerTrack()->eta());
 	iMuon_innerTrack_p4.push_back(RefMuon->innerTrack()->phi());
       } else {
+	Muon_trackerLayersWithMeasurement.push_back(0);
+	Muon_numberofValidPixelHits.push_back(0);
 	Muon_innerTrack_quality.push_back(0);
 	Muon_innerTrack_numberofValidHits.push_back(0);
 	Muon_hitPattern_pixelLayerwithMeas.push_back(0);
