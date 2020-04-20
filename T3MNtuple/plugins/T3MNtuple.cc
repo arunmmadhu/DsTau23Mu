@@ -1244,7 +1244,7 @@ void T3MNtuple::fillMuons(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	Muon_rpchits_reco.push_back(0);
       }
       
-      if (RefMuon->isTrackerMuon()) {
+      if (RefMuon->isTrackerMuon() || RefMuon->isGlobalMuon()) {
 	Muon_numberofValidPixelHits.push_back(RefMuon->innerTrack()->hitPattern().numberOfValidPixelHits());
 	Muon_trackerLayersWithMeasurement.push_back(RefMuon->innerTrack()->hitPattern().trackerLayersWithMeasurement());
 	Muon_innerTrack_validFraction.push_back(RefMuon->innerTrack()->validFraction());
