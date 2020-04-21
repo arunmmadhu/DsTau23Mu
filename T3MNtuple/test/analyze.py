@@ -92,8 +92,8 @@ process.TFileService = cms.Service('TFileService',
                                    )
 
 #process.source.fileNames = ['/store/data/Run2018B/DoubleMuonLowMass/AOD/17Sep2018-v1/60000/02CEEEBB-DCCB-9B46-84B2-7C99FB39C98A.root']
-process.source.fileNames = ['/store/data/Run2017D/DoubleMuonLowMass/AOD/17Nov2017-v1/70000/5A3F7AD8-36E9-E711-B981-1866DA85D72E.root']
-
+#process.source.fileNames = ['/store/data/Run2017D/DoubleMuonLowMass/AOD/17Nov2017-v1/70000/5A3F7AD8-36E9-E711-B981-1866DA85D72E.root']
+process.source.fileNames = ['/store/mc/RunIIAutumn18DRPremix/BdToKK_BMuonFilter_SoftQCDnonD_TuneCP5_13TeV-pythia8-evtgen/AODSIM/102X_upgrade2018_realistic_v15-v2/110000/46867060-3A0D-9C40-A7A2-A500A5AA10FE.root']
 
 
 process.load("DsTau23Mu.T3MNtuple.DsTauNtuple_cfi")
