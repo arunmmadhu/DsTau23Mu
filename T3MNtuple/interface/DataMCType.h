@@ -11,6 +11,8 @@ class DataMCType{
 	     B_Tau=50,
 	     B0_Tau=60,
 	     Bp_Tau=90,
+	     B_KK=220,
+	     B_PP=230,
 	     MinBias=120,
 	     Tau_3Mu2Nu=121,
 	     Ds_MuEtaMuMuGamma=122,
