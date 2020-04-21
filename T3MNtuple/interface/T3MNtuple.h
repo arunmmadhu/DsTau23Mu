@@ -43,6 +43,7 @@
 #include "DataFormats/MuonReco/interface/MuonTime.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/MuonReco/interface/MuonSimInfo.h"
 #include "RecoMuon/MuonIdentification/interface/MuonCaloCompatibility.h"
 #include "DataFormats/MuonReco/interface/MuonShower.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -544,6 +545,7 @@ private:
   EDGetTokenT<BeamSpot> bsToken_;
   EDGetTokenT<vector<PileupSummaryInfo>> puToken_;
   EDGetTokenT<GenParticleCollection> genToken_;
+  EDGetTokenT<edm::ValueMap<reco::MuonSimInfo>> muonSimToken_; 
   TString sampleType_;
   L1TGlobalUtil* gtUtil_;
 };
