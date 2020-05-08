@@ -1856,6 +1856,7 @@ void T3MNtuple::TriggerMatch(edm::Handle<trigger::TriggerEvent> &triggerSummary,
   drmax = 1.;
   std::vector<trigger::TriggerObject> trgobjs = triggerSummary->getObjects();
   edm::InputTag MuonFilterTag;
+
   if(WhatData_=="2017")  MuonFilterTag = edm::InputTag("hltTau3muTkVertexFilter", "", "HLT"); 
   if(WhatData_=="2018")  MuonFilterTag = edm::InputTag("hltdstau3muDisplaced3muFltr", "", "HLT"); 
   //  if(WhatData_=="Parked")  edm::InputTag MuonFilterTag = edm::InputTag("hltdstau3muDisplaced3muFltr", "", "HLT"); 
@@ -1872,8 +1873,9 @@ void T3MNtuple::TriggerMatch(edm::Handle<trigger::TriggerEvent> &triggerSummary,
       }
     }
   }
-}
+  
 
+}
 
 
 std::vector<std::vector<unsigned int> > 
@@ -2070,6 +2072,39 @@ void T3MNtuple::fillTrigger(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  Trigger_hltdecision.push_back(triggerBitsH->accept(i_hlt ));
 	}
     }
+
+  // Fill Trigger object info
+
+  edm::Handle<trigger::TriggerEvent> triggerSummary;
+  iEvent.getByToken(trigeventToken_, triggerSummary);
+
+  std::vector<trigger::TriggerObject> trgobjs = triggerSummary->getObjects();
+  
+  edm::InputTag MuonFilterTag2017("hltTau3muTkVertexFilter","","HLT");
+  edm::InputTag MuonFilterTag2018("hltdstau3muDisplaced3muFltr","","HLT");
+  
+  size_t MuonFilterIndex = (*triggerSummary).filterIndex(MuonFilterTag2017);
+  if(MuonFilterIndex < (*triggerSummary).sizeFilters()) {
+    const trigger::Keys &KEYS = (*triggerSummary).filterKeys(MuonFilterIndex);
+    for (unsigned int ipart = 0; ipart < KEYS.size(); ipart++) {
+       TriggerObject_name.push_back("hltTau3muTkVertexFilter");
+       TriggerObject_pt.push_back(trgobjs.at(KEYS.at(ipart)).pt());
+       TriggerObject_eta.push_back(trgobjs.at(KEYS.at(ipart)).eta());
+       TriggerObject_phi.push_back(trgobjs.at(KEYS.at(ipart)).phi());
+    }  
+  }
+  
+  MuonFilterIndex = (*triggerSummary).filterIndex(MuonFilterTag2018);
+  if(MuonFilterIndex < (*triggerSummary).sizeFilters()) {
+    const trigger::Keys &KEYS = (*triggerSummary).filterKeys(MuonFilterIndex);
+    for (unsigned int ipart = 0; ipart < KEYS.size(); ipart++) {
+       TriggerObject_name.push_back("hltdstau3muDisplaced3muFltr");
+       TriggerObject_pt.push_back(trgobjs.at(KEYS.at(ipart)).pt());
+       TriggerObject_eta.push_back(trgobjs.at(KEYS.at(ipart)).eta());
+       TriggerObject_phi.push_back(trgobjs.at(KEYS.at(ipart)).phi());
+    }  
+  }
+
 }
 
 
@@ -3670,6 +3705,10 @@ T3MNtuple::beginJob()
   output_tree->Branch("Vertex_Isolation4",&Vertex_Isolation4);
 
   output_tree->Branch("Vertex_NMuonsAssocWithPV",&Vertex_NMuonsAssocWithPV);
+  output_tree->Branch("TriggerObject_pt",&TriggerObject_pt);
+  output_tree->Branch("TriggerObject_phi",&TriggerObject_phi);
+  output_tree->Branch("TriggerObject_eta",&TriggerObject_eta);
+  output_tree->Branch("TriggerObject_name",&TriggerObject_name);
 
   //  output_tree->Branch("IsolationBranch_Trackp4", &IsolationBranch_Trackp4);
 
@@ -3939,6 +3978,10 @@ void T3MNtuple::ClearEvent() {
   Muon_isGoodMuon_TMLastStationOptimizedLowPtTight.clear();
   Muon_isGoodMuon_TMLastStationOptimizedBarrelLowPtTight.clear();
 
+  TriggerObject_pt.clear();
+  TriggerObject_eta.clear();
+  TriggerObject_phi.clear();
+  TriggerObject_name.clear();
 
   if (doMC_) {
     MC_isReco=0;

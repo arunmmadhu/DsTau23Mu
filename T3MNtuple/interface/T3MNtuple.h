@@ -497,6 +497,10 @@ private:
   std::vector<string>  Trigger_hltname;
   std::vector<int> Trigger_hltdecision;
 
+  std::vector<string> TriggerObject_name;
+  std::vector<double> TriggerObject_pt;
+  std::vector<double> TriggerObject_eta;
+  std::vector<double> TriggerObject_phi;
   std::vector<std::vector<float> > SV_pos;
   std::vector<float> SV_Mass;
   std::vector<std::vector<int> > SV_TrackCharge;
