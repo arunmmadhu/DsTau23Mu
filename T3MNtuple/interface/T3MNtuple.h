@@ -440,6 +440,9 @@ private:
   std::vector<std::vector<double > > Vertex_signal_KF_cov;
   std::vector<double> Vertex_signal_KF_Chi2;
   std::vector<std::vector<std::vector<double > > > Vertex_signal_KF_refittedTracksP4;
+  std::vector<double> Vertex_signal_KF_BS_2Ddistance;
+  std::vector<double> Vertex_signal_KF_BS_error;
+  std::vector<double> Vertex_signal_KF_BS_significance;
 
   std::vector<std::vector<double > > Vertex_signal_AF_pos;
 
