@@ -452,6 +452,12 @@ private:
 
   std::vector<std::vector<double > > Vertex_pairfit_status;
   std::vector<std::vector<double > > Vertex_pair_quality;
+  std::vector<std::vector<float  > > Vertex_Pair12_Pos;
+  std::vector<std::vector<float  > > Vertex_Pair23_Pos;
+  std::vector<std::vector<float  > > Vertex_Pair31_Pos;
+
+
+
   double Vertex_N_primary;
   std::vector<std::vector<double > > Vertex_MatchedPrimaryVertex;
   std::vector<std::vector<double > > Vertex_SecondBestPrimaryVertex;
@@ -541,6 +547,7 @@ private:
   EDGetTokenT<JetTagCollection> btagCvsBToken_;
   EDGetTokenT<JetTagCollection> btagCSVToken_;
   EDGetTokenT<JetTagCollection> btagMVAToken_;
+  EDGetTokenT<JetTagCollection> btagDeepCSVToken_;
   EDGetTokenT<VertexCollection> vtxToken_;
   EDGetTokenT<VertexCollection> svToken_;
   EDGetTokenT<PhotonCollection> photonToken_;
