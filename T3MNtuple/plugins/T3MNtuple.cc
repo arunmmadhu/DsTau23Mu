@@ -1146,6 +1146,8 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
                   Muon_hitPattern_numberOfValidMuonHits.push_back(RefMuon->globalTrack()->hitPattern().numberOfValidMuonHits());
                   Muon_normChi2.push_back(RefMuon->globalTrack()->normalizedChi2());
 
+                  std::vector<float>  iMuon_TrackX;
+                  std::vector<float>  iMuon_TrackY;
                   std::vector<float>  iMuon_dDxDz;
                   std::vector<float>  iMuon_dDyDz;
                   std::vector<float>  iMuon_dX;
@@ -1159,6 +1161,8 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
                   for(int it = 1; it <= 8; ++it) { // loop over stations, 1,2,3,4 are DT, 5,6,7,8 are CSC
                      if(it <=4){ // we are in DT
+                        iMuon_TrackX.push_back(RefMuon->trackX(it,1));
+                        iMuon_TrackY.push_back(RefMuon->trackY(it,1));
                         iMuon_dDxDz.push_back(RefMuon->dDxDz(it,1));
                         iMuon_dDyDz.push_back(RefMuon->dDyDz(it,1));
                         iMuon_dX.push_back(RefMuon->dX(it,1));
@@ -1170,6 +1174,8 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
                         inumberOfSegments.push_back(RefMuon->numberOfSegments(it,1));
                      }
                      if(it > 4){  // now in csc
+                        iMuon_TrackX.push_back(RefMuon->trackX(it - 4,2));
+                        iMuon_TrackY.push_back(RefMuon->trackY(it - 4,2));
                         iMuon_dDxDz.push_back(RefMuon->dDxDz(it - 4,2));
                         iMuon_dDyDz.push_back(RefMuon->dDyDz(it - 4,2));
                         iMuon_dX.push_back(RefMuon->dX(it - 4,2));
@@ -1183,6 +1189,8 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
                   }
 
 
+                  Muon_TrackX.push_back(iMuon_TrackX);
+                  Muon_TrackY.push_back(iMuon_TrackY);
                   Muon_dDxDz.push_back(iMuon_dDxDz);
                   Muon_dDyDz.push_back(iMuon_dDyDz);
                   Muon_dX.push_back(iMuon_dX);
@@ -3568,6 +3576,8 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
                output_tree->Branch("Muon_calEnergy_emS9",&Muon_calEnergy_emS9);
                output_tree->Branch("Muon_calEnergy_em",&Muon_calEnergy_em);
 
+               output_tree->Branch("Muon_TrackX",&Muon_TrackX);
+               output_tree->Branch("Muon_TrackY",&Muon_TrackY);
                output_tree->Branch("Muon_dDxDz",&Muon_dDxDz);
                output_tree->Branch("Muon_dDyDz",&Muon_dDyDz);
                output_tree->Branch("Muon_dX",&Muon_dX);
@@ -3959,6 +3969,8 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
             Muon_segmentCompatibility.clear();
             Muon_caloCompatibility.clear();
 
+            Muon_TrackX.clear();
+            Muon_TrackY.clear();
             Muon_dDxDz.clear();
             Muon_dDyDz.clear();
             Muon_dX.clear();

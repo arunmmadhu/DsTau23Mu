@@ -350,7 +350,8 @@ private:
   std::vector<double> Muon_innerTrack_numberOfLostTrackerOuterHits;
   std::vector<double> Muon_innerTrack_normalizedChi2;
 
-
+  std::vector<std::vector<float> > Muon_TrackX;
+  std::vector<std::vector<float> > Muon_TrackY;
   std::vector<std::vector<float> > Muon_dDxDz;
   std::vector<std::vector<float> > Muon_dDyDz;
   std::vector<std::vector<float> > Muon_dX;
