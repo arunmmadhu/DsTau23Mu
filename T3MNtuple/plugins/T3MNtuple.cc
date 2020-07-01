@@ -31,6 +31,7 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
    btagCvsBToken_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("btagsCvsB"))),
    btagCSVToken_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("btagsCSV"))),
    btagMVAToken_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("btagsMVA"))),
+//   btagDeepCSVToken_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("btagDeepCSV"))), ## absent in AOD
    vtxToken_(consumes<VertexCollection>(iConfig.getParameter<InputTag>("pvs"))),
    svToken_(consumes<VertexCollection>(iConfig.getParameter<InputTag>("svs"))),
    photonToken_(consumes<PhotonCollection>(iConfig.getParameter<edm::InputTag>("phos"))),
@@ -187,7 +188,6 @@ bool T3MNtuple::SkipThisParticle(const reco::GenParticle &GenPar){
 
 bool T3MNtuple::isGoodGenParticle(const reco::GenParticle &GenPar){
 
-
    int id = abs(GenPar.pdgId());
    if (id == PDGInfo::Ds_plus) return true;
    if (id == PDGInfo::B_plus) return true;
@@ -317,7 +317,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
       }
    }
 
-
+   //   std::cout<<"size  "<< signalTracksCollection.size() << std::endl;
    unsigned int index(0);
    for ( auto &iTransientTracks :  signalTracksCollection ){
       Vertex_signal_KF_pos.push_back(std::vector<double> ());
@@ -436,9 +436,9 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
       trackpair23.push_back(iTransientTracks.at(1)); trackpair23.push_back(iTransientTracks.at(2));
       trackpair31.push_back(iTransientTracks.at(2)); trackpair31.push_back(iTransientTracks.at(0));
       KalmanVertexFitter kvf_trks12(true), kvf_trks23(true), kvf_trks31(true);
-      TransientVertex fv_trks12 = kvf_trks12.vertex(trackpair12);
-      TransientVertex fv_trks23 = kvf_trks23.vertex(trackpair23);
-      TransientVertex fv_trks31 = kvf_trks31.vertex(trackpair31);
+      TransientVertex fv_trks12;// = kvf_trks12.vertex(trackpair12);
+      TransientVertex fv_trks23;// = kvf_trks23.vertex(trackpair23);
+      TransientVertex fv_trks31;// = kvf_trks31.vertex(trackpair31);
 
 
       bool Fit1Ok(true);
@@ -450,14 +450,14 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
       bool Fit2Ok(true);
       try {
-         fv_trks23 = kvf_trks12.vertex(trackpair23); 
+         fv_trks23 = kvf_trks23.vertex(trackpair23); 
       } catch (...) {
          Fit2Ok = false;
       }
 
       bool Fit3Ok(true);
       try {
-         fv_trks31 = kvf_trks12.vertex(trackpair31); 
+         fv_trks31 = kvf_trks31.vertex(trackpair31); 
       } catch (...) {
          Fit3Ok = false;
       }
@@ -468,13 +468,63 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
       iVertex_pairfit_status.push_back(Fit2Ok);
       iVertex_pairfit_status.push_back(Fit3Ok);
 
-      if(Fit1Ok){iVertex_pair_quality.push_back(fv_trks12.totalChiSquared());}else{iVertex_pair_quality.push_back(-1);}
-      if(Fit2Ok){iVertex_pair_quality.push_back(fv_trks23.totalChiSquared());}else{iVertex_pair_quality.push_back(-1);}
-      if(Fit2Ok){iVertex_pair_quality.push_back(fv_trks31.totalChiSquared());}else{iVertex_pair_quality.push_back(-1);}
+
+
+      std::vector<float> iVertex_Pair12_Pos;
+      std::vector<float> iVertex_Pair23_Pos;
+      std::vector<float> iVertex_Pair31_Pos;
+      if(fv_trks12.isValid())
+	{
+	  iVertex_pair_quality.push_back(fv_trks12.totalChiSquared());
+	  iVertex_Pair12_Pos.push_back( fv_trks12.position().x());
+	  iVertex_Pair12_Pos.push_back( fv_trks12.position().y());
+	  iVertex_Pair12_Pos.push_back( fv_trks12.position().z());
+	}
+
+      else
+	{
+	  iVertex_pair_quality.push_back(-1);
+	  iVertex_Pair12_Pos.push_back( 99.);
+	  iVertex_Pair12_Pos.push_back( 99.);
+	  iVertex_Pair12_Pos.push_back( 99.);
+	}
+      if(fv_trks23.isValid())
+	{
+	  iVertex_pair_quality.push_back(fv_trks23.totalChiSquared());
+	  iVertex_Pair23_Pos.push_back( fv_trks23.position().x());
+	  iVertex_Pair23_Pos.push_back( fv_trks23.position().y());
+	  iVertex_Pair23_Pos.push_back( fv_trks23.position().z());
+	}
+      else
+	{
+	  iVertex_pair_quality.push_back(-1);
+	  iVertex_Pair23_Pos.push_back( 99.);
+	  iVertex_Pair23_Pos.push_back( 99.);
+	  iVertex_Pair23_Pos.push_back( 99.);
+	}
+      if(fv_trks31.isValid())
+	{
+	  iVertex_pair_quality.push_back(fv_trks31.totalChiSquared());
+	  iVertex_Pair31_Pos.push_back( fv_trks31.position().x());
+	  iVertex_Pair31_Pos.push_back( fv_trks31.position().y());
+	  iVertex_Pair31_Pos.push_back( fv_trks31.position().z());
+	}
+      else
+	{
+	  iVertex_pair_quality.push_back(-1);
+	  iVertex_Pair31_Pos.push_back( 99.);
+	  iVertex_Pair31_Pos.push_back( 99.);
+	  iVertex_Pair31_Pos.push_back( 99.);
+	}
+
+      Vertex_Pair12_Pos.push_back( iVertex_Pair12_Pos);
+      Vertex_Pair23_Pos.push_back( iVertex_Pair23_Pos);
+      Vertex_Pair31_Pos.push_back( iVertex_Pair31_Pos);
+
 
       Vertex_pair_quality.push_back(iVertex_pair_quality);
       Vertex_pairfit_status.push_back(iVertex_pairfit_status);
-
+   
       ///////////////////////////////////////////
       //  find here the primary vertex with the best
       //  alignement to the tri-muon 
@@ -608,7 +658,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
             0.5*  beamSpotHandle->BeamWidthX()* beamSpotHandle->BeamWidthX()+
             0.5*  beamSpotHandle->BeamWidthY()* beamSpotHandle->BeamWidthY() );
 
-
+   
 
       if(d0ErrorToBs_1!=0){  iVertex_d0BeamSpot_reco_sig.push_back( abs(iTransientTracks.at(0).track().dxy(bsPoint)) / d0ErrorToBs_1);} else {iVertex_d0BeamSpot_reco_sig.push_back(-1);}
       if(d0ErrorToBs_2!=0){  iVertex_d0BeamSpot_reco_sig.push_back( abs(iTransientTracks.at(1).track().dxy(bsPoint)) / d0ErrorToBs_2);} else {iVertex_d0BeamSpot_reco_sig.push_back(-1);}
@@ -759,7 +809,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
       MuLVs.push_back(LV2);
       MuLVs.push_back(LV3);
 
-
+   
       std::vector<int> sortedindices = SortByPt(MuLVs);
 
 
@@ -931,8 +981,8 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
       Vertex_Isolation3.push_back(isolation3);
       Vertex_Isolation4.push_back(isolation4);
       index++;
-      }
-
+     }
+   //   std::cout<<" check size   "<<    Vertex_Pair12_Pos.size() << std::endl;
 
       for(size_t isv = 0; isv < svs->size(); isv++) {
          const Vertex & sv = (*svs)[isv];
@@ -1106,7 +1156,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
                if(muon::isTightMuon(*RefMuon,VertexMuonID)) idbit |= 1 << 3;
                if(muon::isHighPtMuon(*RefMuon,VertexMuonID)) idbit |= 1 << 4;
                Muon_ID.push_back(idbit);
-
+	       //	       std::cout<<"muonsoftmva  "<< RefMuon->softMvaValue() << std::endl;  // only in Mini AOD
 
                int ssbit(0);
                if(RefMuon->passed(reco::Muon::CutBasedIdLoose))ssbit|=1<<0;
@@ -1737,9 +1787,14 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
          Handle<JetTagCollection> btagsMVA;
          iEvent.getByToken(btagMVAToken_, btagsMVA);
 
+	 //         Handle<JetTagCollection> btagsDeepCSV;
+	 //         iEvent.getByToken(btagDeepCSVToken_, btagsDeepCSV );
+
+
+
          for(size_t j = 0 ; j < btagsCvsB->size(); j++) {
             const JetTag & btag1 = (*btagsCvsB)[j];
-            if(btag1.first->pt() > 20){
+            if(btag1.first->pt() > 5){
                std::vector<double> iJet_p4;
                iJet_p4.push_back(btag1.first->p4().e());
                iJet_p4.push_back(btag1.first->p4().px());
@@ -1751,6 +1806,11 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
                Jet_BTagMVA.push_back(btag2.second);
                const JetTag & btag3 = (*btagsCSV)[j];
                Jet_BTagCSV.push_back(btag3.second<0 ? 0:btag3.second);
+
+
+
+	       //               const JetTag & btag4 = (*btagsDeepCSV)[j];
+	       //	       std::cout<<"btag deep CSV "<<btag4.second<< std::endl;
             }
          }
       }
@@ -3708,6 +3768,11 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
                output_tree->Branch("Vertex_signal_KF_BS_error", &Vertex_signal_KF_BS_error);
                output_tree->Branch("Vertex_signal_KF_BS_significance", &Vertex_signal_KF_BS_significance);
                output_tree->Branch("Vertex_pair_quality", &Vertex_pair_quality);
+
+	       output_tree->Branch("Vertex_Pair12_Pos", &Vertex_Pair12_Pos);
+	       output_tree->Branch("Vertex_Pair23_Pos", &Vertex_Pair23_Pos);
+	       output_tree->Branch("Vertex_Pair31_Pos", &Vertex_Pair31_Pos);
+
                output_tree->Branch("Vertex_pairfit_status", &Vertex_pairfit_status);
                output_tree->Branch("Vertex_MatchedPrimaryVertex",&Vertex_MatchedPrimaryVertex);
                output_tree->Branch("Vertex_SecondBestPrimaryVertex",&Vertex_SecondBestPrimaryVertex);
@@ -4082,6 +4147,11 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
             Vertex_pair_quality.clear();
             Vertex_pairfit_status.clear();
+	    Vertex_Pair12_Pos.clear();
+	    Vertex_Pair23_Pos.clear();
+	    Vertex_Pair31_Pos.clear();
+
+
             Vertex_MatchedPrimaryVertex.clear();
             Vertex_SecondBestPrimaryVertex.clear();
 
