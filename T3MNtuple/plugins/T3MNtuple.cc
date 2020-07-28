@@ -31,7 +31,7 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
    btagCvsBToken_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("btagsCvsB"))),
    btagCSVToken_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("btagsCSV"))),
    btagMVAToken_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("btagsMVA"))),
-//   btagDeepCSVToken_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("btagDeepCSV"))), ## absent in AOD
+   //   btagDeepCSVToken_(consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("btagDeepCSV"))), ## absent in AOD
    vtxToken_(consumes<VertexCollection>(iConfig.getParameter<InputTag>("pvs"))),
    svToken_(consumes<VertexCollection>(iConfig.getParameter<InputTag>("svs"))),
    photonToken_(consumes<PhotonCollection>(iConfig.getParameter<edm::InputTag>("phos"))),
@@ -474,48 +474,48 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
       std::vector<float> iVertex_Pair23_Pos;
       std::vector<float> iVertex_Pair31_Pos;
       if(fv_trks12.isValid())
-	{
-	  iVertex_pair_quality.push_back(fv_trks12.totalChiSquared());
-	  iVertex_Pair12_Pos.push_back( fv_trks12.position().x());
-	  iVertex_Pair12_Pos.push_back( fv_trks12.position().y());
-	  iVertex_Pair12_Pos.push_back( fv_trks12.position().z());
-	}
+      {
+         iVertex_pair_quality.push_back(fv_trks12.totalChiSquared());
+         iVertex_Pair12_Pos.push_back( fv_trks12.position().x());
+         iVertex_Pair12_Pos.push_back( fv_trks12.position().y());
+         iVertex_Pair12_Pos.push_back( fv_trks12.position().z());
+      }
 
       else
-	{
-	  iVertex_pair_quality.push_back(-1);
-	  iVertex_Pair12_Pos.push_back( 99.);
-	  iVertex_Pair12_Pos.push_back( 99.);
-	  iVertex_Pair12_Pos.push_back( 99.);
-	}
+      {
+         iVertex_pair_quality.push_back(-1);
+         iVertex_Pair12_Pos.push_back( 99.);
+         iVertex_Pair12_Pos.push_back( 99.);
+         iVertex_Pair12_Pos.push_back( 99.);
+      }
       if(fv_trks23.isValid())
-	{
-	  iVertex_pair_quality.push_back(fv_trks23.totalChiSquared());
-	  iVertex_Pair23_Pos.push_back( fv_trks23.position().x());
-	  iVertex_Pair23_Pos.push_back( fv_trks23.position().y());
-	  iVertex_Pair23_Pos.push_back( fv_trks23.position().z());
-	}
+      {
+         iVertex_pair_quality.push_back(fv_trks23.totalChiSquared());
+         iVertex_Pair23_Pos.push_back( fv_trks23.position().x());
+         iVertex_Pair23_Pos.push_back( fv_trks23.position().y());
+         iVertex_Pair23_Pos.push_back( fv_trks23.position().z());
+      }
       else
-	{
-	  iVertex_pair_quality.push_back(-1);
-	  iVertex_Pair23_Pos.push_back( 99.);
-	  iVertex_Pair23_Pos.push_back( 99.);
-	  iVertex_Pair23_Pos.push_back( 99.);
-	}
+      {
+         iVertex_pair_quality.push_back(-1);
+         iVertex_Pair23_Pos.push_back( 99.);
+         iVertex_Pair23_Pos.push_back( 99.);
+         iVertex_Pair23_Pos.push_back( 99.);
+      }
       if(fv_trks31.isValid())
-	{
-	  iVertex_pair_quality.push_back(fv_trks31.totalChiSquared());
-	  iVertex_Pair31_Pos.push_back( fv_trks31.position().x());
-	  iVertex_Pair31_Pos.push_back( fv_trks31.position().y());
-	  iVertex_Pair31_Pos.push_back( fv_trks31.position().z());
-	}
+      {
+         iVertex_pair_quality.push_back(fv_trks31.totalChiSquared());
+         iVertex_Pair31_Pos.push_back( fv_trks31.position().x());
+         iVertex_Pair31_Pos.push_back( fv_trks31.position().y());
+         iVertex_Pair31_Pos.push_back( fv_trks31.position().z());
+      }
       else
-	{
-	  iVertex_pair_quality.push_back(-1);
-	  iVertex_Pair31_Pos.push_back( 99.);
-	  iVertex_Pair31_Pos.push_back( 99.);
-	  iVertex_Pair31_Pos.push_back( 99.);
-	}
+      {
+         iVertex_pair_quality.push_back(-1);
+         iVertex_Pair31_Pos.push_back( 99.);
+         iVertex_Pair31_Pos.push_back( 99.);
+         iVertex_Pair31_Pos.push_back( 99.);
+      }
 
       Vertex_Pair12_Pos.push_back( iVertex_Pair12_Pos);
       Vertex_Pair23_Pos.push_back( iVertex_Pair23_Pos);
@@ -524,7 +524,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
       Vertex_pair_quality.push_back(iVertex_pair_quality);
       Vertex_pairfit_status.push_back(iVertex_pairfit_status);
-   
+
       ///////////////////////////////////////////
       //  find here the primary vertex with the best
       //  alignement to the tri-muon 
@@ -658,7 +658,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
             0.5*  beamSpotHandle->BeamWidthX()* beamSpotHandle->BeamWidthX()+
             0.5*  beamSpotHandle->BeamWidthY()* beamSpotHandle->BeamWidthY() );
 
-   
+
 
       if(d0ErrorToBs_1!=0){  iVertex_d0BeamSpot_reco_sig.push_back( abs(iTransientTracks.at(0).track().dxy(bsPoint)) / d0ErrorToBs_1);} else {iVertex_d0BeamSpot_reco_sig.push_back(-1);}
       if(d0ErrorToBs_2!=0){  iVertex_d0BeamSpot_reco_sig.push_back( abs(iTransientTracks.at(1).track().dxy(bsPoint)) / d0ErrorToBs_2);} else {iVertex_d0BeamSpot_reco_sig.push_back(-1);}
@@ -809,7 +809,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
       MuLVs.push_back(LV2);
       MuLVs.push_back(LV3);
 
-   
+
       std::vector<int> sortedindices = SortByPt(MuLVs);
 
 
@@ -981,8 +981,8 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
       Vertex_Isolation3.push_back(isolation3);
       Vertex_Isolation4.push_back(isolation4);
       index++;
-     }
-   //   std::cout<<" check size   "<<    Vertex_Pair12_Pos.size() << std::endl;
+      }
+      //   std::cout<<" check size   "<<    Vertex_Pair12_Pos.size() << std::endl;
 
       for(size_t isv = 0; isv < svs->size(); isv++) {
          const Vertex & sv = (*svs)[isv];
@@ -1156,7 +1156,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
                if(muon::isTightMuon(*RefMuon,VertexMuonID)) idbit |= 1 << 3;
                if(muon::isHighPtMuon(*RefMuon,VertexMuonID)) idbit |= 1 << 4;
                Muon_ID.push_back(idbit);
-	       //	       std::cout<<"muonsoftmva  "<< RefMuon->softMvaValue() << std::endl;  // only in Mini AOD
+               //	       std::cout<<"muonsoftmva  "<< RefMuon->softMvaValue() << std::endl;  // only in Mini AOD
 
                int ssbit(0);
                if(RefMuon->passed(reco::Muon::CutBasedIdLoose))ssbit|=1<<0;
@@ -1187,71 +1187,69 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
                /////////////////////////////////////////////////////////////
                //here following guide given in:
                //https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2
+               /////////////////////////////////////////////////////////////
 
 
+               std::vector<float>  iMuon_TrackX;
+               std::vector<float>  iMuon_TrackY;
+               std::vector<float>  iMuon_dDxDz;
+               std::vector<float>  iMuon_dDyDz;
+               std::vector<float>  iMuon_dX;
+               std::vector<float>  iMuon_dY;
+               std::vector<float>  iMuon_pullX;
+               std::vector<float>  iMuon_pullY;
+               std::vector<float>  iMuon_pullDxDz;
+               std::vector<float>  iMuon_pullDyDz;
+               std::vector<float>  inumberOfSegments;
+
+
+               for(int it = 1; it <= 8; ++it) { // loop over stations, 1,2,3,4 are DT, 5,6,7,8 are CSC
+                  if(it <=4){ // we are in DT
+                     iMuon_TrackX.push_back(RefMuon->trackX(it,1));
+                     iMuon_TrackY.push_back(RefMuon->trackY(it,1));
+                     iMuon_dDxDz.push_back(RefMuon->dDxDz(it,1));
+                     iMuon_dDyDz.push_back(RefMuon->dDyDz(it,1));
+                     iMuon_dX.push_back(RefMuon->dX(it,1));
+                     iMuon_dY.push_back(RefMuon->dY(it,1));
+                     iMuon_pullX.push_back(RefMuon->pullX(it,1));
+                     iMuon_pullY.push_back(RefMuon->pullY(it,1));
+                     iMuon_pullDxDz.push_back(RefMuon->pullDxDz(it,1));
+                     iMuon_pullDyDz.push_back(RefMuon->pullDyDz(it,1));
+                     inumberOfSegments.push_back(RefMuon->numberOfSegments(it,1));
+                  }
+                  if(it > 4){  // now in csc
+                     iMuon_TrackX.push_back(RefMuon->trackX(it - 4,2));
+                     iMuon_TrackY.push_back(RefMuon->trackY(it - 4,2));
+                     iMuon_dDxDz.push_back(RefMuon->dDxDz(it - 4,2));
+                     iMuon_dDyDz.push_back(RefMuon->dDyDz(it - 4,2));
+                     iMuon_dX.push_back(RefMuon->dX(it - 4,2));
+                     iMuon_dY.push_back(RefMuon->dY(it - 4,2));
+                     iMuon_pullX.push_back(RefMuon->pullX(it - 4,2));
+                     iMuon_pullY.push_back(RefMuon->pullY(it - 4,2));
+                     iMuon_pullDxDz.push_back(RefMuon->pullDxDz(it - 4,2));
+                     iMuon_pullDyDz.push_back(RefMuon->pullDyDz(it - 4,2));
+                     inumberOfSegments.push_back(RefMuon->numberOfSegments(it - 4,2));
+                  }
+               }
+
+
+               Muon_TrackX.push_back(iMuon_TrackX);
+               Muon_TrackY.push_back(iMuon_TrackY);
+               Muon_dDxDz.push_back(iMuon_dDxDz);
+               Muon_dDyDz.push_back(iMuon_dDyDz);
+               Muon_dX.push_back(iMuon_dX);
+               Muon_dY.push_back(iMuon_dY);
+               Muon_pullX.push_back(iMuon_pullX);
+               Muon_pullY.push_back(iMuon_pullY);
+               Muon_pullDxDz.push_back(iMuon_pullDxDz);
+               Muon_pullDyDz.push_back(iMuon_pullDyDz);
+               numberOfSegments.push_back(inumberOfSegments);
 
                std::vector<double> iMuon_outerTrack_p4;
                std::vector<double> iMuon_innerTrack_p4;
                if (RefMuon->isGlobalMuon()) {
                   Muon_hitPattern_numberOfValidMuonHits.push_back(RefMuon->globalTrack()->hitPattern().numberOfValidMuonHits());
                   Muon_normChi2.push_back(RefMuon->globalTrack()->normalizedChi2());
-
-                  std::vector<float>  iMuon_TrackX;
-                  std::vector<float>  iMuon_TrackY;
-                  std::vector<float>  iMuon_dDxDz;
-                  std::vector<float>  iMuon_dDyDz;
-                  std::vector<float>  iMuon_dX;
-                  std::vector<float>  iMuon_dY;
-                  std::vector<float>  iMuon_pullX;
-                  std::vector<float>  iMuon_pullY;
-                  std::vector<float>  iMuon_pullDxDz;
-                  std::vector<float>  iMuon_pullDyDz;
-                  std::vector<float>  inumberOfSegments;
-
-
-                  for(int it = 1; it <= 8; ++it) { // loop over stations, 1,2,3,4 are DT, 5,6,7,8 are CSC
-                     if(it <=4){ // we are in DT
-                        iMuon_TrackX.push_back(RefMuon->trackX(it,1));
-                        iMuon_TrackY.push_back(RefMuon->trackY(it,1));
-                        iMuon_dDxDz.push_back(RefMuon->dDxDz(it,1));
-                        iMuon_dDyDz.push_back(RefMuon->dDyDz(it,1));
-                        iMuon_dX.push_back(RefMuon->dX(it,1));
-                        iMuon_dY.push_back(RefMuon->dY(it,1));
-                        iMuon_pullX.push_back(RefMuon->pullX(it,1));
-                        iMuon_pullY.push_back(RefMuon->pullY(it,1));
-                        iMuon_pullDxDz.push_back(RefMuon->pullDxDz(it,1));
-                        iMuon_pullDyDz.push_back(RefMuon->pullDyDz(it,1));
-                        inumberOfSegments.push_back(RefMuon->numberOfSegments(it,1));
-                     }
-                     if(it > 4){  // now in csc
-                        iMuon_TrackX.push_back(RefMuon->trackX(it - 4,2));
-                        iMuon_TrackY.push_back(RefMuon->trackY(it - 4,2));
-                        iMuon_dDxDz.push_back(RefMuon->dDxDz(it - 4,2));
-                        iMuon_dDyDz.push_back(RefMuon->dDyDz(it - 4,2));
-                        iMuon_dX.push_back(RefMuon->dX(it - 4,2));
-                        iMuon_dY.push_back(RefMuon->dY(it - 4,2));
-                        iMuon_pullX.push_back(RefMuon->pullX(it - 4,2));
-                        iMuon_pullY.push_back(RefMuon->pullY(it - 4,2));
-                        iMuon_pullDxDz.push_back(RefMuon->pullDxDz(it - 4,2));
-                        iMuon_pullDyDz.push_back(RefMuon->pullDyDz(it - 4,2));
-                        inumberOfSegments.push_back(RefMuon->numberOfSegments(it - 4,2));
-                     }
-                  }
-
-
-                  Muon_TrackX.push_back(iMuon_TrackX);
-                  Muon_TrackY.push_back(iMuon_TrackY);
-                  Muon_dDxDz.push_back(iMuon_dDxDz);
-                  Muon_dDyDz.push_back(iMuon_dDyDz);
-                  Muon_dX.push_back(iMuon_dX);
-                  Muon_dY.push_back(iMuon_dY);
-                  Muon_pullX.push_back(iMuon_pullX);
-                  Muon_pullY.push_back(iMuon_pullY);
-                  Muon_pullDxDz.push_back(iMuon_pullDxDz);
-                  Muon_pullDyDz.push_back(iMuon_pullDyDz);
-                  numberOfSegments.push_back(inumberOfSegments);
-
-
 
                   iMuon_outerTrack_p4.push_back(RefMuon->outerTrack()->eta());
                   iMuon_outerTrack_p4.push_back(RefMuon->outerTrack()->phi());
@@ -1787,8 +1785,8 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
          Handle<JetTagCollection> btagsMVA;
          iEvent.getByToken(btagMVAToken_, btagsMVA);
 
-	 //         Handle<JetTagCollection> btagsDeepCSV;
-	 //         iEvent.getByToken(btagDeepCSVToken_, btagsDeepCSV );
+         //         Handle<JetTagCollection> btagsDeepCSV;
+         //         iEvent.getByToken(btagDeepCSVToken_, btagsDeepCSV );
 
 
 
@@ -1809,8 +1807,8 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
 
 
-	       //               const JetTag & btag4 = (*btagsDeepCSV)[j];
-	       //	       std::cout<<"btag deep CSV "<<btag4.second<< std::endl;
+               //               const JetTag & btag4 = (*btagsDeepCSV)[j];
+               //	       std::cout<<"btag deep CSV "<<btag4.second<< std::endl;
             }
          }
       }
@@ -3769,9 +3767,9 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
                output_tree->Branch("Vertex_signal_KF_BS_significance", &Vertex_signal_KF_BS_significance);
                output_tree->Branch("Vertex_pair_quality", &Vertex_pair_quality);
 
-	       output_tree->Branch("Vertex_Pair12_Pos", &Vertex_Pair12_Pos);
-	       output_tree->Branch("Vertex_Pair23_Pos", &Vertex_Pair23_Pos);
-	       output_tree->Branch("Vertex_Pair31_Pos", &Vertex_Pair31_Pos);
+               output_tree->Branch("Vertex_Pair12_Pos", &Vertex_Pair12_Pos);
+               output_tree->Branch("Vertex_Pair23_Pos", &Vertex_Pair23_Pos);
+               output_tree->Branch("Vertex_Pair31_Pos", &Vertex_Pair31_Pos);
 
                output_tree->Branch("Vertex_pairfit_status", &Vertex_pairfit_status);
                output_tree->Branch("Vertex_MatchedPrimaryVertex",&Vertex_MatchedPrimaryVertex);
@@ -4147,9 +4145,9 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
             Vertex_pair_quality.clear();
             Vertex_pairfit_status.clear();
-	    Vertex_Pair12_Pos.clear();
-	    Vertex_Pair23_Pos.clear();
-	    Vertex_Pair31_Pos.clear();
+            Vertex_Pair12_Pos.clear();
+            Vertex_Pair23_Pos.clear();
+            Vertex_Pair31_Pos.clear();
 
 
             Vertex_MatchedPrimaryVertex.clear();

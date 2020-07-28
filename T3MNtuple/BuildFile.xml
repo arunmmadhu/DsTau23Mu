@@ -14,6 +14,7 @@
 
 <use name="rootminuit"/>
 <use name="rootrflx"/>
+<use name="boost"/>
 
 <Flags CPPDEFINES="CMSSW_VERSION=$(shell echo ${CMSSW_VERSION}|sed -e s/CMSSW_// -e s/_//g -e s/patch\.//)"/>
 <export>

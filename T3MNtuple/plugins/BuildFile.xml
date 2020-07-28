@@ -25,5 +25,6 @@
    <use name="clhep"/>
    <use name="rootrflx"/>
    <use name="rootmath"/>
+   <use name="boost"/>
    <Flags EDM_PLUGIN="1"/>
 </library>
