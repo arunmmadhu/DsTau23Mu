@@ -199,7 +199,7 @@ bool T3MNtuple::isGoodGenParticle(const reco::GenParticle &GenPar){
    void
 T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 { 
-   //  std::cout<<" ========================  new event =============== "<< std::endl;
+   std::cout<<" ========================  new event =============== "<< std::endl;
    cnt_++;
    ClearEvent();
 
@@ -467,8 +467,6 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
       iVertex_pairfit_status.push_back(Fit1Ok);
       iVertex_pairfit_status.push_back(Fit2Ok);
       iVertex_pairfit_status.push_back(Fit3Ok);
-
-
 
       std::vector<float> iVertex_Pair12_Pos;
       std::vector<float> iVertex_Pair23_Pos;
@@ -765,9 +763,9 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
       IsolationBranch_Trackp4.push_back(std::vector<std::vector<float> >());
       for(Vertex::trackRef_iterator itk = MatchedPrimaryVertex.tracks_begin(); itk != MatchedPrimaryVertex.tracks_end(); itk++) {
-         if(deltaR(iTransientTracks.at(0).track().eta(), iTransientTracks.at(0).track().phi(), (**itk).eta(), (**itk).phi())<0.01)continue;
-         if(deltaR(iTransientTracks.at(1).track().eta(), iTransientTracks.at(1).track().phi(), (**itk).eta(), (**itk).phi())<0.01)continue;
-         if(deltaR(iTransientTracks.at(2).track().eta(), iTransientTracks.at(2).track().phi(), (**itk).eta(), (**itk).phi())<0.01)continue;
+         if(deltaR(iTransientTracks.at(0).track().eta(), iTransientTracks.at(0).track().phi(), (**itk).eta(), (**itk).phi())<0.001)continue;
+         if(deltaR(iTransientTracks.at(1).track().eta(), iTransientTracks.at(1).track().phi(), (**itk).eta(), (**itk).phi())<0.001)continue;
+         if(deltaR(iTransientTracks.at(2).track().eta(), iTransientTracks.at(2).track().phi(), (**itk).eta(), (**itk).phi())<0.001)continue;
 
          std::vector<float> iIsolationBranch_Track_p4;
 
@@ -822,26 +820,34 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
       std::vector<float> iIsolationTrack_DocaMu2;
       std::vector<float> iIsolationTrack_DocaMu3;
       std::vector<int>   iIsolationTrack_charge;
+      std::vector<int>   iIsolationTrack_isHighPurity;
+      std::vector<int>   IsolationTracksIndices;
+
+
+      vector<TransientTrack> iIsolationTracksCollection;
+      ESHandle<TransientTrackBuilder> TheB;
+      iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",TheB);
 
       for(size_t i = 0; i < trackCollection->size(); i++) {
          const Track & t = (*trackCollection)[i];
 
 
          if(!(t.quality(TrackBase::tight)))continue; //-- this might be weaker
-         if(deltaR(LV1.Eta(), LV1.Phi(), t.eta(), t.phi())<0.01)continue;
-         if(deltaR(LV2.Eta(), LV2.Phi(), t.eta(), t.phi())<0.01)continue;
-         if(deltaR(LV3.Eta(), LV3.Phi(), t.eta(), t.phi())<0.01)continue;
+         if(deltaR(LV1.Eta(), LV1.Phi(), t.eta(), t.phi())<0.001)continue;
+         if(deltaR(LV2.Eta(), LV2.Phi(), t.eta(), t.phi())<0.001)continue;
+         if(deltaR(LV3.Eta(), LV3.Phi(), t.eta(), t.phi())<0.001)continue;
 
          //if(abs(t.dz(pvPoint))< 0.5 && t.quality(TrackBase::tight) && sqrt(t.px()*t.px() + t.py()*t.py() ) > 0.5){//  && deltaR(t.eta(), t.phi(), LVTau.Eta(), LVTau.Phi()) < 1.){
-         if(abs(t.dz(pvPoint))< 0.5 && t.quality(TrackBase::tight) && sqrt(t.px()*t.px() + t.py()*t.py() ) > 0.8  && deltaR(t.eta(), t.phi(), LVTau.Eta(), LVTau.Phi()) < 1.){
+         if(abs(t.dz(pvPoint))< 0.5 && sqrt(t.px()*t.px() + t.py()*t.py() ) > 0.4  && deltaR(t.eta(), t.phi(), LVTau.Eta(), LVTau.Phi()) < 1.){
+   	    IsolationTracksIndices.push_back(i);
             std::vector<float> iIsolation_Track_p4;
-
             iIsolation_Track_p4.push_back(sqrt(pow(t.p(),2.0) + pow(PDGInfo::pi_mass(),2.0)));
             iIsolation_Track_p4.push_back(t.px());
             iIsolation_Track_p4.push_back(t.py());
             iIsolation_Track_p4.push_back(t.pz());
 
             iIsolationTrack_charge.push_back(t.charge());
+            iIsolationTrack_isHighPurity.push_back(t.quality(TrackBase::highPurity));
 
             IsolationTrack_p4.at(IsolationTrack_p4.size() - 1).push_back(iIsolation_Track_p4);
 
@@ -867,7 +873,13 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
             if(DocaMuon3.status()){ iIsolationTrack_DocaMu3.push_back(DocaMuon3.distance());}
             else iIsolationTrack_DocaMu3.push_back(-1);
+	    iIsolationTracksCollection.push_back(TheB->build(t));
+
+
          }
+
+            
+
          //--------------------------- Isolation Branch
 
          double dz = abs(t.dz(TheSecondaryVertexPoint));
@@ -924,7 +936,6 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
 
 
-
          double dz_primaryvertex=abs(t.dz(pvPoint));
 
          if(!(dz_primaryvertex < 1))continue;
@@ -934,6 +945,11 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
          if(dxy_primaryvertex>0.5) N_trk0p5++;
          if(dxy_primaryvertex>maxdxy) maxdxy = dxy_primaryvertex;
       }
+      //********************************************************************************
+      //Here reconstruct the vertices of all signal candidates with all isolation tracks 
+
+
+      std::cout<<"  "<<iIsolationTracksCollection.size() << "  "<< IsolationTracksIndices.size() << std::endl;
 
 
       IsolationTrack_dxySV.push_back(iIsolationTrack_dxySV);
@@ -945,6 +961,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
       IsolationTrack_DocaMu2.push_back(iIsolationTrack_DocaMu2);
       IsolationTrack_DocaMu3.push_back(iIsolationTrack_DocaMu3);
       IsolationTrack_charge.push_back(iIsolationTrack_charge);
+      IsolationTrack_isHighPurity.push_back(iIsolationTrack_isHighPurity);
 
       relative_iso = sumptalltracks/LVTau.Pt();
       relative_iso05 = sumptalltracks05/LVTau.Pt();
@@ -3805,6 +3822,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
                output_tree->Branch("IsolationTrack_p4", &IsolationTrack_p4);
 
                output_tree->Branch("IsolationTrack_charge",&IsolationTrack_charge);
+	       output_tree->Branch("IsolationTrack_isHighPurity",&IsolationTrack_isHighPurity);
                output_tree->Branch("IsolationTrack_quality",&IsolationTrack_quality);
 
                output_tree->Branch("IsolationTrack_dxySV",&IsolationTrack_dxySV);
@@ -4184,6 +4202,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
             IsolationTrack_p4.clear();
             IsolationTrack_charge.clear();
+	    IsolationTrack_isHighPurity.clear();
             IsolationTrack_quality.clear();
 
             IsolationTrack_dxySV.clear();

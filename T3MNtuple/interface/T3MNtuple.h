@@ -489,6 +489,7 @@ private:
   std::vector<std::vector<std::vector<float> > > IsolationTrack_p4;
   std::vector<std::vector<int> > IsolationTrack_charge;
   std::vector<std::vector<float> > IsolationTrack_quality;
+  std::vector<std::vector<int> > IsolationTrack_isHighPurity;
 
   std::vector<std::vector<float> > IsolationTrack_dxySV;
   std::vector<std::vector<float> > IsolationTrack_dzSV;
