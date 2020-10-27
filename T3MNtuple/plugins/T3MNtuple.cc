@@ -826,6 +826,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
       vector<TransientTrack> iIsolationTracksCollection;
       ESHandle<TransientTrackBuilder> TheB;
+      std::vector<std::vector<int> >  VertexWithSignalMuonIsValid;
       iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",TheB);
 
       for(size_t i = 0; i < trackCollection->size(); i++) {
@@ -839,6 +840,8 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
          //if(abs(t.dz(pvPoint))< 0.5 && t.quality(TrackBase::tight) && sqrt(t.px()*t.px() + t.py()*t.py() ) > 0.5){//  && deltaR(t.eta(), t.phi(), LVTau.Eta(), LVTau.Phi()) < 1.){
          if(abs(t.dz(pvPoint))< 0.5 && sqrt(t.px()*t.px() + t.py()*t.py() ) > 0.4  && deltaR(t.eta(), t.phi(), LVTau.Eta(), LVTau.Phi()) < 1.){
+    	    std::vector<int> iVertexWithSignalMuonIsValid;
+	    std::vector<int> iVertexWithSignalMuonChi2;
    	    IsolationTracksIndices.push_back(i);
             std::vector<float> iIsolation_Track_p4;
             iIsolation_Track_p4.push_back(sqrt(pow(t.p(),2.0) + pow(PDGInfo::pi_mass(),2.0)));
@@ -875,9 +878,70 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
             else iIsolationTrack_DocaMu3.push_back(-1);
 	    iIsolationTracksCollection.push_back(TheB->build(t));
 
+	    vector<TransientTrack> IsolationTrack_Muon1;
+	    vector<TransientTrack> IsolationTrack_Muon2;
+	    vector<TransientTrack> IsolationTrack_Muon3;
+
+
+	    IsolationTrack_Muon1.push_back(iTransientTracks.at(0));IsolationTrack_Muon1.push_back(TheB->build(t));
+	    IsolationTrack_Muon2.push_back(iTransientTracks.at(1));IsolationTrack_Muon2.push_back(TheB->build(t));
+	    IsolationTrack_Muon3.push_back(iTransientTracks.at(2));IsolationTrack_Muon3.push_back(TheB->build(t));
+
+	    KalmanVertexFitter KVF_IsoTrack_Mu1(true),KVF_IsoTrack_Mu2(true),KVF_IsoTrack_Mu3(true); 
+	    TransientVertex V_IsoTrack_Mu1,V_IsoTrack_Mu2,V_IsoTrack_Mu3;
+	    bool FitTrackMu1Ok(true);
+	    bool FitTrackMu2Ok(true);
+	    bool FitTrackMu3Ok(true);
+
+	    try {
+	      V_IsoTrack_Mu1=KVF_IsoTrack_Mu1.vertex(IsolationTrack_Muon1);
+	    } catch (...) {
+	      FitTrackMu1Ok = false;
+	    }
+
+	    try {
+	      V_IsoTrack_Mu2=KVF_IsoTrack_Mu2.vertex(IsolationTrack_Muon2);
+	    } catch (...) {
+	      FitTrackMu2Ok = false;
+	    }
+
+	    try {
+	      V_IsoTrack_Mu3=KVF_IsoTrack_Mu3.vertex(IsolationTrack_Muon3);
+	    } catch (...) {
+	      FitTrackMu3Ok = false;
+	    }
+
+	    iVertexWithSignalMuonIsValid.push_back(V_IsoTrack_Mu1.isValid());
+	    iVertexWithSignalMuonIsValid.push_back(V_IsoTrack_Mu2.isValid());
+	    iVertexWithSignalMuonIsValid.push_back(V_IsoTrack_Mu3.isValid());
+
+	    if(V_IsoTrack_Mu1.isValid()){	    iVertexWithSignalMuonChi2.push_back(V_IsoTrack_Mu1.totalChiSquared());}
+	    else {iVertexWithSignalMuonChi2.push_back(-1);}
+
+	    if(V_IsoTrack_Mu2.isValid()){	    iVertexWithSignalMuonChi2.push_back(V_IsoTrack_Mu1.totalChiSquared());}
+	    else {iVertexWithSignalMuonChi2.push_back(-1);}
+
+	    if(V_IsoTrack_Mu3.isValid()){	    iVertexWithSignalMuonChi2.push_back(V_IsoTrack_Mu1.totalChiSquared());}
+	    else {iVertexWithSignalMuonChi2.push_back(-1);}
+
+
+	    std::cout<<"Ok  "<<  FitTrackMu1Ok << "  "<< FitTrackMu2Ok << " "<<FitTrackMu3Ok << std::endl;
+	    std::cout<<"hrt  "<< V_IsoTrack_Mu1.hasRefittedTracks()  << "  "<< V_IsoTrack_Mu2.hasRefittedTracks() << " "<<V_IsoTrack_Mu3.hasRefittedTracks() << std::endl;
+	    //	    std::cout<<"  "<< V_IsoTrack_Mu1.totalChiSquared()  << "  "<< V_IsoTrack_Mu2.totalChiSquared() << " "<<V_IsoTrack_Mu3.totalChiSquared() << std::endl;
+	    std::cout<<"ndf  "<< V_IsoTrack_Mu1.degreesOfFreedom()  << "  "<< V_IsoTrack_Mu2.degreesOfFreedom() << " "<<V_IsoTrack_Mu3.degreesOfFreedom() << std::endl;
+	    //std::cout<<"  "<< V_IsoTrack_Mu1.isValid()  << "  "<< V_IsoTrack_Mu2.isValid() << " "<<V_IsoTrack_Mu3.isValid() << std::endl;
+
+	    std::cout<<"size   " <<iVertexWithSignalMuonChi2<<std::endl;
+
+	    // if(V_IsoTrack_Mu1.isValid() && V_IsoTrack_Mu2.isValid() && V_IsoTrack_Mu3.isValid()){
+	    // std::cout<<"  " <<V_IsoTrack_Mu1.position().x()<<  "  "<<  V_IsoTrack_Mu1.position().y()<<"  "<< V_IsoTrack_Mu1.position().z() << std::endl;
+	    // std::cout<<"  " <<V_IsoTrack_Mu2.position().x()<<  "  "<<  V_IsoTrack_Mu2.position().y()<<"  "<< V_IsoTrack_Mu2.position().z() << std::endl;
+	    // std::cout<<"  " <<V_IsoTrack_Mu3.position().x()<<  "  "<<  V_IsoTrack_Mu3.position().y()<<"  "<< V_IsoTrack_Mu3.position().z() << std::endl;
+	    // }
+  
 
          }
-
+      
             
 
          //--------------------------- Isolation Branch
@@ -950,6 +1014,8 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
 
       std::cout<<"  "<<iIsolationTracksCollection.size() << "  "<< IsolationTracksIndices.size() << std::endl;
+
+
 
 
       IsolationTrack_dxySV.push_back(iIsolationTrack_dxySV);
