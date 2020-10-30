@@ -943,7 +943,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
 	    if(V_IsoTrack_Mu2.isValid())
 	      {	    
-		iIsolationTrack_VertexWithSignalMuonChi2.push_back(V_IsoTrack_Mu1.totalChiSquared());
+		iIsolationTrack_VertexWithSignalMuonChi2.push_back(V_IsoTrack_Mu2.totalChiSquared());
 		iIsolationTrack_VertexWithSignalMuonPosition.push_back(V_IsoTrack_Mu2.position().x());
 		iIsolationTrack_VertexWithSignalMuonPosition.push_back(V_IsoTrack_Mu2.position().y());
 		iIsolationTrack_VertexWithSignalMuonPosition.push_back(V_IsoTrack_Mu2.position().z());
@@ -958,7 +958,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent, const edm::EventSetup& iS
 
 	    if(V_IsoTrack_Mu3.isValid())
 	      {	    
-		iIsolationTrack_VertexWithSignalMuonChi2.push_back(V_IsoTrack_Mu1.totalChiSquared());
+		iIsolationTrack_VertexWithSignalMuonChi2.push_back(V_IsoTrack_Mu3.totalChiSquared());
 		iIsolationTrack_VertexWithSignalMuonPosition.push_back(V_IsoTrack_Mu3.position().x());
 		iIsolationTrack_VertexWithSignalMuonPosition.push_back(V_IsoTrack_Mu3.position().y());
 		iIsolationTrack_VertexWithSignalMuonPosition.push_back(V_IsoTrack_Mu3.position().z());
