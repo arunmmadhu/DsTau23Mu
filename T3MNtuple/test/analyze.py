@@ -12,7 +12,7 @@ options.register('globalTag',
                  "Global Tag")
 
 options.register('nEvents',
-                 5000, #default value
+                 2000, #default value
 
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
