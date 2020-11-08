@@ -43,11 +43,11 @@ TrackCollectionProducer::TrackCollectionProducer(const edm::ParameterSet& iConfi
     edm::InputTag tag;
 
     if (DEBUG) cout<<"Initializing PFCandidate Tag"<<endl;
-    tag = iConfig.getUntrackedParameter<edm::InputTag>("PFCandidateTag", edm::InputTag("packedPFCandidates::RECO") ); 
+    tag = iConfig.getParameter<edm::InputTag>("PFCandidateTag"); 
     pfCandidateToken_ = consumes<std::vector<pat::PackedCandidate> >(tag);
     
     if (DEBUG) cout<<"Initializing LostTrack Tag"<<endl;
-    tag = iConfig.getUntrackedParameter<edm::InputTag>("LostTrackTag", edm::InputTag("lostTracks::RECO") );
+    tag = iConfig.getParameter<edm::InputTag>("LostTrackTag");
     lostTrackToken_ = consumes<std::vector<pat::PackedCandidate> >(tag);
 
     produces<std::vector<reco::Track>>("pfTracks");
