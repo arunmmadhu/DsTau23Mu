@@ -12,7 +12,7 @@ options.register('globalTag',
                  "Global Tag")
 
 options.register('nEvents',
-                 2000, #default value
+                 100, #default value
 
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
@@ -93,33 +93,31 @@ process.TFileService = cms.Service('TFileService',
                                    fileName = cms.string("DsT3MNtuple.root")
                                    )
 
-process.source.fileNames = ['/store/data/Run2018B/DoubleMuonLowMass/AOD/17Sep2018-v1/60000/02CEEEBB-DCCB-9B46-84B2-7C99FB39C98A.root']
+process.source.fileNames = ['file:/tmp/bjoshi/02CEEEBB-DCCB-9B46-84B2-7C99FB39C98A.root']
 #process.source.fileNames = ['root://cms-xrd-global.cern.ch//store/data/Run2017D/DoubleMuonLowMass/AOD/17Nov2017-v1/70000/5A3F7AD8-36E9-E711-B981-1866DA85D72E.root']
 #process.source.fileNames = ['/store/user/wangjian/DsToTau_TauTo3Mu_March2020/RunIIAutumn18DRPremix-102X/200323_083820/0000/BPH-RunIIAutumn18DRPremix-00158_323.root']
-
-
-#process.source.fileNames = ['/store/mc/RunIIFall17DRPremix/DsToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/120000/12ED90DF-1C51-E911-8FB5-AC1F6B0DE4A6.root',
-#                            '/store/mc/RunIIFall17DRPremix/DsToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/270000/C2274BDD-124A-E911-BEB2-44A842BECCD8.root',
-#                            '/store/mc/RunIIFall17DRPremix/DsToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/60000/C27A90C2-0151-E911-AA06-A0369FC5DCB8.root',
-#                            '/store/mc/RunIIFall17DRPremix/DsToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/120000/82338802-5651-E911-8F2C-44A842CF058B.root',
-#                            '/store/mc/RunIIFall17DRPremix/DsToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/70000/CCDEECF9-F258-E911-9A59-0CC47A5FC619.root',
-#                            '/store/mc/RunIIFall17DRPremix/DsToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/70000/0AB8AB92-F758-E911-BDF6-00269E95AF28.root',
-#                            '/store/mc/RunIIFall17DRPremix/DsToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/70000/3A582B3A-F658-E911-BD12-782BCB3BCA77.root',
-#                            '/store/mc/RunIIFall17DRPremix/DsToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/70000/50B99E4C-4D5A-E911-BD4F-1418774A24D2.root',
-#                            '/store/mc/RunIIFall17DRPremix/DsToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/50000/F06F7AB1-9962-E911-8F21-001E67A3EC05.root',
-#                            '/store/mc/RunIIFall17DRPremix/DsToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/70000/1220CE93-2759-E911-8694-0CC47A7E6B14.root',
-#                            '/store/mc/RunIIFall17DRPremix/DsToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/70000/04919409-D75A-E911-87D9-A4BF01287D34.root',
-#                            '/store/mc/RunIIFall17DRPremix/DsToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/510000/C2F5FB00-B262-E911-A1B8-0CC47AFC3D32.root',
-#                            '/store/mc/RunIIFall17DRPremix/DsToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/70000/66F9992D-F458-E911-B05B-0CC47A6C063E.root',
-#                            '/store/mc/RunIIFall17DRPremix/DsToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/50000/B8FC855D-3461-E911-B1AF-AC1F6B0F75D4.root',
-#                            '/store/mc/RunIIFall17DRPremix/DsToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/50000/305E5E60-3461-E911-BF2B-0CC47A706CD6.root',
-#                            '/store/mc/RunIIFall17DRPremix/DsToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/50000/BA988450-A461-E911-936C-1866DA8F75C0.root',
-#                            '/store/mc/RunIIFall17DRPremix/DsToTau_To3Mu_MuFilter_TuneCUEP8M1_13TeV-pythia8/AODSIM/PU2017_94X_mc2017_realistic_v11-v1/50000/30A23116-2661-E911-ADC5-D0946626135C.root']
-
-
+#process.source.fileNames = ['file:/tmp/bjoshi/02CEEEBB-DCCB-9B46-84B2-7C99FB39C98A.root']
 
 process.load("DsTau23Mu.T3MNtuple.DsTauNtuple_cfi")
+
+
+process.T3MTree.miniAODRun = cms.bool(False)
 process.tagger = cms.Path(process.badGlobalMuonTagger)
 process.DsTauNtuple = cms.Sequence(process.T3MTree)
+
+process.T3MTree.triggerObjects = cms.InputTag("none")
+process.T3MTree.pat_phos = cms.InputTag("none")
+process.T3MTree.pat_muons = cms.InputTag("none")
+process.T3MTree.composite_svs = cms.InputTag("none")
+
 process.p = cms.Path(process.DsTauNtuple)
 process.schedule = cms.Schedule(process.tagger, process.p)
+
+#process.load("DsTau23Mu.T3MNtuple.PhotonAndV0Skim_cfi")
+#process.DsTauNtuple = cms.Sequence(process.T3MTree)
+#process.p = cms.Path(process.PhotonAndV0SkimSequence * process.DsTauNtuple)
+#process.output = cms.OutputModule("PoolOutputModule",
+#                                   outputCommands = process.PhotonAndV0Skim_EventContent,
+#                                   fileName = cms.string("DsT3MNtuple.root")
+#                                   ) 
+#process.this_is_the_end = cms.EndPath(process.output)

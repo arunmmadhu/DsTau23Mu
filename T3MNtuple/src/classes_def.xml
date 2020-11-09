@@ -9,6 +9,6 @@
   <class name="std::vector< std::vector<unsigned int > >   " />
   
   <class name="edm::Wrapper<edm::Association<std::vector<reco::Track> > >"/>
-  <class name="edm::Association<std::vector<reco::Track> > "/>
+  <!--class name="edm::Association<std::vector<reco::Track> > "/-->
 
 </lcgdict>
