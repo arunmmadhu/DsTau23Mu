@@ -90,7 +90,7 @@ TrackCollectionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
    if (!lostTrackToken_.isUninitialized()){
       if (iEvent.getByToken(lostTrackToken_, lostTracks)){
-         //if (lostTracks.isValid()) nTracks += fillLostTracks(lostTracks);
+         if (lostTracks.isValid()) nTracks += fillLostTracks(lostTracks);
       }
       else edm::LogError("") << "[TrackCollectionProducer]: Lost tracks not found!!!";
    }

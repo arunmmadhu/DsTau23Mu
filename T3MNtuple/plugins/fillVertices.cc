@@ -329,13 +329,25 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
       int NParticlesComingFromPV(0);
       vector<TransientTrack> primaryvertexTransientTracks;// remove muon candidates from the PV to perform refit
       for(Vertex::trackRef_iterator itk = MatchedPrimaryVertex.tracks_begin(); itk != MatchedPrimaryVertex.tracks_end(); itk++) {
+
          if((**itk).pt()>1) {
             if(deltaR(iTransientTracks.at(0).track().eta(), iTransientTracks.at(0).track().phi(), (**itk).eta(), (**itk).phi())<0.01){NParticlesComingFromPV++;continue;}
             if(deltaR(iTransientTracks.at(1).track().eta(), iTransientTracks.at(1).track().phi(), (**itk).eta(), (**itk).phi())<0.01){NParticlesComingFromPV++;continue;}
             if(deltaR(iTransientTracks.at(2).track().eta(), iTransientTracks.at(2).track().phi(), (**itk).eta(), (**itk).phi())<0.01){NParticlesComingFromPV++;continue;}
          }
+
          primaryvertexTransientTracks.push_back(theB->build(**itk));
+
+         std::vector<float> iIsolationBranch_Track_p4;
+
+         iIsolationBranch_Track_p4.push_back(sqrt(pow((**itk).p(),2.0) + pow(PDGInfo::pi_mass(),2.0)));
+         iIsolationBranch_Track_p4.push_back((**itk).px());
+         iIsolationBranch_Track_p4.push_back((**itk).py());
+         iIsolationBranch_Track_p4.push_back((**itk).pz());
+
+         IsolationBranch_Trackp4.at(IsolationBranch_Trackp4.size() - 1).push_back(iIsolationBranch_Track_p4);
       }
+
       Vertex_NMuonsAssocWithPV.push_back(NParticlesComingFromPV);
       KalmanVertexFitter pv_fit(true);
       bool FitPVOk(true);
@@ -511,24 +523,6 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
 
       ///////////////////////////////////////////////////////////////
       //    Here fill the isolation
-
-
-      IsolationBranch_Trackp4.push_back(std::vector<std::vector<float> >());
-      for(Vertex::trackRef_iterator itk = MatchedPrimaryVertex.tracks_begin(); itk != MatchedPrimaryVertex.tracks_end(); itk++) {
-         if(deltaR(iTransientTracks.at(0).track().eta(), iTransientTracks.at(0).track().phi(), (**itk).eta(), (**itk).phi())<0.001)continue;
-         if(deltaR(iTransientTracks.at(1).track().eta(), iTransientTracks.at(1).track().phi(), (**itk).eta(), (**itk).phi())<0.001)continue;
-         if(deltaR(iTransientTracks.at(2).track().eta(), iTransientTracks.at(2).track().phi(), (**itk).eta(), (**itk).phi())<0.001)continue;
-
-         std::vector<float> iIsolationBranch_Track_p4;
-
-         iIsolationBranch_Track_p4.push_back(sqrt(pow((**itk).p(),2.0) + pow(PDGInfo::pi_mass(),2.0)));
-         iIsolationBranch_Track_p4.push_back((**itk).px());
-         iIsolationBranch_Track_p4.push_back((**itk).py());
-         iIsolationBranch_Track_p4.push_back((**itk).pz());
-
-         IsolationBranch_Trackp4.at(IsolationBranch_Trackp4.size() - 1).push_back(iIsolationBranch_Track_p4);
-      }
-
 
       //  former Isolation
       float minmuon_pt(999.), maxmuon_dr(0.);
@@ -1401,20 +1395,43 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
 
 
       IsolationBranch_Trackp4.push_back(std::vector<std::vector<float> >());
-      for(Vertex::trackRef_iterator itk = MatchedPrimaryVertex.tracks_begin(); itk != MatchedPrimaryVertex.tracks_end(); itk++) {
-         if(deltaR(iTransientTracks.at(0).track().eta(), iTransientTracks.at(0).track().phi(), (**itk).eta(), (**itk).phi())<0.001)continue;
-         if(deltaR(iTransientTracks.at(1).track().eta(), iTransientTracks.at(1).track().phi(), (**itk).eta(), (**itk).phi())<0.001)continue;
-         if(deltaR(iTransientTracks.at(2).track().eta(), iTransientTracks.at(2).track().phi(), (**itk).eta(), (**itk).phi())<0.001)continue;
+      if (DEBUG) cout << "Size of the nTracks matched to PV: "<<MatchedPrimaryVertex.tracksSize()<<endl;
+      //for(Vertex::trackRef_iterator itk = MatchedPrimaryVertex.tracks_begin(); itk != MatchedPrimaryVertex.tracks_end(); itk++) {}
+      for (unsigned int iTrack = 0; iTrack<(*trackCollection).size(); iTrack++){
+
+         TrackRef track = reco::TrackRef(trackCollection, iTrack);
+         TransientTrack trans_track = theB->build(track);
+         
+         // filter tracks (same definition as used in /RecoVertex/PrimaryVertexProducer/python/OfflinePrimaryVertices_cfi.py in CMSSW)
+         bool IPSigCut = (trans_track.stateAtBeamLine().transverseImpactParameter().significance() < 4.0) &&
+                         (trans_track.stateAtBeamLine().transverseImpactParameter().error() < 1.0) &&
+                         (trans_track.track().dzError() < 1.0);
+         if (!IPSigCut) continue;
+         if (abs(trans_track.impactPointState().globalMomentum().eta())>2.4) continue;
+         if (trans_track.normalizedChi2()>10.0) continue;
+         if (trans_track.hitPattern().pixelLayersWithMeasurement()<2) continue;
+         if (trans_track.hitPattern().trackerLayersWithMeasurement()<5) continue;
+         if (trans_track.track().quality(reco::TrackBase::undefQuality)) continue; // returns loose track by default
+
+         // Additional requirements ( diaplcement from PV)
+         if (abs(trans_track.track().dz(MatchedPrimaryVertex.position()))>0.5) continue;
+         if (abs(trans_track.track().dxy(MatchedPrimaryVertex.position()))>0.2) continue;
+
+         if(deltaR(iTransientTracks.at(0).track().eta(), iTransientTracks.at(0).track().phi(), track->eta(), track->phi())<0.001)continue;
+         if(deltaR(iTransientTracks.at(1).track().eta(), iTransientTracks.at(1).track().phi(), track->eta(), track->phi())<0.001)continue;
+         if(deltaR(iTransientTracks.at(2).track().eta(), iTransientTracks.at(2).track().phi(), track->eta(), track->phi())<0.001)continue;
 
          std::vector<float> iIsolationBranch_Track_p4;
 
-         iIsolationBranch_Track_p4.push_back(sqrt(pow((**itk).p(),2.0) + pow(PDGInfo::pi_mass(),2.0)));
-         iIsolationBranch_Track_p4.push_back((**itk).px());
-         iIsolationBranch_Track_p4.push_back((**itk).py());
-         iIsolationBranch_Track_p4.push_back((**itk).pz());
+         iIsolationBranch_Track_p4.push_back(sqrt(pow(track->p(),2.0) + pow(PDGInfo::pi_mass(),2.0)));
+         iIsolationBranch_Track_p4.push_back(track->px());
+         iIsolationBranch_Track_p4.push_back(track->py());
+         iIsolationBranch_Track_p4.push_back(track->pz());
 
          IsolationBranch_Trackp4.at(IsolationBranch_Trackp4.size() - 1).push_back(iIsolationBranch_Track_p4);
       }
+         if (DEBUG) cout<<"Size of nTracks found close to PV: "<<IsolationBranch_Trackp4.at(IsolationBranch_Trackp4.size()-1).size()<<endl;
+
 
 
       //  former Isolation
@@ -1476,41 +1493,45 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
 
       if (DEBUG)     std::cout<<" sig   " << ThreeMuons_idx.size() << " two mu plus track   "<< TwoMuonsTrack_idx.size() <<  " signaltrack collect     "<< signalTracksCollection.size() <<  " signal Counter  "<<index <<std::endl;
 
+      cout<<(*trackCollection).size()<<" tracks found"<<endl;
+
+      for(size_t iTrack = 0; iTrack < (*trackCollection).size(); iTrack++) {
+
+         TrackRef t = reco::TrackRef(trackCollection, iTrack);
 
 
-
-      for(size_t i = 0; i < trackCollection->size(); i++) {
-         const Track & t = (*trackCollection)[i];
-
-
-         if(!(t.quality(TrackBase::tight)))continue; //-- this might be weaker
-         if(deltaR(LV1.Eta(), LV1.Phi(), t.eta(), t.phi())<0.01)continue;
-         if(deltaR(LV2.Eta(), LV2.Phi(), t.eta(), t.phi())<0.01)continue;
-         if(deltaR(LV3.Eta(), LV3.Phi(), t.eta(), t.phi())<0.01)continue;
+         if(!(t->quality(TrackBase::highPurity)))continue; //-- this might be weaker
+         if (DEBUG) cout<<"Found tight track"<<endl;
+         if(deltaR(LV1.Eta(), LV1.Phi(), t->eta(), t->phi())<0.01)continue;
+         if(deltaR(LV2.Eta(), LV2.Phi(), t->eta(), t->phi())<0.01)continue;
+         if(deltaR(LV3.Eta(), LV3.Phi(), t->eta(), t->phi())<0.01)continue;
+            if (DEBUG) cout<<"Track not matched to muons"<<endl;
          if(index>=ThreeMuons_idx.size()) break;  // <----- fillinf isolation vertexing only for a signal candidate
          //if(abs(t.dz(pvPoint))< 0.5 && t.quality(TrackBase::tight) && sqrt(t.px()*t.px() + t.py()*t.py() ) > 0.5){//  && deltaR(t.eta(), t.phi(), LVTau.Eta(), LVTau.Phi()) < 1.){ }}
-         if(abs(t.dz(pvPoint))< 0.5 && sqrt(t.px()*t.px() + t.py()*t.py() ) > 0.4  && deltaR(t.eta(), t.phi(), LVTau.Eta(), LVTau.Phi()) < 1.){
+         if(abs(t->dz(pvPoint))< 0.5 && sqrt(t->px()*t->px() + t->py()*t->py() ) > 0.4  && deltaR(t->eta(), t->phi(), LVTau.Eta(), LVTau.Phi()) < 1.){
+
+            if (DEBUG) cout<<"Found track within Isolation"<<endl;
 
             std::vector<int>   iIsolationTrack_VertexWithSignalMuonIsValid;
             std::vector<float> iIsolationTrack_VertexWithSignalMuonChi2;
             std::vector<float> iIsolationTrack_VertexWithSignalMuonPosition;
-            IsolationTracksIndices.push_back(i);
+            IsolationTracksIndices.push_back(iTrack);
             std::vector<float> iIsolation_Track_p4;
-            iIsolation_Track_p4.push_back(sqrt(pow(t.p(),2.0) + pow(PDGInfo::pi_mass(),2.0)));
-            iIsolation_Track_p4.push_back(t.px());
-            iIsolation_Track_p4.push_back(t.py());
-            iIsolation_Track_p4.push_back(t.pz());
+            iIsolation_Track_p4.push_back(sqrt(pow(t->p(),2.0) + pow(PDGInfo::pi_mass(),2.0)));
+            iIsolation_Track_p4.push_back(t->px());
+            iIsolation_Track_p4.push_back(t->py());
+            iIsolation_Track_p4.push_back(t->pz());
 
-            iIsolationTrack_charge.push_back(t.charge());
-            iIsolationTrack_isHighPurity.push_back(t.quality(TrackBase::highPurity));
+            iIsolationTrack_charge.push_back(t->charge());
+            iIsolationTrack_isHighPurity.push_back(t->quality(TrackBase::highPurity));
 
             IsolationTrack_p4.at(IsolationTrack_p4.size() - 1).push_back(iIsolation_Track_p4);
 
-            iIsolationTrack_dxySV.push_back(t.dxy(TheSecondaryVertexPoint));
-            iIsolationTrack_dzSV.push_back(t.dz(TheSecondaryVertexPoint));
+            iIsolationTrack_dxySV.push_back(t->dxy(TheSecondaryVertexPoint));
+            iIsolationTrack_dzSV.push_back(t->dz(TheSecondaryVertexPoint));
 
-            iIsolationTrack_dxyPV.push_back(t.dxy(pvPoint));
-            iIsolationTrack_dzPV.push_back(t.dz(pvPoint));
+            iIsolationTrack_dxyPV.push_back(t->dxy(pvPoint));
+            iIsolationTrack_dzPV.push_back(t->dz(pvPoint));
 
 
             ClosestApproachInRPhi DocaMuon1, DocaMuon2, DocaMuon3;
@@ -1620,24 +1641,24 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
 
          //--------------------------- Isolation Branch
 
-         double dz = abs(t.dz(TheSecondaryVertexPoint));
-         double dxy = abs(t.dxy(TheSecondaryVertexPoint));
+         double dz = abs(t->dz(TheSecondaryVertexPoint));
+         double dxy = abs(t->dxy(TheSecondaryVertexPoint));
          double dca_fv = sqrt(dz*dz+dxy*dxy);
-         double dr_tau = deltaR(t.eta(), t.phi(), LVTau.Eta(), LVTau.Phi());
+         double dr_tau = deltaR(t->eta(), t->phi(), LVTau.Eta(), LVTau.Phi());
 
          ////////////////////////////////////////////////
          // Below is the isolation defined by Jian
          // iso no. 1b - using pt_min, drtau_max of the 3 mu
-         if(t.pt() > 0.33*minmuon_pt && dr_tau < 3.*maxmuon_dr && dca_fv<0.05 ) {
-            sumptalltracks += t.pt();
+         if(t->pt() > 0.33*minmuon_pt && dr_tau < 3.*maxmuon_dr && dca_fv<0.05 ) {
+            sumptalltracks += t->pt();
             sumalltracks++; // iso 3b
             if(dca_fv<mindist)mindist=dca_fv; // iso 4b
          } 
 
-         if(t.pt()<1.0) continue;  // was 1.2
+         if(t->pt()<1.0) continue;  // was 1.2
          // iso no. 1
          if(dr_tau < 0.5 && dca_fv<0.05 ) {
-            sumptalltracks05 += t.pt();
+            sumptalltracks05 += t->pt();
             sumalltracks05++; // iso 3
             if(dca_fv<mindca_iso05)mindca_iso05=dca_fv; // iso 4
          }
@@ -1655,29 +1676,29 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
 
 
          // iso no. 2
-         if(deltaR(t.eta(), t.phi(), LV1.Eta(), LV1.Phi()) < 0.3 && cAppm1.distance() < 0.1) {// && dz1 < .3) 
+         if(deltaR(t->eta(), t->phi(), LV1.Eta(), LV1.Phi()) < 0.3 && cAppm1.distance() < 0.1) {// && dz1 < .3) 
             N_trk_1++;
-            pt_trk_1 += t.pt();
+            pt_trk_1 += t->pt();
          }
-         if(deltaR(t.eta(), t.phi(), LV2.Eta(), LV2.Phi()) < 0.3 && cAppm2.distance() < 0.1) {//&& dz2 < .3) 
+         if(deltaR(t->eta(), t->phi(), LV2.Eta(), LV2.Phi()) < 0.3 && cAppm2.distance() < 0.1) {//&& dz2 < .3) 
             N_trk_2++;
-            pt_trk_2 += t.pt();
+            pt_trk_2 += t->pt();
          }
-         if(deltaR(t.eta(), t.phi(), LV3.Eta(), LV3.Phi()) < 0.3 && cAppm3.distance() < 0.1) {//&& dz3 < .3) 
+         if(deltaR(t->eta(), t->phi(), LV3.Eta(), LV3.Phi()) < 0.3 && cAppm3.distance() < 0.1) {//&& dz3 < .3) 
             N_trk_3++;
-            pt_trk_3 += t.pt();
+            pt_trk_3 += t->pt();
          }
-         if( (deltaR(t.eta(), t.phi(), LV1.Eta(), LV1.Phi()) < 0.3 && cAppm1.distance() < 0.1 )
-               ||(deltaR(t.eta(), t.phi(), LV2.Eta(), LV2.Phi()) < 0.3 && cAppm2.distance() < 0.1 )
-               ||(deltaR(t.eta(), t.phi(), LV3.Eta(), LV3.Phi()) < 0.3 && cAppm3.distance() < 0.1 )
+         if( (deltaR(t->eta(), t->phi(), LV1.Eta(), LV1.Phi()) < 0.3 && cAppm1.distance() < 0.1 )
+               ||(deltaR(t->eta(), t->phi(), LV2.Eta(), LV2.Phi()) < 0.3 && cAppm2.distance() < 0.1 )
+               ||(deltaR(t->eta(), t->phi(), LV3.Eta(), LV3.Phi()) < 0.3 && cAppm3.distance() < 0.1 )
            ) N_trk_total++;
 
 
 
-         double dz_primaryvertex=abs(t.dz(pvPoint));
+         double dz_primaryvertex=abs(t->dz(pvPoint));
 
          if(!(dz_primaryvertex < 1))continue;
-         double dxy_primaryvertex = abs(t.dxy(pvPoint));
+         double dxy_primaryvertex = abs(t->dxy(pvPoint));
          if(dxy_primaryvertex>0.1) N_trk0p1++;
          if(dxy_primaryvertex>0.2) N_trk0p2++;
          if(dxy_primaryvertex>0.5) N_trk0p5++;
