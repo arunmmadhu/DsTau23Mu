@@ -70,6 +70,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
    }
 
    if (DEBUG)   std::cout<<" SignalTracksCollection size:  "<< signalTracksCollection.size() << std::endl;
+
    unsigned int index(0);
    for ( auto &iTransientTracks :  signalTracksCollection ){
       Vertex_signal_KF_pos.push_back(std::vector<double> ());
@@ -278,6 +279,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
       ///////////////////////////////////////////
       //  find here the primary vertex with the best
       //  alignement to the tri-muon 
+      if (DEBUG) cout<<"Finding the PV with best alignment"<<endl;
       double dphi_pv = -1.0;
       unsigned int primaryvertex_index;
       for(unsigned int vertex_index = 0; vertex_index  < pvs->size(); vertex_index++) {
@@ -311,7 +313,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
          }
       }
 
-
+      if (DEBUG) cout<<"Cheking second best pv"<<endl;
       const Vertex & SecondBestPrimaryVertex = (*pvs)[secondbest_primaryvertex_index];
       std::vector<double> iSecondBestprimaryVertex_Pos;
       if( pvs->size()>1){
@@ -325,7 +327,8 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
       }
       Vertex_SecondBestPrimaryVertex.push_back(iSecondBestprimaryVertex_Pos);
 
-
+      IsolationBranch_Trackp4.push_back(std::vector<std::vector<float> >());
+      if (DEBUG) cout<<"N particles from pv"<<endl;
       int NParticlesComingFromPV(0);
       vector<TransientTrack> primaryvertexTransientTracks;// remove muon candidates from the PV to perform refit
       for(Vertex::trackRef_iterator itk = MatchedPrimaryVertex.tracks_begin(); itk != MatchedPrimaryVertex.tracks_end(); itk++) {
@@ -370,6 +373,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
       }
       Vertex_MatchedRefitPrimaryVertex.push_back(iRefitprimaryVertex_Pos);
 
+      if (DEBUG) cout<<"Refit is done"<<endl;
 
       TMatrixTSym<double> pvcov(LorentzVectorParticle::NVertex);
 
@@ -398,8 +402,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
       math::XYZPoint pvPoint = math::XYZPoint(final_pv.x(), final_pv.y(), final_pv.z());
       math::XYZPoint bsPoint = math::XYZPoint(beamSpotHandle->position().x(), beamSpotHandle->position().y(), beamSpotHandle->position().z());
 
-
-
+      if (DEBUG) cout<<"DCA with respect to BS"<<endl;
       std::vector<double> iVertex_d0BeamSpot_reco;
       iVertex_d0BeamSpot_reco.push_back(abs(iTransientTracks.at(0).track().dxy(bsPoint)));
       iVertex_d0BeamSpot_reco.push_back(abs(iTransientTracks.at(1).track().dxy(bsPoint)));
@@ -520,6 +523,8 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
       iVertex_3Ddisplacement.push_back(fv_d3D*fv_cosdphi3D*m3mu_reco/ThreeCandidate.P());
       Vertex_3Ddisplacement.push_back(iVertex_3Ddisplacement);
 
+      if (DEBUG) cout<<"BDT isolation variables"<<endl;
+
 
       ///////////////////////////////////////////////////////////////
       //    Here fill the isolation
@@ -577,6 +582,8 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
       ESHandle<TransientTrackBuilder> TheB;
       std::vector<std::vector<int> >  VertexWithSignalMuonIsValid;
       iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",TheB);
+
+      if (DEBUG) cout<<"Finding isolation tracks"<<endl;
 
       for(size_t i = 0; i < trackCollection->size(); i++) {
          const Track & t = (*trackCollection)[i];
@@ -833,6 +840,8 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
       Vertex_Isolation4.push_back(isolation4);
       index++;
    }
+
+   if (DEBUG) cout<<"Checking SV collection"<<endl;
 
    for(size_t isv = 0; isv < svertices->size(); isv++) {
       const Vertex & sv = (*svertices)[isv];
