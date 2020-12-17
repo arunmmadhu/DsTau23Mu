@@ -1502,7 +1502,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
 
       if (DEBUG)     std::cout<<" sig   " << ThreeMuons_idx.size() << " two mu plus track   "<< TwoMuonsTrack_idx.size() <<  " signaltrack collect     "<< signalTracksCollection.size() <<  " signal Counter  "<<index <<std::endl;
 
-      cout<<(*trackCollection).size()<<" tracks found"<<endl;
+      if (DEBUG) cout<<(*trackCollection).size()<<" tracks found"<<endl;
 
       for(size_t iTrack = 0; iTrack < (*trackCollection).size(); iTrack++) {
 
