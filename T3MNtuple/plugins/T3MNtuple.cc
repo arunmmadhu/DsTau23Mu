@@ -373,10 +373,9 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          else edm::LogError("") << "Track collection does not exist!";
       }
 
-      output_tree->Fill();
    }
+   output_tree->Fill();
 
-   //fillDsTree(iEvent, iSetup); 
 }
 
 
@@ -687,6 +686,10 @@ T3MNtuple::beginJob()
    output_tree->Branch("Muon_par", &Muon_par);
    output_tree->Branch("Muon_cov", &Muon_cov);
 
+
+
+
+
    if(doPhotons_){
       output_tree->Branch("Gamma_P4",&Gamma_P4);
       output_tree->Branch("Gamma_hasPixelSeed",&Gamma_hasPixelSeed);
@@ -810,16 +813,24 @@ T3MNtuple::beginJob()
    output_tree->Branch("IsolationTrack_charge",&IsolationTrack_charge);
    output_tree->Branch("IsolationTrack_isHighPurity",&IsolationTrack_isHighPurity);
    output_tree->Branch("IsolationTrack_quality",&IsolationTrack_quality);
-
    output_tree->Branch("IsolationTrack_dxySV",&IsolationTrack_dxySV);
    output_tree->Branch("IsolationTrack_dzSV",&IsolationTrack_dzSV);
-
    output_tree->Branch("IsolationTrack_dxyPV",&IsolationTrack_dxyPV);
    output_tree->Branch("IsolationTrack_dzPV",&IsolationTrack_dzPV);
-
    output_tree->Branch("IsolationTrack_DocaMu1",&IsolationTrack_DocaMu1);
    output_tree->Branch("IsolationTrack_DocaMu2",&IsolationTrack_DocaMu2);
    output_tree->Branch("IsolationTrack_DocaMu3",&IsolationTrack_DocaMu3);
+
+
+   output_tree->Branch("IsolationTrack_Helcharge", &IsolationTrack_Helcharge);
+   output_tree->Branch("IsolationTrack_pdgid", &IsolationTrack_pdgid);
+   output_tree->Branch("IsolationTrack_B", &IsolationTrack_B);
+   output_tree->Branch("IsolationTrack_M", &IsolationTrack_M);
+   output_tree->Branch("IsolationTrack_par", &IsolationTrack_par);
+   output_tree->Branch("IsolationTrack_cov", &IsolationTrack_cov);
+
+
+
 
    output_tree->Branch("SV_Track_P4",&SV_Track_P4);
    output_tree->Branch("SV_pos",&SV_pos);
@@ -913,6 +924,8 @@ void T3MNtuple::ClearEvent() {
    Track_dxyError.clear();
    Track_dzError.clear();
 
+
+
    dump_track_index_to_fill.clear();
    dump_pv_index_to_fill.clear();
 
@@ -997,6 +1010,8 @@ void T3MNtuple::ClearEvent() {
    Muon_M.clear();
    Muon_par.clear();
    Muon_cov.clear();
+
+
 
    Muon_hitPattern_pixelLayerwithMeas.clear();
    Muon_numberOfMatchedStations.clear();
@@ -1183,26 +1198,29 @@ void T3MNtuple::ClearEvent() {
    IsolationBranch_Trackp4.clear();
 
    IsolationTrack_p4.clear();
-
    IsolationTrack_VertexWithSignalMuonIsValid.clear();
    IsolationTrack_VertexWithSignalMuonChi2.clear();
    IsolationTrack_VertexWithSignalMuonPosition.clear();
-
-
-
    IsolationTrack_charge.clear();
    IsolationTrack_isHighPurity.clear();
    IsolationTrack_quality.clear();
-
    IsolationTrack_dxySV.clear();
    IsolationTrack_dzSV.clear();
-
    IsolationTrack_dxyPV.clear();
    IsolationTrack_dzPV.clear();
-
    IsolationTrack_DocaMu1.clear();
    IsolationTrack_DocaMu2.clear();
    IsolationTrack_DocaMu3.clear();
+
+
+   IsolationTrack_Helcharge.clear();
+   IsolationTrack_pdgid.clear();
+   IsolationTrack_B.clear();
+   IsolationTrack_M.clear();
+   IsolationTrack_par.clear();
+   IsolationTrack_cov.clear();
+
+
 
    Trigger_l1name.clear();
    Trigger_l1decision.clear();

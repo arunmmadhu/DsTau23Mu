@@ -491,11 +491,11 @@ class T3MNtuple : public edm::EDAnalyzer {
       std::vector<int>      Muon_charge;
       std::vector<int>      Muon_trackCharge;
       std::vector<int>      Muon_pdgid;
-      std::vector<double>   Muon_B;
-      std::vector<double>   Muon_M;
-      std::vector<std::vector<double> > Muon_par;
-      std::vector<std::vector<double> > Muon_cov;
-
+      std::vector<float>   Muon_B;
+      std::vector<float>   Muon_M;
+      std::vector<std::vector<float> > Muon_par;
+      std::vector<std::vector<float> > Muon_cov;
+  
 
       std::vector<int> signalTau_charge;
       std::vector<int> signalTau_pdgid;
@@ -665,7 +665,13 @@ class T3MNtuple : public edm::EDAnalyzer {
       std::vector<std::vector<std::vector<int> > > IsolationTrack_VertexWithSignalMuonIsValid;
       std::vector<std::vector<std::vector<float> > > IsolationTrack_VertexWithSignalMuonChi2;
       std::vector<std::vector<std::vector<float> > > IsolationTrack_VertexWithSignalMuonPosition;
-
+     
+      std::vector<int> IsolationTrack_Helcharge;
+      std::vector<int> IsolationTrack_pdgid;
+      std::vector<float > IsolationTrack_B;
+      std::vector<float > IsolationTrack_M;
+      std::vector<std::vector<float> > IsolationTrack_par;
+      std::vector<std::vector<float> > IsolationTrack_cov;
 
 
       std::vector<std::vector<int> > IsolationTrack_charge;

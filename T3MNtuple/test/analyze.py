@@ -12,7 +12,7 @@ options.register('globalTag',
                  "Global Tag")
 
 options.register('nEvents',
-                 100, #default value
+                 -1, #default value
 
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
@@ -93,7 +93,7 @@ process.TFileService = cms.Service('TFileService',
                                    fileName = cms.string("DsT3MNtuple.root")
                                    )
 
-process.source.fileNames = ['file:/tmp/bjoshi/02CEEEBB-DCCB-9B46-84B2-7C99FB39C98A.root']
+process.source.fileNames = ['file:TSG-RunIIAutumn18DR-00006_981.root','file:TSG-RunIIAutumn18DR-00006_980.root','file:TSG-RunIIAutumn18DR-00006_982.root','file:TSG-RunIIAutumn18DR-00006_983.root','file:TSG-RunIIAutumn18DR-00006_984.root','file:TSG-RunIIAutumn18DR-00006_850.root','file:TSG-RunIIAutumn18DR-00006_851.root','file:TSG-RunIIAutumn18DR-00006_852.root','file:TSG-RunIIAutumn18DR-00006_853.root','file:TSG-RunIIAutumn18DR-00006_854.root','file:TSG-RunIIAutumn18DR-00006_855.root','file:TSG-RunIIAutumn18DR-00006_856.root']
 #process.source.fileNames = ['root://cms-xrd-global.cern.ch//store/data/Run2017D/DoubleMuonLowMass/AOD/17Nov2017-v1/70000/5A3F7AD8-36E9-E711-B981-1866DA85D72E.root']
 #process.source.fileNames = ['/store/user/wangjian/DsToTau_TauTo3Mu_March2020/RunIIAutumn18DRPremix-102X/200323_083820/0000/BPH-RunIIAutumn18DRPremix-00158_323.root']
 #process.source.fileNames = ['file:/tmp/bjoshi/02CEEEBB-DCCB-9B46-84B2-7C99FB39C98A.root']
