@@ -75,7 +75,7 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
    DataMCType DMT;
    Event_DataMC_Type=DMT.GetType(sampleType_);    
 
-   DEBUG = false;
+   DEBUG = true;
 }
 
 
@@ -255,7 +255,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    if(doMC_){
       if ( iEvent.getByToken(genToken_, genParticles) &&
-            iEvent.getByToken(puToken_, puInfo) ) fillMCTruth(iEvent, iSetup, genParticles, puInfo);
+	   iEvent.getByToken(puToken_, puInfo) ) fillMCTruth(iEvent, iSetup, genParticles, puInfo);
       else {
          if (!iEvent.getByToken(genToken_, genParticles)) edm::LogError("") << "[T3MNtuple]: GEN collection does not exist!";
          if (!iEvent.getByToken(puToken_, puInfo)) edm::LogError("") << "[T3MNtuple]: PileUp Info does not exist!";
@@ -266,6 +266,17 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    else edm::LogError("") << "[T3MNtuple]: Trigger Bits collection does not exist!";
    if ( miniAODRun_ && !iEvent.getByToken(triggerObjectToken_, triggerObjects)) edm::LogError("") << "[T3MNtuple]: Running plugin on MiniAOD; Trigger Object collection does not exist!";
    if ( !miniAODRun_ && !iEvent.getByToken(trigeventToken_, triggerSummary)) edm::LogError("") << "[T3MNtuple]: Running plugin on AOD; Trigger Summary does not exist!";
+
+   if(doL1_ && triggerBitsH.isValid()){
+     if (miniAODRun_ && triggerObjects.isValid())
+       fillTrigger(iEvent, iSetup, triggerBitsH, triggerSummary, triggerObjects, triggerNames);
+     if (!miniAODRun_ && triggerSummary.isValid())
+       fillTrigger(iEvent, iSetup, triggerBitsH, triggerSummary, triggerObjects, triggerNames);
+   }
+
+
+
+
 
    if(doThreeMuons_) {
       if (DEBUG) cout<<" ------------- making three-muon candidates ------------- "<<endl;
@@ -360,13 +371,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             }
          }
       }
-      
-      if(doL1_ && triggerBitsH.isValid()){
-         if (miniAODRun_ && triggerObjects.isValid())
-            fillTrigger(iEvent, iSetup, triggerBitsH, triggerSummary, triggerObjects, triggerNames);
-         if (!miniAODRun_ && triggerSummary.isValid())
-            fillTrigger(iEvent, iSetup, triggerBitsH, triggerSummary, triggerObjects, triggerNames);
-      }
+         
 
       if(doTracks_){
          if (trackCollection.isValid()) fillTracks(iEvent, iSetup, trackCollection);

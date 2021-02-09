@@ -6,13 +6,13 @@ import sys
 
 options = VarParsing.VarParsing()
 options.register('globalTag',
-                 '92X_dataRun2_Prompt_v5', #default value
+                 '102X_upgrade2018_realistic_v21', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  'Global Tag')
 
 options.register('nEvents',
-                 100, #default value
+                 -1, #default value
 
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
@@ -106,6 +106,24 @@ process.unpackedPatTrigger = cms.EDProducer('PATTriggerObjectStandAloneUnpacker'
 
 #process.tagger = cms.Path(process.badGlobalMuonTagger) # absent in AOD
 
+#process.source.fileNames = ['file:AOD/BPH-RunIIAutumn18MiniAOD-00276_970.root',
+#                            'file:AOD/BPH-RunIIAutumn18MiniAOD-00276_971.root',
+#                            'file:AOD/BPH-RunIIAutumn18MiniAOD-00276_972.root',
+#                            'file:AOD/BPH-RunIIAutumn18MiniAOD-00276_973.root',
+#                            'file:AOD/BPH-RunIIAutumn18MiniAOD-00276_974.root',
+#                            'file:AOD/BPH-RunIIAutumn18MiniAOD-00276_975.root',
+#                            'file:AOD/BPH-RunIIAutumn18MiniAOD-00276_976.root']
+
+
+
+process.source.fileNames = ['file:MiniAOD/BPH-RunIIAutumn18MiniAOD-00158_700.root',
+                            'file:MiniAOD/BPH-RunIIAutumn18MiniAOD-00158_701.root',
+                            'file:MiniAOD/BPH-RunIIAutumn18MiniAOD-00158_702.root',
+                            'file:MiniAOD/BPH-RunIIAutumn18MiniAOD-00158_703.root']
+
+
+
+
 process.T3MTree.btagsCvsB = cms.InputTag('none')
 process.T3MTree.btagsMVA = cms.InputTag('none')
 process.T3MTree.btagsCSV = cms.InputTag('none')
@@ -115,7 +133,8 @@ process.T3MTree.trks = cms.InputTag('TrackCollection:pfTracks:DsTauNtuple')
 process.T3MTree.pvs = cms.InputTag("offlineSlimmedPrimaryVertices")
 process.T3MTree.triggerObjects = cms.InputTag('unpackedPatTrigger')
 process.T3MTree.miniAODRun = cms.bool(True)
-
+process.T3MTree.genParticles = cms.InputTag('prunedGenParticles')
+process.T3MTree.pileupSummary = cms.InputTag('slimmedAddPileupInfo')
 process.DsTauNtuple = cms.Sequence(process.T3MTree)
 process.p = cms.Path(process.TrackCollection * process.unpackedPatTrigger * process.DsTauNtuple)
 process.schedule = cms.Schedule(process.p)
