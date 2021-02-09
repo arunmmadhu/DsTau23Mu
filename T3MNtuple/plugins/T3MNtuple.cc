@@ -75,7 +75,7 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
    DataMCType DMT;
    Event_DataMC_Type=DMT.GetType(sampleType_);    
 
-   DEBUG = true;
+   DEBUG = false;
 }
 
 
