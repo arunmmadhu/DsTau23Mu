@@ -14,6 +14,7 @@ class DataMCType{
 	     MinBias=120,
 	     Tau_3Mu2Nu=121,
 	     Ds_MuEtaMuMuGamma=122,
+	     Ds_MuEtaMuMu=123,
 	     Ds_MuEtaMuMuGammaPi0=124,
 	     Ds_MuEtaPrimeMuMuGamma=128,
 	     Ds_MuOmegaMuMuPi0=132,
