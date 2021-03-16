@@ -11,7 +11,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
       const Handle<std::vector<reco::Vertex> >& svertices,
       const Handle<reco::BeamSpot>& beamSpotHandle)
 {
-
+   Vertex_N_primary = pvs->size();
    const BeamSpot& bs = *beamSpotHandle;
 
    std::vector<std::vector<std::vector<double> > > particles_p4;
@@ -927,7 +927,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
       const Handle<std::vector<reco::VertexCompositePtrCandidate> >& svertices,
       const Handle<reco::BeamSpot>& beamSpotHandle)
 {
-
+   Vertex_N_primary = pvs->size();
    const BeamSpot& bs = *beamSpotHandle;
 
    std::vector<std::vector<std::vector<double> > > particles_p4;

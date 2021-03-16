@@ -559,6 +559,7 @@ class T3MNtuple : public edm::EDAnalyzer {
 
       //do All
       std::vector<std::vector<float> > MC_p4;
+      std::vector<std::vector<float> > MC_vertex;
       std::vector<int> MC_pdgid;
       std::vector<std::vector<int> > MC_childpdgid;
       std::vector<std::vector<int> > MC_childidx;

@@ -708,6 +708,7 @@ T3MNtuple::beginJob()
    if(doMC_){
       if(doFullMC_){
          output_tree->Branch("MC_p4", &MC_p4);
+         output_tree->Branch("MC_vertex", &MC_vertex);
          output_tree->Branch("MC_pdgid", &MC_pdgid);
          output_tree->Branch("MC_charge", &MC_charge);
          output_tree->Branch("MC_midx", &MC_midx);
@@ -1100,6 +1101,7 @@ void T3MNtuple::ClearEvent() {
    if (doMC_) {
       MC_isReco=0;
       MC_p4.clear();
+      MC_vertex.clear();
       MC_pdgid.clear();
       MC_charge.clear();
       MC_midx.clear();
