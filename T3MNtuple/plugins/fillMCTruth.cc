@@ -15,12 +15,18 @@ void T3MNtuple::fillMCTruth(const edm::Event& iEvent,
             MC_pdgid.push_back(itr->pdgId());
             MC_charge.push_back(itr->charge());
             std::vector<float> iMC_p4;
+            std::vector<float> iMC_vertex;
             iMC_p4.push_back(itr->p4().E());
             iMC_p4.push_back(itr->p4().Px());
             iMC_p4.push_back(itr->p4().Py());
             iMC_p4.push_back(itr->p4().Pz());
 
+            iMC_vertex.push_back(itr->vx());
+            iMC_vertex.push_back(itr->vy());
+            iMC_vertex.push_back(itr->vz());
+
             MC_p4.push_back(iMC_p4);
+            MC_vertex.push_back(iMC_vertex);
             MC_midx.push_back(-1);
             MC_status.push_back(itr->status());
             MC_childpdgid.push_back(std::vector<int>());
@@ -116,19 +122,19 @@ void T3MNtuple::fillMCTruth(const edm::Event& iEvent,
                   MCTauandProd_charge.push_back(std::vector<int>());
                   MCTauandProd_p4.push_back(std::vector<std::vector<float> >());
                   MCTauandProd_Vertex.push_back(std::vector<std::vector<float> >());
-                  for (unsigned int i = 0; i < TauProducts.size(); i++) {
-                     MCTauandProd_pdgid.at(tauidx).push_back(TauProducts.at(i)->pdgId());
-                     MCTauandProd_charge.at(tauidx).push_back(TauProducts.at(i)->charge());
+                  for (unsigned int j = 0; j < TauProducts.size(); j++) {
+                     MCTauandProd_pdgid.at(tauidx).push_back(TauProducts.at(j)->pdgId());
+                     MCTauandProd_charge.at(tauidx).push_back(TauProducts.at(j)->charge());
                      std::vector<float> iTauandProd_p4;
                      std::vector<float> iTauandProd_vertex;
-                     iTauandProd_p4.push_back(TauProducts.at(i)->p4().E());
-                     iTauandProd_p4.push_back(TauProducts.at(i)->p4().Px());
-                     iTauandProd_p4.push_back(TauProducts.at(i)->p4().Py());
-                     iTauandProd_p4.push_back(TauProducts.at(i)->p4().Pz());
+                     iTauandProd_p4.push_back(TauProducts.at(j)->p4().E());
+                     iTauandProd_p4.push_back(TauProducts.at(j)->p4().Px());
+                     iTauandProd_p4.push_back(TauProducts.at(j)->p4().Py());
+                     iTauandProd_p4.push_back(TauProducts.at(j)->p4().Pz());
 
-                     iTauandProd_vertex.push_back(TauProducts.at(i)->vx());
-                     iTauandProd_vertex.push_back(TauProducts.at(i)->vy());
-                     iTauandProd_vertex.push_back(TauProducts.at(i)->vz());
+                     iTauandProd_vertex.push_back(TauProducts.at(j)->vx());
+                     iTauandProd_vertex.push_back(TauProducts.at(j)->vy());
+                     iTauandProd_vertex.push_back(TauProducts.at(j)->vz());
                      //		std::cout<<"  iTauandProd_p4   "<<iTauandProd_p4.size() << std::endl;
                      MCTauandProd_p4.at(tauidx).push_back(iTauandProd_p4);
                      MCTauandProd_Vertex.at(tauidx).push_back(iTauandProd_vertex);
