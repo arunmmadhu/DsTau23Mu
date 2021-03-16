@@ -1,4 +1,6 @@
 #include "DsTau23Mu/T3MNtuple/interface/T3MNtuple.h"
+#include "DsTau23Mu/T3MNtuple/interface/TrackParticle.h"
+#include "DsTau23Mu/T3MNtuple/interface/ParticleBuilder.h"
 #include "DsTau23Mu/T3MNtuple/interface/LorentzVectorParticle.h"
 
 void T3MNtuple::fillVertices(const edm::Event& iEvent,
@@ -566,7 +568,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
       IsolationTrack_VertexWithSignalMuonIsValid.push_back(std::vector<std::vector<int> >());
       IsolationTrack_VertexWithSignalMuonChi2.push_back(std::vector<std::vector<float> >());
       IsolationTrack_VertexWithSignalMuonPosition.push_back(std::vector<std::vector<float> >());
-
+   
       std::vector<float> iIsolationTrack_dxySV;
       std::vector<float> iIsolationTrack_dzSV;
       std::vector<float> iIsolationTrack_dxyPV;
@@ -577,6 +579,8 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
       std::vector<int>   iIsolationTrack_charge;
       std::vector<int>   iIsolationTrack_isHighPurity;
       std::vector<int>   IsolationTracksIndices;
+
+
 
       vector<TransientTrack> iIsolationTracksCollection;
       ESHandle<TransientTrackBuilder> TheB;
@@ -595,7 +599,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
          if(deltaR(LV3.Eta(), LV3.Phi(), t.eta(), t.phi())<0.01)continue;
          if(index>=ThreeMuons_idx.size()) break;  // <----- fillinf isolation vertexing only for a signal candidate
          //if(abs(t.dz(pvPoint))< 0.5 && t.quality(TrackBase::tight) && sqrt(t.px()*t.px() + t.py()*t.py() ) > 0.5){//  && deltaR(t.eta(), t.phi(), LVTau.Eta(), LVTau.Phi()) < 1.){}}
-         if(abs(t.dz(pvPoint))< 0.5 && sqrt(t.px()*t.px() + t.py()*t.py() ) > 0.4  && deltaR(t.eta(), t.phi(), LVTau.Eta(), LVTau.Phi()) < 1.){
+         if(abs(t.dz(pvPoint))< 0.5 && sqrt(t.px()*t.px() + t.py()*t.py() ) > 0.4  && deltaR(t.eta(), t.phi(), LVTau.Eta(), LVTau.Phi()) < 1.2){
 
             std::vector<int>   iIsolationTrack_VertexWithSignalMuonIsValid;
             std::vector<float> iIsolationTrack_VertexWithSignalMuonChi2;
@@ -720,6 +724,28 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
             IsolationTrack_VertexWithSignalMuonIsValid.at(IsolationTrack_VertexWithSignalMuonIsValid.size() - 1).push_back(iIsolationTrack_VertexWithSignalMuonIsValid);
             IsolationTrack_VertexWithSignalMuonChi2.at(IsolationTrack_VertexWithSignalMuonChi2.size() - 1).push_back(iIsolationTrack_VertexWithSignalMuonChi2);
             IsolationTrack_VertexWithSignalMuonPosition.at(IsolationTrack_VertexWithSignalMuonPosition.size() - 1).push_back(iIsolationTrack_VertexWithSignalMuonPosition);
+	    //	    if(t.isNonnull())
+	    {
+
+	      GlobalPoint pvpoint(t.vx(),t.vy(), t.vz());
+	      int ntp = IsolationTrack_par.size();
+	      IsolationTrack_par.push_back(std::vector<float>());
+	      IsolationTrack_cov.push_back(std::vector<float>());
+	      edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
+	      iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transTrackBuilder);
+	      reco::TransientTrack transTrk = transTrackBuilder->build(t);
+	      TrackParticle trackparticle = ParticleBuilder::CreateTrackParticle(transTrk, transTrackBuilder, pvpoint, true, true);
+	      IsolationTrack_Helcharge.push_back(trackparticle.Charge());
+	      IsolationTrack_pdgid.push_back(trackparticle.PDGID());
+	      IsolationTrack_B.push_back(trackparticle.BField());
+	      IsolationTrack_M.push_back(trackparticle.Mass());
+	      for (int i = 0; i < trackparticle.NParameters(); i++) {
+		IsolationTrack_par.at(ntp).push_back(trackparticle.Parameter(i));
+		for (int j = i; j < trackparticle.NParameters(); j++) {
+		  IsolationTrack_cov.at(ntp).push_back(trackparticle.Covariance(i, j));
+		}
+	      }
+	    }
          }
 
 
@@ -791,7 +817,6 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
       }
       //********************************************************************************
       //Here reconstruct the vertices of all signal candidates with all isolation tracks 
-
 
       IsolationTrack_dxySV.push_back(iIsolationTrack_dxySV);
       IsolationTrack_dzSV.push_back(iIsolationTrack_dzSV);
@@ -888,6 +913,11 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
    }
    return;
 }
+
+
+
+
+
 
 void T3MNtuple::fillVertices(const edm::Event& iEvent,
       const edm::EventSetup& iSetup,
@@ -1492,7 +1522,6 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
       std::vector<int>   iIsolationTrack_isHighPurity;
       std::vector<int>   IsolationTracksIndices;
 
-
       vector<TransientTrack> iIsolationTracksCollection;
       ESHandle<TransientTrackBuilder> TheB;
       std::vector<std::vector<int> >  VertexWithSignalMuonIsValid;
@@ -1512,10 +1541,10 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
          if(deltaR(LV1.Eta(), LV1.Phi(), t->eta(), t->phi())<0.01)continue;
          if(deltaR(LV2.Eta(), LV2.Phi(), t->eta(), t->phi())<0.01)continue;
          if(deltaR(LV3.Eta(), LV3.Phi(), t->eta(), t->phi())<0.01)continue;
-            if (DEBUG) cout<<"Track not matched to muons"<<endl;
+	 if (DEBUG) cout<<"Track not matched to muons"<<endl;
          if(index>=ThreeMuons_idx.size()) break;  // <----- fillinf isolation vertexing only for a signal candidate
          //if(abs(t.dz(pvPoint))< 0.5 && t.quality(TrackBase::tight) && sqrt(t.px()*t.px() + t.py()*t.py() ) > 0.5){//  && deltaR(t.eta(), t.phi(), LVTau.Eta(), LVTau.Phi()) < 1.){ }}
-         if(abs(t->dz(pvPoint))< 0.5 && sqrt(t->px()*t->px() + t->py()*t->py() ) > 0.4  && deltaR(t->eta(), t->phi(), LVTau.Eta(), LVTau.Phi()) < 1.){
+         if(abs(t->dz(pvPoint))< 0.5 && sqrt(t->px()*t->px() + t->py()*t->py() ) > 0.4  && deltaR(t->eta(), t->phi(), LVTau.Eta(), LVTau.Phi()) < 1.2){
 
             if (DEBUG) cout<<"Found track within Isolation"<<endl;
 
@@ -1642,6 +1671,35 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
             IsolationTrack_VertexWithSignalMuonIsValid.at(IsolationTrack_VertexWithSignalMuonIsValid.size() - 1).push_back(iIsolationTrack_VertexWithSignalMuonIsValid);
             IsolationTrack_VertexWithSignalMuonChi2.at(IsolationTrack_VertexWithSignalMuonChi2.size() - 1).push_back(iIsolationTrack_VertexWithSignalMuonChi2);
             IsolationTrack_VertexWithSignalMuonPosition.at(IsolationTrack_VertexWithSignalMuonPosition.size() - 1).push_back(iIsolationTrack_VertexWithSignalMuonPosition);
+
+
+            {
+
+              GlobalPoint pvpoint(t->vx(),t->vy(), t->vz());
+              int ntp = IsolationTrack_par.size();
+              IsolationTrack_par.push_back(std::vector<float>());
+              IsolationTrack_cov.push_back(std::vector<float>());
+	      edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
+              iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transTrackBuilder);
+	      reco::TransientTrack transTrk = transTrackBuilder->build(t);
+              TrackParticle trackparticle = ParticleBuilder::CreateTrackParticle(transTrk, transTrackBuilder, pvpoint, true, true);
+              IsolationTrack_Helcharge.push_back(trackparticle.Charge());
+              IsolationTrack_pdgid.push_back(trackparticle.PDGID());
+              IsolationTrack_B.push_back(trackparticle.BField());
+              IsolationTrack_M.push_back(trackparticle.Mass());
+              for (int i = 0; i < trackparticle.NParameters(); i++) {
+                IsolationTrack_par.at(ntp).push_back(trackparticle.Parameter(i));
+                for (int j = i; j < trackparticle.NParameters(); j++) {
+                  IsolationTrack_cov.at(ntp).push_back(trackparticle.Covariance(i, j));
+                }
+              }
+            }
+
+
+
+
+
+
          }
 
 

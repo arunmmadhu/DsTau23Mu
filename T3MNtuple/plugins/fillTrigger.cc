@@ -7,6 +7,8 @@ void T3MNtuple::fillTrigger(const edm::Event& iEvent,
                             const Handle<vector<pat::TriggerObjectStandAlone> >& triggerObjects,
                             const TriggerNames& triggerNames)
 {
+  //  std::cout<<"do we Fill trigger ???  "<< std::endl;
+
    gtUtil_->retrieveL1(iEvent, iSetup, algToken_);
    const vector<pair<string, bool> > initialDecisions = gtUtil_->decisionsInitial();
 
@@ -15,6 +17,7 @@ void T3MNtuple::fillTrigger(const edm::Event& iEvent,
       for (size_t i_l1t = 0; i_l1t < initialDecisions.size(); i_l1t++){
 
          string l1tName = (initialDecisions.at(i_l1t)).first;
+	 //	 std::cout<<"l1 trigger  "<< l1tName << std::endl;
          if(l1tName.find("DoubleMu") != string::npos || l1tName.find("TripleMu") != string::npos || l1tName.find("singleMu"))
          {
             Trigger_l1name.push_back( l1tName );
@@ -32,6 +35,7 @@ void T3MNtuple::fillTrigger(const edm::Event& iEvent,
       int columnN= gtUtil_->prescaleColumn();
       for (size_t i_l1t = 0; i_l1t < initialDecisions.size(); i_l1t++) {
          string l1tName = (initialDecisions.at(i_l1t)).first;
+
          if(l1tName.find("DoubleMu") != string::npos || l1tName.find("TripleMu") != string::npos || l1tName.find("SingleMu"))
          {
             Trigger_l1name.push_back( l1tName );

@@ -5,9 +5,9 @@ void T3MNtuple::fillMCTruth(const edm::Event& iEvent,
       const Handle<GenParticleCollection>& genParticles,
       const Handle<vector<PileupSummaryInfo>>& puInfo)
 {
-   if (!iEvent.isRealData())
-   {
-
+  //  std::cout<<"do we fill MC  ??? "<< std::endl;
+  if (!iEvent.isRealData())
+    {
       if(doFullMC_){
 
          for (reco::GenParticleCollection::const_iterator itr = genParticles->begin(); itr != genParticles->end(); ++itr) {

@@ -23,11 +23,13 @@ unsigned int DataMCType::GetType(TString name){
   if(name=="bp_tau")                    return Bp_Tau;
   if(name=="tau_3mu2nu")                return Tau_3Mu2Nu;
   if(name=="ds_muetamumugamma")         return Ds_MuEtaMuMuGamma;
+  if(name=="ds_muetamumu")              return Ds_MuEtaMuMu;
   if(name=="ds_muetamumugammapi0")      return Ds_MuEtaMuMuGammaPi0;
   if(name=="ds_muetaprimemumugamma")    return Ds_MuEtaPrimeMuMuGamma;
   if(name=="ds_muomegamumupi0")         return Ds_MuOmegaMuMuPi0;
   if(name=="ds_muphimumugamma")         return Ds_MuPhiMuMuGamma;
-  if(name=="minbias")                   return MinBias;
+  if(name=="bbcc2mu")                   return bbcc2mu;
+  if(name=="bbcc3mu")                   return bbcc3mu;
 
 
   std::cout << "ERROR: Data/MC Type " << name << " UNKNOWN!!!! " << std::endl;

@@ -387,8 +387,8 @@ void T3MNtuple::fillMuons( const edm::Event& iEvent,
 
                reco::TrackRef Track = RefMuon->track();
                int ntp = Muon_par.size();
-               Muon_par.push_back(std::vector<double>());
-               Muon_cov.push_back(std::vector<double>());
+               Muon_par.push_back(std::vector<float>());
+               Muon_cov.push_back(std::vector<float>());
                if (Track.isNonnull()) {
                   GlobalPoint pvpoint(Track->vx(), Track->vy(), Track->vz());
                   edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
@@ -399,10 +399,13 @@ void T3MNtuple::fillMuons( const edm::Event& iEvent,
                   Muon_pdgid.push_back(trackparticle.PDGID());
                   Muon_B.push_back(trackparticle.BField());
                   Muon_M.push_back(trackparticle.Mass());
+		  //		  std::cout<<"Muon_M  "<< trackparticle.Mass() <<" B  "<<trackparticle.BField()<< " pdg  "<<trackparticle.PDGID() <<std::endl;
                   for (int i = 0; i < trackparticle.NParameters(); i++) {
                      Muon_par.at(ntp).push_back(trackparticle.Parameter(i));
+		     //		     std::cout<<" par:  " << trackparticle.Parameter(i) <<std::endl;
+		     //		     std::cout<<" muonpar size  "<< Muon_par.at(ntp).size() << std::endl;
                      for (int j = i; j < trackparticle.NParameters(); j++) {
-                        //	    Muon_cov.at(ntp).push_back(trackparticle.Covariance(i, j)); // comment out to keep sizee low, this is unused variable
+		       Muon_cov.at(ntp).push_back(trackparticle.Covariance(i, j)); 
                      }
                   }
                } else {
@@ -806,8 +809,8 @@ void T3MNtuple::fillMuons( const edm::Event& iEvent,
 
                reco::TrackRef Track = RefMuon->track();
                int ntp = Muon_par.size();
-               Muon_par.push_back(std::vector<double>());
-               Muon_cov.push_back(std::vector<double>());
+               Muon_par.push_back(std::vector<float>());
+               Muon_cov.push_back(std::vector<float>());
                if (Track.isNonnull()) {
                   GlobalPoint pvpoint(Track->vx(), Track->vy(), Track->vz());
                   edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
@@ -821,7 +824,7 @@ void T3MNtuple::fillMuons( const edm::Event& iEvent,
                   for (int i = 0; i < trackparticle.NParameters(); i++) {
                      Muon_par.at(ntp).push_back(trackparticle.Parameter(i));
                      for (int j = i; j < trackparticle.NParameters(); j++) {
-                        //	    Muon_cov.at(ntp).push_back(trackparticle.Covariance(i, j)); // comment out to keep sizee low, this is unused variable
+		       Muon_cov.at(ntp).push_back(trackparticle.Covariance(i, j)); // comment out to keep sizee low, this is unused variable
                      }
                   }
                } else {
