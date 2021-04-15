@@ -611,6 +611,11 @@ class T3MNtuple : public edm::EDAnalyzer {
       std::vector<std::vector<float> > TwoMuonsTrack_TriggerMatch_dR;
 
 
+      std::vector<double>  Vertex_2MuonsIsoTrack_KF_Chi2;
+      std::vector<std::vector<double > >   Vertex_2MuonsIsoTrack_KF_cov;
+      std::vector<std::vector<double > >   Vertex_2MuonsIsoTrack_KF_pos;
+
+
       std::vector<std::vector<double > > Vertex_signal_dca_reco;
       std::vector<std::vector<double > > Vertex_signal_KF_pos;
       std::vector<int >                  Vertex_NMuonsAssocWithPV;

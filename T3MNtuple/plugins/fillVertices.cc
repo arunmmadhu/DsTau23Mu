@@ -111,9 +111,10 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
       if (transVtx.refittedTracks().size() != iTransientTracks.size())
          FitOk = false;
       TLorentzVector ThreeCandidate(0,0,0,0);
-
+   
       math::XYZPoint TheSecondaryVertexPoint;
       if(FitOk){
+
          Vertex_signal_KF_Chi2.push_back(transVtx.totalChiSquared());
          Vertex_signal_KF_pos.at(index).push_back(transVtx.position().x());
          Vertex_signal_KF_pos.at(index).push_back(transVtx.position().y());
@@ -274,7 +275,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
       Vertex_Pair23_Pos.push_back( iVertex_Pair23_Pos);
       Vertex_Pair31_Pos.push_back( iVertex_Pair31_Pos);
 
-
+      //      std::cout<<" 12   "<<iVertex_pair_quality.at(0) << "  23   "<< iVertex_pair_quality.at(1) <<" 13  "<< iVertex_pair_quality.at(2) << std::endl;
       Vertex_pair_quality.push_back(iVertex_pair_quality);
       Vertex_pairfit_status.push_back(iVertex_pairfit_status);
 
@@ -588,6 +589,9 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
       iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",TheB);
 
       if (DEBUG) cout<<"Finding isolation tracks"<<endl;
+
+
+      //      double Temp_2MuonsTrackChi2(99999.);
 
       for(size_t i = 0; i < trackCollection->size(); i++) {
          const Track & t = (*trackCollection)[i];
@@ -994,6 +998,10 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
    for ( auto &iTransientTracks :  signalTracksCollection ){
       Vertex_signal_KF_pos.push_back(std::vector<double> ());
       Vertex_signal_KF_cov.push_back(std::vector<double> ());
+      Vertex_2MuonsIsoTrack_KF_pos.push_back(std::vector<double> ());
+      Vertex_2MuonsIsoTrack_KF_cov.push_back(std::vector<double> ());
+ 
+
       Vertex_signal_KF_refittedTracksP4.push_back(std::vector<std::vector<double> >());
 
       Vertex_signal_AF_pos.push_back(std::vector<double> ());
@@ -1031,6 +1039,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
 
       math::XYZPoint TheSecondaryVertexPoint;
       if(FitOk){
+	//	std::cout<<" signal chi2    "<< transVtx.totalChiSquared() << std::endl;
          Vertex_signal_KF_Chi2.push_back(transVtx.totalChiSquared());
          Vertex_signal_KF_pos.at(index).push_back(transVtx.position().x());
          Vertex_signal_KF_pos.at(index).push_back(transVtx.position().y());
@@ -1186,14 +1195,24 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
          iVertex_Pair31_Pos.push_back( 99.);
          iVertex_Pair31_Pos.push_back( 99.);
       }
-
+   
       Vertex_Pair12_Pos.push_back( iVertex_Pair12_Pos);
       Vertex_Pair23_Pos.push_back( iVertex_Pair23_Pos);
       Vertex_Pair31_Pos.push_back( iVertex_Pair31_Pos);
 
 
+      double leastiVertexChi2= std::min({iVertex_pair_quality.at(0),iVertex_pair_quality.at(1),iVertex_pair_quality.at(2) });
+      //      std::cout<<" 12   "<<iVertex_pair_quality.at(0) << "  23   "<< iVertex_pair_quality.at(1) <<" 13  "<< iVertex_pair_quality.at(2) << "   least  " <<leastiVertexChi2 <<std::endl;
       Vertex_pair_quality.push_back(iVertex_pair_quality);
       Vertex_pairfit_status.push_back(iVertex_pairfit_status);
+      vector<TransientTrack> BestVertexMuonPairTransientTracks;
+      if(leastiVertexChi2==iVertex_pair_quality.at(0))BestVertexMuonPairTransientTracks=trackpair12;
+      if(leastiVertexChi2==iVertex_pair_quality.at(1))BestVertexMuonPairTransientTracks=trackpair23;
+      if(leastiVertexChi2==iVertex_pair_quality.at(2))BestVertexMuonPairTransientTracks=trackpair31;
+
+
+
+
 
       ///////////////////////////////////////////
       //  find here the primary vertex with the best
@@ -1530,6 +1549,9 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
 
 
       if (DEBUG)     std::cout<<" sig   " << ThreeMuons_idx.size() << " two mu plus track   "<< TwoMuonsTrack_idx.size() <<  " signaltrack collect     "<< signalTracksCollection.size() <<  " signal Counter  "<<index <<std::endl;
+      double Temp_2MuonsTrackChi2(99999.);
+
+      TransientVertex TransientVertex_2CloseMuonsPlusTrack;
 
       for(size_t iTrack = 0; iTrack < (*trackCollection).size(); iTrack++) {
 
@@ -1544,8 +1566,9 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
 	 if (DEBUG) cout<<"Track not matched to muons"<<endl;
          if(index>=ThreeMuons_idx.size()) break;  // <----- fillinf isolation vertexing only for a signal candidate
          //if(abs(t.dz(pvPoint))< 0.5 && t.quality(TrackBase::tight) && sqrt(t.px()*t.px() + t.py()*t.py() ) > 0.5){//  && deltaR(t.eta(), t.phi(), LVTau.Eta(), LVTau.Phi()) < 1.){ }}
-         if(abs(t->dz(pvPoint))< 0.5 && sqrt(t->px()*t->px() + t->py()*t->py() ) > 0.4  && deltaR(t->eta(), t->phi(), LVTau.Eta(), LVTau.Phi()) < 1.2){
-
+	 //	 std::cout<<" all isos  "<< iTrack << std::endl;
+         if(abs(t->dz(pvPoint)) < 0.5 && sqrt(t->px()*t->px() + t->py()*t->py() ) > 0.4  && deltaR(t->eta(), t->phi(), LVTau.Eta(), LVTau.Phi()) < 1.5){
+	   //	   std::cout<<" n passed  "<< iTrack << std::endl;
             if (DEBUG) cout<<"Found track within Isolation"<<endl;
 
             std::vector<int>   iIsolationTrack_VertexWithSignalMuonIsValid;
@@ -1696,13 +1719,33 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
             }
 
 
+	    //-------------------------------  here fit two closest moun to an isolation track
+	    vector<TransientTrack> TwoBestMuons_TrackVertexCollection = BestVertexMuonPairTransientTracks;
+	    TwoBestMuons_TrackVertexCollection.push_back(TheB->build(t));
+            KalmanVertexFitter KVF_TwoBestMuonsAndIsoTrack(true);
+            TransientVertex TV_TwoBestMuonsAndIsoTrack;
+	    bool FitTwoMuonsTrack(true);
+            try {
+	      TV_TwoBestMuonsAndIsoTrack=KVF_TwoBestMuonsAndIsoTrack.vertex(TwoBestMuons_TrackVertexCollection);
+            } catch (...) {
+	      FitTwoMuonsTrack = false;
+            }
 
 
+	    if(TV_TwoBestMuonsAndIsoTrack.isValid() && FitTwoMuonsTrack){
+	      if(TV_TwoBestMuonsAndIsoTrack.totalChiSquared()  <  Temp_2MuonsTrackChi2){
+		Temp_2MuonsTrackChi2  = TV_TwoBestMuonsAndIsoTrack.totalChiSquared();
+		TransientVertex_2CloseMuonsPlusTrack = TV_TwoBestMuonsAndIsoTrack;
+
+	      }
+	    }
+
+	    //-------------------------------  here fit two closest moun to an isolation track
 
 
          }
 
-
+      
 
          //--------------------------- Isolation Branch
 
@@ -1771,6 +1814,43 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
       }
       //********************************************************************************
       //Here reconstruct the vertices of all signal candidates with all isolation tracks 
+
+      //      std::cout<<" isValid   " << TransientVertex_2CloseMuonsPlusTrack.isValid() <<" chi2 2 muons plus    track "<<  	TransientVertex_2CloseMuonsPlusTrack.totalChiSquared() << "   found at all ???   " <<std::endl;
+   
+      
+
+      //-----------------------
+      if(TransientVertex_2CloseMuonsPlusTrack.isValid()){
+	//	std::cout<<" signal chi2    "<< TransientVertex_2CloseMuonsPlusTrack.totalChiSquared() << std::endl;
+	Vertex_2MuonsIsoTrack_KF_Chi2.push_back(TransientVertex_2CloseMuonsPlusTrack.totalChiSquared());
+	Vertex_2MuonsIsoTrack_KF_pos.at(index).push_back(TransientVertex_2CloseMuonsPlusTrack.position().x());
+	Vertex_2MuonsIsoTrack_KF_pos.at(index).push_back(TransientVertex_2CloseMuonsPlusTrack.position().y());
+	Vertex_2MuonsIsoTrack_KF_pos.at(index).push_back(TransientVertex_2CloseMuonsPlusTrack.position().z());
+
+	reco::Vertex TempVertex = TransientVertex_2CloseMuonsPlusTrack;
+	TMatrixTSym<double> vcov(LorentzVectorParticle::NVertex);
+	math::Error<3>::type vCov;
+	TempVertex.fill(vCov);
+
+	for (int i = 0; i <LorentzVectorParticle::NVertex; i++){
+	  for (int j = 0; j < LorentzVectorParticle::NVertex; j++) {
+	    vcov(i, j) = vCov(i, j);
+	    vcov(j, i) = vCov(i, j);
+	  }
+	}
+
+	for (int i = 0; i < LorentzVectorParticle::NVertex; i++) {
+	  for (int j = i; j < LorentzVectorParticle::NVertex; j++) {
+	    Vertex_2MuonsIsoTrack_KF_cov.at(index).push_back(vcov(i, j));
+	  }
+	}
+      } else {
+
+	Vertex_2MuonsIsoTrack_KF_Chi2.push_back(-1);
+
+      }
+	//--------------------------   
+	
 
 
       IsolationTrack_dxySV.push_back(iIsolationTrack_dxySV);
