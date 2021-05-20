@@ -93,7 +93,17 @@ process.TFileService = cms.Service('TFileService',
 #process.source.fileNames = ['/store/data/Run2018B/DoubleMuonLowMass/AOD/17Sep2018-v1/60000/02CEEEBB-DCCB-9B46-84B2-7C99FB39C98A.root']
 #process.source.fileNames = ['root://cms-xrd-global.cern.ch//store/data/Run2017D/DoubleMuonLowMass/AOD/17Nov2017-v1/70000/5A3F7AD8-36E9-E711-B981-1866DA85D72E.root']
 #process.source.fileNames = ['/store/user/wangjian/DsToTau_TauTo3Mu_March2020/RunIIAutumn18DRPremix-102X/200323_083820/0000/BPH-RunIIAutumn18DRPremix-00158_323.root']
-process.source.fileNames = ['file:/tmp/bjoshi/D7A24A95-28B8-824A-A9B2-1E643CA29B5F.root']
+#process.source.fileNames = ['file:/tmp/bjoshi/D7A24A95-28B8-824A-A9B2-1E643CA29B5F.root']
+process.source.fileNames = ['/store/data/Run2018D/DoubleMuonLowMass/MINIAOD/PromptReco-v2/000/325/159/00000/1403B072-371A-764C-9B25-A172D8B1A884.root']
+
+#process.source.fileNames = ['/store/user/wangjian/DsToTau_TauTo3Mu_November2020/RunIIAutumn18MiniAOD-102X/201107_171229/0000/BPH-RunIIAutumn18MiniAOD-00158_980.root',   # ds to tau
+#                            '/store/user/wangjian/DsToTau_TauTo3Mu_November2020/RunIIAutumn18MiniAOD-102X/201107_171229/0000/BPH-RunIIAutumn18MiniAOD-00158_981.root',
+#                            '/store/user/wangjian/DsToTau_TauTo3Mu_November2020/RunIIAutumn18MiniAOD-102X/201107_171229/0000/BPH-RunIIAutumn18MiniAOD-00158_982.root']
+
+
+
+
+#process.source.fileNames = ['/store/user/wangjian/DsToTau_TauTo3Mu_November2020/RunIIAutumn18MiniAOD-102X/201107_171229/0000/BPH-RunIIAutumn18MiniAOD-00158_980.root']
 
 process.load('DsTau23Mu.T3MNtuple.DsTauNtuple_cfi')
 process.load('DsTau23Mu.T3MNtuple.PhotonAndV0Skim_cfi')
@@ -116,10 +126,10 @@ process.unpackedPatTrigger = cms.EDProducer('PATTriggerObjectStandAloneUnpacker'
 
 
 
-process.source.fileNames = ['file:MiniAOD/BPH-RunIIAutumn18MiniAOD-00158_700.root',
-                            'file:MiniAOD/BPH-RunIIAutumn18MiniAOD-00158_701.root',
-                            'file:MiniAOD/BPH-RunIIAutumn18MiniAOD-00158_702.root',
-                            'file:MiniAOD/BPH-RunIIAutumn18MiniAOD-00158_703.root']
+#process.source.fileNames = ['file:MiniAOD/BPH-RunIIAutumn18MiniAOD-00158_700.root',
+#                            'file:MiniAOD/BPH-RunIIAutumn18MiniAOD-00158_701.root',
+#                            'file:MiniAOD/BPH-RunIIAutumn18MiniAOD-00158_702.root',
+#                            'file:MiniAOD/BPH-RunIIAutumn18MiniAOD-00158_703.root']
 
 
 

@@ -20,6 +20,7 @@ class DataMCType{
 	     Ds_MuEtaPrimeMuMuGamma=128,
 	     Ds_MuOmegaMuMuPi0=132,
 	     Ds_MuPhiMuMuGamma=142,
+	     Ds_MuPhiMuMu=143,
 	     unknown=999
 	     // add here more MC types
   };

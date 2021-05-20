@@ -28,6 +28,7 @@ unsigned int DataMCType::GetType(TString name){
   if(name=="ds_muetaprimemumugamma")    return Ds_MuEtaPrimeMuMuGamma;
   if(name=="ds_muomegamumupi0")         return Ds_MuOmegaMuMuPi0;
   if(name=="ds_muphimumugamma")         return Ds_MuPhiMuMuGamma;
+  if(name=="ds_muphimumu")              return Ds_MuPhiMuMu;
   if(name=="bbcc2mu")                   return bbcc2mu;
   if(name=="bbcc3mu")                   return bbcc3mu;
 
