@@ -603,7 +603,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
          if(deltaR(LV3.Eta(), LV3.Phi(), t.eta(), t.phi())<0.01)continue;
          if(index>=ThreeMuons_idx.size()) break;  // <----- fillinf isolation vertexing only for a signal candidate
          //if(abs(t.dz(pvPoint))< 0.5 && t.quality(TrackBase::tight) && sqrt(t.px()*t.px() + t.py()*t.py() ) > 0.5){//  && deltaR(t.eta(), t.phi(), LVTau.Eta(), LVTau.Phi()) < 1.){}}
-         if(abs(t.dz(pvPoint))< 0.5 && sqrt(t.px()*t.px() + t.py()*t.py() ) > 0.4  && deltaR(t.eta(), t.phi(), LVTau.Eta(), LVTau.Phi()) < 1.2){
+         if(abs(t.dz(pvPoint))< 0.5 && sqrt(t.px()*t.px() + t.py()*t.py() ) > 0.1  && deltaR(t.eta(), t.phi(), LVTau.Eta(), LVTau.Phi()) < 1.2){
 
             std::vector<int>   iIsolationTrack_VertexWithSignalMuonIsValid;
             std::vector<float> iIsolationTrack_VertexWithSignalMuonChi2;
