@@ -29,8 +29,10 @@ unsigned int DataMCType::GetType(TString name){
   if(name=="ds_muomegamumupi0")         return Ds_MuOmegaMuMuPi0;
   if(name=="ds_muphimumugamma")         return Ds_MuPhiMuMuGamma;
   if(name=="ds_muphimumu")              return Ds_MuPhiMuMu;
+  if(name=="ds_muphimumu_mumugamma")    return Ds_MuPhiMuMu_MuMuGamma;
   if(name=="ds_murhomumu")              return Ds_MuRhoMuMu;
   if(name=="ds_muomegamumu")            return Ds_MuOmegaMuMu;
+  if(name=="d_muomegamumu_mumupi0")     return D_MuOmegaMuMu_MuMuPi0;
   if(name=="bbcc2mu")                   return bbcc2mu;
   if(name=="bbcc3mu")                   return bbcc3mu;
 
