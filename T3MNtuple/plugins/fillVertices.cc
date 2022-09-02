@@ -589,8 +589,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
       iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",TheB);
 
       if (DEBUG) cout<<"Finding isolation tracks"<<endl;
-
-
+      
       //      double Temp_2MuonsTrackChi2(99999.);
 
       for(size_t i = 0; i < trackCollection->size(); i++) {
@@ -603,7 +602,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
          if(deltaR(LV3.Eta(), LV3.Phi(), t.eta(), t.phi())<0.01)continue;
          if(index>=ThreeMuons_idx.size()) break;  // <----- fillinf isolation vertexing only for a signal candidate
          //if(abs(t.dz(pvPoint))< 0.5 && t.quality(TrackBase::tight) && sqrt(t.px()*t.px() + t.py()*t.py() ) > 0.5){//  && deltaR(t.eta(), t.phi(), LVTau.Eta(), LVTau.Phi()) < 1.){}}
-         if(abs(t.dz(pvPoint))< 0.5 && sqrt(t.px()*t.px() + t.py()*t.py() ) > 0.1  && deltaR(t.eta(), t.phi(), LVTau.Eta(), LVTau.Phi()) < 1.2){
+         if(abs(t.dz(pvPoint))< 0.5 && sqrt(t.px()*t.px() + t.py()*t.py() ) > 0.1  && deltaR(t.eta(), t.phi(), LVTau.Eta(), LVTau.Phi()) < 1.5){
 
             std::vector<int>   iIsolationTrack_VertexWithSignalMuonIsValid;
             std::vector<float> iIsolationTrack_VertexWithSignalMuonChi2;
@@ -1552,7 +1551,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
       double Temp_2MuonsTrackChi2(99999.);
 
       TransientVertex TransientVertex_2CloseMuonsPlusTrack;
-
+      
       for(size_t iTrack = 0; iTrack < (*trackCollection).size(); iTrack++) {
 
          TrackRef t = reco::TrackRef(trackCollection, iTrack);
@@ -1567,7 +1566,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
          if(index>=ThreeMuons_idx.size()) break;  // <----- fillinf isolation vertexing only for a signal candidate
          //if(abs(t.dz(pvPoint))< 0.5 && t.quality(TrackBase::tight) && sqrt(t.px()*t.px() + t.py()*t.py() ) > 0.5){//  && deltaR(t.eta(), t.phi(), LVTau.Eta(), LVTau.Phi()) < 1.){ }}
 	 //	 std::cout<<" all isos  "<< iTrack << std::endl;
-         if(abs(t->dz(pvPoint)) < 0.5 && sqrt(t->px()*t->px() + t->py()*t->py() ) > 0.4  && deltaR(t->eta(), t->phi(), LVTau.Eta(), LVTau.Phi()) < 1.5){
+         if(abs(t->dz(pvPoint)) < 0.5 && sqrt(t->px()*t->px() + t->py()*t->py() ) > 0.1  && deltaR(t->eta(), t->phi(), LVTau.Eta(), LVTau.Phi()) < 1.5){
 	   //	   std::cout<<" n passed  "<< iTrack << std::endl;
             if (DEBUG) cout<<"Found track within Isolation"<<endl;
 
@@ -1582,7 +1581,9 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
             iIsolation_Track_p4.push_back(t->pz());
 
             iIsolationTrack_charge.push_back(t->charge());
-            iIsolationTrack_isHighPurity.push_back(t->quality(TrackBase::highPurity));
+            iIsolationTrack_isHighPurity.push_back(t->quality(TrackBase::highPurity));cc
+            
+            // std::cout<<" The pt of the track is "<< sqrt(t->px()*t->px() + t->py()*t->py() ) << std::endl;
 
             IsolationTrack_p4.at(IsolationTrack_p4.size() - 1).push_back(iIsolation_Track_p4);
 
