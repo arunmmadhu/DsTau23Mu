@@ -1581,7 +1581,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
             iIsolation_Track_p4.push_back(t->pz());
 
             iIsolationTrack_charge.push_back(t->charge());
-            iIsolationTrack_isHighPurity.push_back(t->quality(TrackBase::highPurity));cc
+            iIsolationTrack_isHighPurity.push_back(t->quality(TrackBase::highPurity));
             
             // std::cout<<" The pt of the track is "<< sqrt(t->px()*t->px() + t->py()*t->py() ) << std::endl;
 
