@@ -47,7 +47,17 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
    recoMuonToken_(consumes<vector<reco::Muon>>(iConfig.getParameter<edm::InputTag>("reco_muons"))),
    recoPhotonToken_(consumes<vector<reco::Photon>>(iConfig.getParameter<edm::InputTag>("reco_phos"))),
    svToken_(consumes<VertexCollection>(iConfig.getParameter<InputTag>("reco_svs"))),
+   //TauCandidateToken_(consumes<pat::TauRefVector>(iConfig.getParameter<InputTag>("TauCandidateTag"))),
+   TauCandidateToken_(consumes<pat::TauCollection>(edm::InputTag("NewTauIDsEmbedded"))),
+   pfTauToken_(consumes<reco::PFTauCollection>(edm::InputTag("hpsPFTauProducer", "", "PAT"))),
+   //pfTauToken_(consumes<reco::PFTauCollection>(edm::InputTag("hpsPFTauProducer"))),
+   //pfTauToken_(consumes<reco::PFTauCollection>(iConfig.getParameter<InputTag>("PFTauTag"))),
+   dmfNewToken_(consumes<reco::PFTauDiscriminator>(edm::InputTag("hpsPFTauDiscriminationByDecayModeFindingNewDMs", "", "PAT"))),
+   goodPVToken_(consumes<vector<Vertex>>(iConfig.getParameter<InputTag>("goodPVTag"))),
+   thePFCandToken_(consumes<edm::View<pat::PackedCandidate>>        (iConfig.getParameter<edm::InputTag>("thePFCandTag"))),
+   tracks_Token_(consumes<edm::View<pat::PackedCandidate>>(edm::InputTag("packedPFCandidates"))),
    sampleType_(iConfig.getUntrackedParameter<string>("DataMCType",""))
+   
 {
 
 
@@ -60,6 +70,7 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
    mid_ = iConfig.getParameter<int>("mid");
    doTracks_ = iConfig.getParameter<bool>("doTracks");
    doMuons_ = iConfig.getParameter<bool>("doMuons");
+   doTaus_ = iConfig.getParameter<bool>("doTaus");
    do3mutuple_ = iConfig.getParameter<bool>("do3mutuple");
    doL1_ = iConfig.getParameter<bool>("doL1");
    doBJets_ = iConfig.getParameter<bool>("doBJets");
@@ -248,6 +259,11 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    beamSpotHandle.clear();
    puInfo.clear();
    genParticles.clear();
+   tauHandle.clear();
+   pfTaus.clear();
+   vertexs.clear();
+   pfCandHandle.clear();
+   tracksHandle.clear();
 
    edm::TriggerNames triggerNames;  
 
@@ -320,9 +336,11 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    if (DEBUG) cout<<"Number of dsphipi candidates = "<<Event_ndsphipi_candidate<<endl;
 
    // Fill the output tree only if a candidate is found 
-   if(Event_nsignal_candidates!=0 or Event_ndsphipi_candidate!=0){
+   //if(Event_nsignal_candidates!=0 or Event_ndsphipi_candidate!=0){
+   if(Event_nsignal_candidates!=0 or Event_ndsphipi_candidate!=0 or doTaus_){
 
       MC_isReco=1;
+      /*
 
       if (!iEvent.getByToken(vtxToken_, pvs)) edm::LogError("") << "[T3MNtuple]: Primary Vertex collection does not exist!";
       if (!miniAODRun_ && !iEvent.getByToken(svToken_, svs)) edm::LogError("") << "[T3MNtuple]: Secondary Vertex collection does not exist!";
@@ -369,6 +387,30 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                if (DEBUG) cout<<"Filling RECO muons."<<endl;
                fillMuons(iEvent, iSetup, recoMuonCollection, trackCollection, pvs);
             }
+         }
+      }
+      */
+      
+      if(doTaus_){      
+         
+         cout<<" Getting tauHandle: "<< iEvent.getByToken(TauCandidateToken_, tauHandle) <<" Getting pfTaus: "<< iEvent.getByToken(pfTauToken_, pfTaus) <<" Getting dmfNew: "<< iEvent.getByToken(dmfNewToken_, dmfNew) <<" Getting vertexs: "<< iEvent.getByToken(goodPVToken_ , vertexs) <<" Getting pfCandHandle: "<< iEvent.getByToken(thePFCandToken_, pfCandHandle) <<" Getting tracksHandle: "<< iEvent.getByToken(tracks_Token_, tracksHandle) <<endl;
+         //iEvent.getByToken(TauCandidateToken_, tauHandle);
+         //iEvent.getByToken(goodPVToken_ , vertexs);
+         //iEvent.getByToken(thePFCandToken_, pfCandHandle);
+         //iEvent.getByToken(tracks_Token_, tracksHandle);
+         
+         //if (DEBUG) cout<<"Validity of tracksHandle is: "<< tracksHandle.isValid() <<"Validity of vertexs is: "<< vertexs.isValid() <<"Validity of pfCandHandle is: "<< pfCandHandle.isValid() <<"Validity of tauHandle is: "<< tauHandle.isValid() <<endl;
+         //cout<<"Validity of tracksHandle is: "<< tracksHandle.isValid() <<" Validity of vertexs is: "<< vertexs.isValid() <<" Validity of pfCandHandle is: "<< pfCandHandle.isValid() <<" Validity of tauHandle is: "<< tauHandle.isValid() <<endl;
+         if (tracksHandle.isValid() && vertexs.isValid()){
+            if (miniAODRun_){  // && tauHandle.isValid()
+               if (DEBUG) cout<<"Filling PAT taus."<<endl;
+               
+               fillTaus(iEvent, iSetup, trackCollection, pvs, beamSpotHandle, tauHandle, vertexs, pfCandHandle, tracksHandle);
+            }
+            //else if (!miniAODRun_ && recoMuonCollection.isValid()){
+            //   if (DEBUG) cout<<"Filling RECO muons."<<endl;
+            //   fillMuons(iEvent, iSetup, recoMuonCollection, trackCollection, pvs);
+            //}
          }
       }
          
@@ -1247,6 +1289,9 @@ void T3MNtuple::ClearEvent() {
    Trigger_l1prescale.clear();
    Trigger_hltname.clear();
    Trigger_hltdecision.clear();
+   
+   tauIntDiscrims_.clear();
+   tauFloatDiscrims_.clear();
 }
 
 //define this as a plug-in

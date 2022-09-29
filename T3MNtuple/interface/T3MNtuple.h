@@ -25,6 +25,7 @@ Implementation:
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
@@ -33,6 +34,7 @@ Implementation:
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -44,6 +46,12 @@ Implementation:
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/MuonReco/interface/MuonTime.h"
 #include "DataFormats/MuonReco/interface/CaloMuon.h"
+#include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/TauReco/interface/PFTauFwd.h"
+#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
+#include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterAssociation.h"
+#include "RecoTauTag/RecoTau/interface/PFRecoTauClusterVariables.h"
+#include "RecoTauTag/RecoTau/interface/AntiElectronIDMVA6.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
@@ -51,13 +59,15 @@ Implementation:
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "RecoMuon/MuonIdentification/interface/MuonCaloCompatibility.h"
 #include "DataFormats/MuonReco/interface/MuonShower.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"
+#include "DataFormats/PatCandidates/interface/Tau.h"
+#include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -66,10 +76,8 @@ Implementation:
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
@@ -91,6 +99,10 @@ Implementation:
 #include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetos.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "TLorentzVector.h"
+#include "TMatrixT.h"
+#include <vector>
+#include <string>
+#include <TMath.h>
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -104,6 +116,7 @@ Implementation:
 #include "DsTau23Mu/T3MNtuple/interface/DataMCType.h"
 #include "TH2.h"
 #include <TTree.h>
+#include "TRandom3.h"
 
 using namespace reco;
 using namespace edm;
@@ -152,6 +165,16 @@ class T3MNtuple : public edm::EDAnalyzer {
             const Handle<vector<pat::Muon> >& muons,
             const Handle<TrackCollection>& trackCollection,
             const Handle<VertexCollection>& pvs);
+            
+      void fillTaus(const edm::Event& iEvent,
+            const edm::EventSetup& iSetup,
+            const Handle<TrackCollection>& trackCollection,
+            const Handle<VertexCollection>& pvs,
+            const Handle<BeamSpot>& beamSpotHandle,
+            const Handle<pat::TauCollection>& tauHandle,
+            const Handle<vector<Vertex> >&  vertexs,
+            const Handle<edm::View<pat::PackedCandidate> >& pfCandHandle,
+            const Handle<edm::View<pat::PackedCandidate> >& tracksHandle);
 
       void fillMCTruth(const edm::Event& iEvent,
             const edm::EventSetup& iSetup,
@@ -270,7 +293,7 @@ class T3MNtuple : public edm::EDAnalyzer {
          T UnambiguousMuonRef(unsigned int index, TString dataFormat="AOD");
 
       // Parameters pertaining to NtupleMaker
-      bool doMC_, doFullMC_, wideSB_, do2mu_, passhlt_, doTracks_, doMuons_, 
+      bool doMC_, doFullMC_, wideSB_, do2mu_, passhlt_, doTracks_, doMuons_, doTaus_,
            do3mutuple_, doL1_, doThreeMuons_, doTwoMuonsAndTrack_, doBJets_, doPhotons_, miniAODRun_;
       double TriggerMuonMatchingdr_;
       string WhatData_;
@@ -302,6 +325,12 @@ class T3MNtuple : public edm::EDAnalyzer {
       Handle<BeamSpot> beamSpotHandle;
       Handle<vector<PileupSummaryInfo>> puInfo;
       Handle<GenParticleCollection> genParticles;
+      Handle<pat::TauCollection> tauHandle;
+      Handle<reco::PFTauCollection> pfTaus;
+      Handle<reco::PFTauDiscriminator> dmfNew;
+      Handle<vector<Vertex> >  vertexs;
+      Handle<edm::View<pat::PackedCandidate> > pfCandHandle;
+      Handle<edm::View<pat::PackedCandidate> > tracksHandle;
       
       // Declare Tokens
 
@@ -324,6 +353,12 @@ class T3MNtuple : public edm::EDAnalyzer {
       EDGetTokenT<vector<reco::Muon>> recoMuonToken_;
       EDGetTokenT<vector<reco::Photon>> recoPhotonToken_;
       EDGetTokenT<VertexCollection> svToken_;
+      EDGetTokenT<pat::TauCollection> TauCandidateToken_;
+      EDGetTokenT<reco::PFTauCollection> pfTauToken_;
+      EDGetTokenT<reco::PFTauDiscriminator> dmfNewToken_;
+      EDGetTokenT<vector<Vertex> > goodPVToken_ ;
+      EDGetTokenT<edm::View<pat::PackedCandidate>> thePFCandToken_;
+      EDGetTokenT<edm::View<pat::PackedCandidate>> tracks_Token_;
 
       TString sampleType_;
       L1TGlobalUtil* gtUtil_;               
@@ -710,6 +745,9 @@ class T3MNtuple : public edm::EDAnalyzer {
       std::vector<std::vector<int> > SV_TrackCharge;
       std::vector<std::vector<float> > SV_PosCovariance;
       std::vector<std::vector<std::vector<float> > >  SV_Track_P4;
+      
+      std::vector<string> tauIntDiscrims_; // tau discrims to be added as userInt
+      std::vector<string> tauFloatDiscrims_; // tau discrims to be added as userFloats
 
       size_t mid_, n_reco, n_sv, njet20, ifar, ipv_gen, ipv1, ipv2;
 

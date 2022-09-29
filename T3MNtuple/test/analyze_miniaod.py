@@ -56,7 +56,6 @@ else :
     print '[' + sys.argv[0] + ']:', 'hltPathFilter=', options.hltPathFilter, 'is not a valid parameter!'
     sys.exit(100)
 
-
 process = cms.Process('DsTauNtuple')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
