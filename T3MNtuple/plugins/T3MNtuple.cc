@@ -48,7 +48,7 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
    recoPhotonToken_(consumes<vector<reco::Photon>>(iConfig.getParameter<edm::InputTag>("reco_phos"))),
    svToken_(consumes<VertexCollection>(iConfig.getParameter<InputTag>("reco_svs"))),
    //TauCandidateToken_(consumes<pat::TauRefVector>(iConfig.getParameter<InputTag>("TauCandidateTag"))),
-   TauCandidateToken_(consumes<pat::TauCollection>(edm::InputTag("NewTauIDsEmbedded"))),
+   TauCandidateToken_(consumes<pat::TauCollection>(edm::InputTag("NewTaus"))),
    pfTauToken_(consumes<reco::PFTauCollection>(edm::InputTag("hpsPFTauProducer", "", "PAT"))),
    //pfTauToken_(consumes<reco::PFTauCollection>(edm::InputTag("hpsPFTauProducer"))),
    //pfTauToken_(consumes<reco::PFTauCollection>(iConfig.getParameter<InputTag>("PFTauTag"))),
@@ -336,12 +336,11 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    if (DEBUG) cout<<"Number of dsphipi candidates = "<<Event_ndsphipi_candidate<<endl;
 
    // Fill the output tree only if a candidate is found 
-   //if(Event_nsignal_candidates!=0 or Event_ndsphipi_candidate!=0){
-   if(Event_nsignal_candidates!=0 or Event_ndsphipi_candidate!=0 or doTaus_){
+   if(Event_nsignal_candidates!=0 or Event_ndsphipi_candidate!=0){
+   //if(Event_nsignal_candidates!=0 or Event_ndsphipi_candidate!=0 or doTaus_){
 
       MC_isReco=1;
-      /*
-
+      
       if (!iEvent.getByToken(vtxToken_, pvs)) edm::LogError("") << "[T3MNtuple]: Primary Vertex collection does not exist!";
       if (!miniAODRun_ && !iEvent.getByToken(svToken_, svs)) edm::LogError("") << "[T3MNtuple]: Secondary Vertex collection does not exist!";
       if (miniAODRun_ && !iEvent.getByToken(compositeSVToken_, compositeSVs)) edm::LogError("") << "[T3MNtuple]: Composite Secondary Vertex collection does not exist!";
@@ -389,7 +388,8 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             }
          }
       }
-      */
+      
+      /*
       
       if(doTaus_){      
          
@@ -413,6 +413,8 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             //}
          }
       }
+      
+      */
          
 
       if(doTracks_){
