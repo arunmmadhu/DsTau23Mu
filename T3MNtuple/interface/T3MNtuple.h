@@ -446,6 +446,7 @@ class T3MNtuple : public edm::EDAnalyzer {
       std::vector<std::vector<float> > Tau_p4;
       std::vector<int> Tau_charge;
       std::vector<int> Tau_DecayMode;
+      std::vector<int> Tau_DecayModeFinding;
 
       std::vector<int> Tau_byLooseDeepTau2017v2p1VSe;
       std::vector<int> Tau_byMediumDeepTau2017v2p1VSe;

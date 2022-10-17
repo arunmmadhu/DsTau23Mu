@@ -743,6 +743,7 @@ T3MNtuple::beginJob()
      output_tree->Branch("Tau_p4", &Tau_p4);
      output_tree->Branch("Tau_charge", &Tau_charge);
      output_tree->Branch("Tau_DecayMode", &Tau_DecayMode);
+     output_tree->Branch("Tau_DecayModeFinding", &Tau_DecayModeFinding);
 
      output_tree->Branch("Tau_byLooseDeepTau2017v2p1VSe", &Tau_byLooseDeepTau2017v2p1VSe);
      output_tree->Branch("Tau_byMediumDeepTau2017v2p1VSe", &Tau_byMediumDeepTau2017v2p1VSe);
@@ -1018,6 +1019,7 @@ void T3MNtuple::ClearEvent() {
    Tau_p4.clear();
    Tau_charge.clear();
    Tau_DecayMode.clear();
+   Tau_DecayModeFinding.clear();
 
    Tau_byLooseDeepTau2017v2p1VSe.clear();
    Tau_byMediumDeepTau2017v2p1VSe.clear();

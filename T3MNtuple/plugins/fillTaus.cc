@@ -175,6 +175,7 @@ void T3MNtuple::fillTaus(const edm::Event& iEvent,
             
             cout << "pT: " << tau->pt() << " eta: " << tau->eta() << " phi: " << tau->phi() << " energy: " << tau->energy() << endl;
             
+
 	    std::vector<float> iTau_p4;
 	    iTau_p4.push_back(tau->energy());
 	    iTau_p4.push_back(tau->px());
@@ -183,7 +184,8 @@ void T3MNtuple::fillTaus(const edm::Event& iEvent,
 	    Tau_p4.push_back(iTau_p4);
 
 	    Tau_charge.push_back(tau->charge());
-
+	    Tau_DecayMode.push_back(tau->decayMode());
+	    Tau_DecayModeFinding.push_back(tau->tauID("decayModeFinding"));
 
 	    Tau_byLooseDeepTau2017v2p1VSe.push_back(tau->tauID("byLooseDeepTau2017v2p1VSe"));
 	    Tau_byMediumDeepTau2017v2p1VSe.push_back(tau->tauID("byMediumDeepTau2017v2p1VSe"));
@@ -197,7 +199,7 @@ void T3MNtuple::fillTaus(const edm::Event& iEvent,
 	    Tau_byMediumDeepTau2017v2p1VSjet.push_back(tau->tauID("byMediumDeepTau2017v2p1VSjet"));
 	    Tau_byTightDeepTau2017v2p1VSjet.push_back(tau->tauID("byTightDeepTau2017v2p1VSjet"));
 
-	    Tau_DecayMode.push_back(tau->decayMode());
+
             //if(valueAOD != valueMiniAOD) unmatchedTaus.push_back(tau);
           }
 
