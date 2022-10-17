@@ -47,8 +47,7 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
    recoMuonToken_(consumes<vector<reco::Muon>>(iConfig.getParameter<edm::InputTag>("reco_muons"))),
    recoPhotonToken_(consumes<vector<reco::Photon>>(iConfig.getParameter<edm::InputTag>("reco_phos"))),
    svToken_(consumes<VertexCollection>(iConfig.getParameter<InputTag>("reco_svs"))),
-   //TauCandidateToken_(consumes<pat::TauRefVector>(iConfig.getParameter<InputTag>("TauCandidateTag"))),
-   TauCandidateToken_(consumes<pat::TauCollection>(edm::InputTag("NewTaus"))),
+   TauCandidateToken_(consumes<pat::TauCollection>(edm::InputTag("slimmedTausPlusDeepTau"))),
    pfTauToken_(consumes<reco::PFTauCollection>(edm::InputTag("hpsPFTauProducer", "", "PAT"))),
    //pfTauToken_(consumes<reco::PFTauCollection>(edm::InputTag("hpsPFTauProducer"))),
    //pfTauToken_(consumes<reco::PFTauCollection>(iConfig.getParameter<InputTag>("PFTauTag"))),
@@ -389,8 +388,8 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          }
       }
       
-      /*
       
+     
       if(doTaus_){      
          
          cout<<" Getting tauHandle: "<< iEvent.getByToken(TauCandidateToken_, tauHandle) <<" Getting pfTaus: "<< iEvent.getByToken(pfTauToken_, pfTaus) <<" Getting dmfNew: "<< iEvent.getByToken(dmfNewToken_, dmfNew) <<" Getting vertexs: "<< iEvent.getByToken(goodPVToken_ , vertexs) <<" Getting pfCandHandle: "<< iEvent.getByToken(thePFCandToken_, pfCandHandle) <<" Getting tracksHandle: "<< iEvent.getByToken(tracks_Token_, tracksHandle) <<endl;
@@ -412,9 +411,10 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             //   fillMuons(iEvent, iSetup, recoMuonCollection, trackCollection, pvs);
             //}
          }
+      
       }
       
-      */
+      
          
 
       if(doTracks_){
@@ -739,6 +739,28 @@ T3MNtuple::beginJob()
 
 
 
+   if(doTaus_){
+     output_tree->Branch("Tau_p4", &Tau_p4);
+     output_tree->Branch("Tau_charge", &Tau_charge);
+     output_tree->Branch("Tau_DecayMode", &Tau_DecayMode);
+
+     output_tree->Branch("Tau_byLooseDeepTau2017v2p1VSe", &Tau_byLooseDeepTau2017v2p1VSe);
+     output_tree->Branch("Tau_byMediumDeepTau2017v2p1VSe", &Tau_byMediumDeepTau2017v2p1VSe);
+     output_tree->Branch("Tau_byTightDeepTau2017v2p1VSe", &Tau_byTightDeepTau2017v2p1VSe);
+
+     output_tree->Branch("Tau_byLooseDeepTau2017v2p1VSmu", &Tau_byLooseDeepTau2017v2p1VSmu);
+     output_tree->Branch("Tau_byMediumDeepTau2017v2p1VSmu", &Tau_byMediumDeepTau2017v2p1VSmu);
+     output_tree->Branch("Tau_byTightDeepTau2017v2p1VSmu", &Tau_byTightDeepTau2017v2p1VSmu);
+
+     output_tree->Branch("Tau_byLooseDeepTau2017v2p1VSjet", &Tau_byLooseDeepTau2017v2p1VSjet);
+     output_tree->Branch("Tau_byMediumDeepTau2017v2p1VSjet", &Tau_byMediumDeepTau2017v2p1VSjet);
+     output_tree->Branch("Tau_byTightDeepTau2017v2p1VSjet", &Tau_byTightDeepTau2017v2p1VSjet);
+  
+
+   }
+
+
+
    if(doPhotons_){
       output_tree->Branch("Gamma_P4",&Gamma_P4);
       output_tree->Branch("Gamma_hasPixelSeed",&Gamma_hasPixelSeed);
@@ -989,6 +1011,27 @@ void T3MNtuple::ClearEvent() {
 
    Event_nsignal_candidates=0;
    Event_ndsphipi_candidate=0;
+
+
+
+   //=======  Taus  ===
+   Tau_p4.clear();
+   Tau_charge.clear();
+   Tau_DecayMode.clear();
+
+   Tau_byLooseDeepTau2017v2p1VSe.clear();
+   Tau_byMediumDeepTau2017v2p1VSe.clear();
+   Tau_byTightDeepTau2017v2p1VSe.clear();
+
+   Tau_byLooseDeepTau2017v2p1VSmu.clear();
+   Tau_byMediumDeepTau2017v2p1VSmu.clear();
+   Tau_byTightDeepTau2017v2p1VSmu.clear();
+
+   Tau_byLooseDeepTau2017v2p1VSjet.clear();
+   Tau_byMediumDeepTau2017v2p1VSjet.clear();
+   Tau_byTightDeepTau2017v2p1VSjet.clear();
+
+
 
    //=======  Gammas ===
    Gamma_P4.clear();

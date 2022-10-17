@@ -79,8 +79,6 @@ void T3MNtuple::fillTaus(const edm::Event& iEvent,
           "againstElectronMediumMVA6",
           "againstElectronTightMVA6",
           "againstElectronVTightMVA6"
-        
-        
         };
         
         
@@ -169,13 +167,37 @@ void T3MNtuple::fillTaus(const edm::Event& iEvent,
           for(unsigned iTau = 0; iTau < tauHandle->size(); iTau++){
             pat::TauRef tau(tauHandle,iTau);
             float valueAOD = tau->tauID("byIsolationMVArun2v1DBoldDMwLTraw");
-            float valueMiniAOD = tau->tauID("byIsolationMVArun2v1DBoldDMwLTrawNew");//(*mvaIsoRaw)[tau];
+	    //            float valueMiniAOD = tau->tauID("byIsolationMVArun2v1DBoldDMwLTrawNew");//(*mvaIsoRaw)[tau];
+            float valueMiniAOD = tau->tauID("byLooseDeepTau2017v2p1VSmu");//(*mvaIsoRaw)[tau];
             
             cout << "valueAOD: " << valueAOD << endl;
             cout << "valueMiniAOD: " << valueMiniAOD << endl;
             
             cout << "pT: " << tau->pt() << " eta: " << tau->eta() << " phi: " << tau->phi() << " energy: " << tau->energy() << endl;
             
+	    std::vector<float> iTau_p4;
+	    iTau_p4.push_back(tau->energy());
+	    iTau_p4.push_back(tau->px());
+	    iTau_p4.push_back(tau->py());
+	    iTau_p4.push_back(tau->pz());
+	    Tau_p4.push_back(iTau_p4);
+
+	    Tau_charge.push_back(tau->charge());
+
+
+	    Tau_byLooseDeepTau2017v2p1VSe.push_back(tau->tauID("byLooseDeepTau2017v2p1VSe"));
+	    Tau_byMediumDeepTau2017v2p1VSe.push_back(tau->tauID("byMediumDeepTau2017v2p1VSe"));
+	    Tau_byTightDeepTau2017v2p1VSe.push_back(tau->tauID("byTightDeepTau2017v2p1VSe"));
+
+	    Tau_byLooseDeepTau2017v2p1VSmu.push_back(tau->tauID("byLooseDeepTau2017v2p1VSmu"));
+	    Tau_byMediumDeepTau2017v2p1VSmu.push_back(tau->tauID("byMediumDeepTau2017v2p1VSmu"));
+	    Tau_byTightDeepTau2017v2p1VSmu.push_back(tau->tauID("byTightDeepTau2017v2p1VSmu"));
+
+	    Tau_byLooseDeepTau2017v2p1VSjet.push_back(tau->tauID("byLooseDeepTau2017v2p1VSjet"));
+	    Tau_byMediumDeepTau2017v2p1VSjet.push_back(tau->tauID("byMediumDeepTau2017v2p1VSjet"));
+	    Tau_byTightDeepTau2017v2p1VSjet.push_back(tau->tauID("byTightDeepTau2017v2p1VSjet"));
+
+	    Tau_DecayMode.push_back(tau->decayMode());
             //if(valueAOD != valueMiniAOD) unmatchedTaus.push_back(tau);
           }
 
