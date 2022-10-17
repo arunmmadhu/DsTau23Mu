@@ -40,7 +40,7 @@ Implementation:
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 #include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
-
+#include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
@@ -148,6 +148,9 @@ class T3MNtuple : public edm::EDAnalyzer {
 
       void ClearEvent();
       void fillEventInfo(const edm::Event& iEvent, 
+            const edm::EventSetup& iSetup);
+
+      void fillMET(const edm::Event& iEvent, 
             const edm::EventSetup& iSetup);
 
       void fillTracks(const edm::Event& iEvent,
@@ -348,6 +351,7 @@ class T3MNtuple : public edm::EDAnalyzer {
       EDGetTokenT<vector<PileupSummaryInfo>> puToken_;
       EDGetTokenT<GenParticleCollection> genToken_;
       EDGetTokenT<vector<pat::Muon>> patMuonToken_;
+      EDGetTokenT<vector<pat::MET>> pat_met_puppi_;
       EDGetTokenT<vector<pat::Photon>> patPhotonToken_;
       EDGetTokenT<vector<reco::VertexCompositePtrCandidate>> compositeSVToken_;
       EDGetTokenT<vector<reco::Muon>> recoMuonToken_;
@@ -415,6 +419,12 @@ class T3MNtuple : public edm::EDAnalyzer {
       bool Event_isRealData;
       unsigned int Event_nsignal_candidates;
       unsigned int Event_ndsphipi_candidate;
+      float Event_METEt;
+      float Event_METPhi;
+      float Event_METXX;
+      float Event_METXY;
+      float Event_METYY;
+
 
       //=======  Tracks === 
       std::vector<std::vector<double> > Track_p4;

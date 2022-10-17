@@ -42,6 +42,7 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
    puToken_(consumes<vector<PileupSummaryInfo> >(iConfig.getParameter<InputTag>("pileupSummary"))),
    genToken_(consumes<GenParticleCollection>(iConfig.getParameter<InputTag>("genParticles"))),
    patMuonToken_(consumes<vector<pat::Muon>>(iConfig.getParameter<edm::InputTag>("pat_muons"))),
+   pat_met_puppi_(consumes<vector<pat::MET>>(iConfig.getParameter<edm::InputTag>("met_puppi"))),
    patPhotonToken_(consumes<vector<pat::Photon>>(iConfig.getParameter<edm::InputTag>("pat_phos"))),
    compositeSVToken_(consumes<vector<reco::VertexCompositePtrCandidate>>(iConfig.getParameter<InputTag>("composite_svs"))),
    recoMuonToken_(consumes<vector<reco::Muon>>(iConfig.getParameter<edm::InputTag>("reco_muons"))),
@@ -267,6 +268,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::TriggerNames triggerNames;  
 
    fillEventInfo(iEvent, iSetup);
+   fillMET(iEvent, iSetup);
 
    if(doMC_){
       if ( iEvent.getByToken(genToken_, genParticles) &&
@@ -561,6 +563,23 @@ void T3MNtuple::fillEventInfo(const edm::Event& iEvent, const edm::EventSetup& i
 
 
 
+void T3MNtuple::fillMET(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+
+
+  edm::Handle<std::vector<pat::MET> > METpuppi;
+  iEvent.getByToken(pat_met_puppi_, METpuppi);
+
+  Event_METEt = METpuppi->front().et();
+  Event_METPhi = METpuppi->front().phi();
+  Event_METXX = METpuppi->front().getSignificanceMatrix()(0,0);
+  Event_METXY = METpuppi->front().getSignificanceMatrix()(0,1);
+  Event_METYY = METpuppi->front().getSignificanceMatrix()(1,1);
+
+} 
+
+
+
 // ------------ method called once each job just before starting event loop  ------------
    void 
 T3MNtuple::beginJob()
@@ -586,6 +605,12 @@ T3MNtuple::beginJob()
    output_tree->Branch("Event_nsignal_candidates", &Event_nsignal_candidates);
    output_tree->Branch("Event_ndsphipi_candidate", &Event_ndsphipi_candidate);
    output_tree->Branch("Event_DataMC_Type" ,&Event_DataMC_Type);
+
+   output_tree->Branch("Event_METEt" ,&Event_METEt);
+   output_tree->Branch("Event_METPhi" ,&Event_METPhi);
+   output_tree->Branch("Event_METXX" ,&Event_METXX);
+   output_tree->Branch("Event_METXY" ,&Event_METXY);
+   output_tree->Branch("Event_METYY" ,&Event_METYY);
 
 
    output_tree->Branch("puN", &puN, "puN/D");
