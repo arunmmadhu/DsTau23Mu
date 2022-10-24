@@ -12,6 +12,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
       const Handle<reco::BeamSpot>& beamSpotHandle)
 {
    Vertex_N_primary = pvs->size();
+
    const BeamSpot& bs = *beamSpotHandle;
 
    std::vector<std::vector<std::vector<double> > > particles_p4;
@@ -353,7 +354,6 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
 
          IsolationBranch_Trackp4.at(IsolationBranch_Trackp4.size() - 1).push_back(iIsolationBranch_Track_p4);
       }
-
       Vertex_NMuonsAssocWithPV.push_back(NParticlesComingFromPV);
       KalmanVertexFitter pv_fit(true);
       bool FitPVOk(true);
@@ -400,6 +400,8 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
       Vertex_MatchedRefitPrimaryVertex_covariance.push_back(pv_cov);
 
       Vertex final_pv = MatchedPrimaryVertex;  
+
+      
       if(pvvertex.isValid()) final_pv = Vertex(pvvertex);
 
       math::XYZPoint pvPoint = math::XYZPoint(final_pv.x(), final_pv.y(), final_pv.z());
@@ -1220,6 +1222,8 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
       unsigned int primaryvertex_index;
       for(unsigned int vertex_index = 0; vertex_index  < pvs->size(); vertex_index++) {
          const Vertex & pvertex = (*pvs)[vertex_index];
+	 //	 std::cout<<"fillVertices ----   nTracks  "<< pvertex.nTracks() << "   pT:  "<<pvertex.p4().Pt() << std::endl;
+	 //	 std::cout<<"   position   "<< pvertex.x()<< "   "<< pvertex.y() << "  "<< pvertex.z() << std::endl;
          TVector3 Dv3D_reco(transVtx.position().x() - pvertex.x(), transVtx.position().y() - pvertex.y(), transVtx.position().z() - pvertex.z());
          double Cosdphi_3D = Dv3D_reco.Dot(ThreeCandidate.Vect())/(Dv3D_reco.Mag()*ThreeCandidate.Vect().Mag());
          if(Cosdphi_3D>dphi_pv){
@@ -1267,12 +1271,14 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
       int NParticlesComingFromPV(0);
       vector<TransientTrack> primaryvertexTransientTracks;// remove muon candidates from the PV to perform refit
       for(Vertex::trackRef_iterator itk = MatchedPrimaryVertex.tracks_begin(); itk != MatchedPrimaryVertex.tracks_end(); itk++) {
-         if((**itk).pt()>1) {
-            if(deltaR(iTransientTracks.at(0).track().eta(), iTransientTracks.at(0).track().phi(), (**itk).eta(), (**itk).phi())<0.01){NParticlesComingFromPV++;continue;}
-            if(deltaR(iTransientTracks.at(1).track().eta(), iTransientTracks.at(1).track().phi(), (**itk).eta(), (**itk).phi())<0.01){NParticlesComingFromPV++;continue;}
-            if(deltaR(iTransientTracks.at(2).track().eta(), iTransientTracks.at(2).track().phi(), (**itk).eta(), (**itk).phi())<0.01){NParticlesComingFromPV++;continue;}
-         }
-         primaryvertexTransientTracks.push_back(theB->build(**itk));
+
+
+	if((**itk).pt()>1) {
+	  if(deltaR(iTransientTracks.at(0).track().eta(), iTransientTracks.at(0).track().phi(), (**itk).eta(), (**itk).phi())<0.01){NParticlesComingFromPV++;continue;}
+	  if(deltaR(iTransientTracks.at(1).track().eta(), iTransientTracks.at(1).track().phi(), (**itk).eta(), (**itk).phi())<0.01){NParticlesComingFromPV++;continue;}
+	  if(deltaR(iTransientTracks.at(2).track().eta(), iTransientTracks.at(2).track().phi(), (**itk).eta(), (**itk).phi())<0.01){NParticlesComingFromPV++;continue;}
+	}
+	primaryvertexTransientTracks.push_back(theB->build(**itk));
       }
       Vertex_NMuonsAssocWithPV.push_back(NParticlesComingFromPV);
       KalmanVertexFitter pv_fit(true);
@@ -1319,6 +1325,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
       Vertex_MatchedRefitPrimaryVertex_covariance.push_back(pv_cov);
 
       Vertex final_pv = MatchedPrimaryVertex;  
+
       if(pvvertex.isValid()) final_pv = Vertex(pvvertex);
 
       math::XYZPoint pvPoint = math::XYZPoint(final_pv.x(), final_pv.y(), final_pv.z());

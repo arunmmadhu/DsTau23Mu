@@ -883,6 +883,8 @@ T3MNtuple::beginJob()
    output_tree->Branch("Vertex_RefitPVisValid",&Vertex_RefitPVisValid);
    output_tree->Branch("Vertex_MatchedRefitPrimaryVertex",&Vertex_MatchedRefitPrimaryVertex);
    output_tree->Branch("Vertex_MatchedRefitPrimaryVertex_covariance",&Vertex_MatchedRefitPrimaryVertex_covariance);
+   output_tree->Branch("Vertex_HighestPt_PrimaryVertex",&Vertex_HighestPt_PrimaryVertex);
+   output_tree->Branch("Vertex_HighestPt_PrimaryVertex_covariance",&Vertex_HighestPt_PrimaryVertex_covariance);
    output_tree->Branch("Vertex_d0_reco",&Vertex_d0_reco);
    output_tree->Branch("Vertex_dz_reco",&Vertex_dz_reco);
    output_tree->Branch("Vertex_d0SV_reco",&Vertex_d0SV_reco);
@@ -1308,6 +1310,11 @@ void T3MNtuple::ClearEvent() {
    Vertex_RefitPVisValid.clear();
    Vertex_MatchedRefitPrimaryVertex.clear();
    Vertex_MatchedRefitPrimaryVertex_covariance.clear();
+
+   Vertex_HighestPt_PrimaryVertex.clear();
+   Vertex_HighestPt_PrimaryVertex_covariance.clear();
+
+
    Vertex_d0_reco.clear();
    Vertex_dz_reco.clear();
    Vertex_d0SV_reco.clear();

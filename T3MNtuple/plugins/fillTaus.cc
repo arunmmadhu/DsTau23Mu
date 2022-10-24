@@ -119,7 +119,7 @@ void T3MNtuple::fillTaus(const edm::Event& iEvent,
           unsigned int key = (*cands)[i].vertexRef().key();
           int quality = (*cands)[i].pvAssociationQuality();
         
-        
+	  // key == 0 means the tracks that are assigned to the First PV in the collection, i.e.         
           if(key!=0 || (quality!=pat::PackedCandidate::UsedInFitTight && quality!=pat::PackedCandidate::UsedInFitLoose)) continue;
           
           pvTracks.push_back(*((*cands)[i].bestTrack()));
@@ -134,7 +134,6 @@ void T3MNtuple::fillTaus(const edm::Event& iEvent,
         
         reco::TrackCollection pvertexTracks;
         reco::TrackCollection allTracks; // for taus (with possible SV) (testing now)
-        
         
         for(size_t i=0; i<track_cands->size(); ++i)
           {
@@ -152,31 +151,47 @@ void T3MNtuple::fillTaus(const edm::Event& iEvent,
              && quality!=pat::PackedCandidate::UsedInFitLoose)))// key should be 0 and quality should be tight or loose?
                 {
                   pvertexTracks.push_back(*((*track_cands)[i].bestTrack()));
-                  // allTracks.push_back(*((*track_cands)[i].bestTrack())); // test for HelixLine Momentum is zero
                 }
-            
 
             allTracks.push_back(*((*track_cands)[i].bestTrack()));
-            
-            //cout << "Charged track with vertex filled. " << endl;
             
           }
 
 
+	const Vertex & Highest_pT_vertex = (*pvs)[0]; //  simply take the first in the collection;
+	std::vector<float> iHighestPt_PrimaryVertex_Pos;
+	if(Highest_pT_vertex.isValid())
+	  {
+	    iHighestPt_PrimaryVertex_Pos.push_back(Highest_pT_vertex.position().x());
+	    iHighestPt_PrimaryVertex_Pos.push_back(Highest_pT_vertex.position().y());
+	    iHighestPt_PrimaryVertex_Pos.push_back(Highest_pT_vertex.position().z());
+	  }
+	Vertex_HighestPt_PrimaryVertex.push_back(iHighestPt_PrimaryVertex_Pos);
 
+	TMatrixTSym<double> hpTcov(LorentzVectorParticle::NVertex);
+	math::Error<3>::type hpTCov;
+	Highest_pT_vertex.fill(hpTCov);
 
-
-	// -------------------  find the proper PV for Z->tau tau (pT largest) 
-	for(unsigned int vertex_index = 0; vertex_index  < pvs->size(); vertex_index++) {
-	  const Vertex & pvertex = (*pvs)[vertex_index];
-
-	  std::cout<<" vertex index: "<< vertex_index <<"  N tOBracks assigned to the PV:  "<< pvertex.refittedTracks().size() << std::endl;
-	  std::cout<<" pT of sum of the tracks:   "<< pvertex.p4().Pt() << std::endl;
-	}
-
-
+	for (int i = 0; i <LorentzVectorParticle::NVertex; i++)
+	  {
+	  for (int j = 0; j < LorentzVectorParticle::NVertex; j++) 
+	    {
+	      hpTcov(i, j) = hpTCov(i, j);
+	      hpTcov(j, i) = hpTCov(i, j);
+	    }
+	  }
+	std::vector<double>  hpT_cov;     
+	for (int i = 0; i < LorentzVectorParticle::NVertex; i++) 
+	  {
+	    for (int j = i; j < LorentzVectorParticle::NVertex; j++) 
+	    {
+	      hpT_cov.push_back(hpTcov(i, j));
+	    }
+	  }
 	
-          
+	Vertex_HighestPt_PrimaryVertex_covariance.push_back(hpT_cov);
+	
+
           //Dealing with TauHandle
           for(unsigned iTau = 0; iTau < tauHandle->size(); iTau++){
             pat::TauRef tau(tauHandle,iTau);
