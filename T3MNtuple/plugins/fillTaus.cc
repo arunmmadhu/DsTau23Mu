@@ -155,13 +155,27 @@ void T3MNtuple::fillTaus(const edm::Event& iEvent,
                   // allTracks.push_back(*((*track_cands)[i].bestTrack())); // test for HelixLine Momentum is zero
                 }
             
-            // TODO: add requirement of "goodness"?
+
             allTracks.push_back(*((*track_cands)[i].bestTrack()));
             
             //cout << "Charged track with vertex filled. " << endl;
             
           }
-          
+
+
+
+
+
+	// -------------------  find the proper PV for Z->tau tau (pT largest) 
+	for(unsigned int vertex_index = 0; vertex_index  < pvs->size(); vertex_index++) {
+	  const Vertex & pvertex = (*pvs)[vertex_index];
+
+	  std::cout<<" vertex index: "<< vertex_index <<"  N tracks assigned to the PV:  "<< pvertex.refittedTracks().size() << std::endl;
+
+	}
+
+
+	
           
           //Dealing with TauHandle
           for(unsigned iTau = 0; iTau < tauHandle->size(); iTau++){
@@ -170,12 +184,7 @@ void T3MNtuple::fillTaus(const edm::Event& iEvent,
 	    //            float valueMiniAOD = tau->tauID("byIsolationMVArun2v1DBoldDMwLTrawNew");//(*mvaIsoRaw)[tau];
             float valueMiniAOD = tau->tauID("byLooseDeepTau2017v2p1VSmu");//(*mvaIsoRaw)[tau];
             
-            cout << "valueAOD: " << valueAOD << endl;
-            cout << "valueMiniAOD: " << valueMiniAOD << endl;
-            
-            cout << "pT: " << tau->pt() << " eta: " << tau->eta() << " phi: " << tau->phi() << " energy: " << tau->energy() << endl;
-            
-
+	    // ---------------  fill momentum and ID variables --------------
 	    std::vector<float> iTau_p4;
 	    iTau_p4.push_back(tau->energy());
 	    iTau_p4.push_back(tau->px());
@@ -200,7 +209,7 @@ void T3MNtuple::fillTaus(const edm::Event& iEvent,
 	    Tau_byTightDeepTau2017v2p1VSjet.push_back(tau->tauID("byTightDeepTau2017v2p1VSjet"));
 
 
-            //if(valueAOD != valueMiniAOD) unmatchedTaus.push_back(tau);
+
           }
 
   }
