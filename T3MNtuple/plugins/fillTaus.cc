@@ -119,7 +119,7 @@ void T3MNtuple::fillTaus(const edm::Event& iEvent,
           unsigned int key = (*cands)[i].vertexRef().key();
           int quality = (*cands)[i].pvAssociationQuality();
         
-	  // key == 0 means the tracks that are assigned to the First PV in the collection, i.e.         
+	  // key == 0 means the tracks that are assigned to the First PV in the collection, i.e. key = vertex index
           if(key!=0 || (quality!=pat::PackedCandidate::UsedInFitTight && quality!=pat::PackedCandidate::UsedInFitLoose)) continue;
           
           pvTracks.push_back(*((*cands)[i].bestTrack()));
