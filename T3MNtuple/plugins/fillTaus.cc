@@ -170,8 +170,8 @@ void T3MNtuple::fillTaus(const edm::Event& iEvent,
 	for(unsigned int vertex_index = 0; vertex_index  < pvs->size(); vertex_index++) {
 	  const Vertex & pvertex = (*pvs)[vertex_index];
 
-	  std::cout<<" vertex index: "<< vertex_index <<"  N tracks assigned to the PV:  "<< pvertex.refittedTracks().size() << std::endl;
-
+	  std::cout<<" vertex index: "<< vertex_index <<"  N tOBracks assigned to the PV:  "<< pvertex.refittedTracks().size() << std::endl;
+	  std::cout<<" pT of sum of the tracks:   "<< pvertex.p4().Pt() << std::endl;
 	}
 
 
