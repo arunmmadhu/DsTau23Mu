@@ -127,37 +127,6 @@ void T3MNtuple::fillTaus(const edm::Event& iEvent,
         
         
         
-        
-        // For the packedPFCandidate TRACKS from pfCandHandle, saved to pvertexTracks and allTracks
-        //
-        const edm::View<pat::PackedCandidate>* track_cands = tracksHandle.product();
-        
-        reco::TrackCollection pvertexTracks;
-        reco::TrackCollection allTracks; // for taus (with possible SV) (testing now)
-        
-        for(size_t i=0; i<track_cands->size(); ++i)
-          {
-            if((*track_cands)[i].charge()==0 || (*track_cands)[i].vertexRef().isNull()) continue; // Make sure vertex collection isn't empty?
-            if(!(*track_cands)[i].bestTrack()) continue; //if pointer doesn't exist, reject
-            
-            unsigned int key = (*track_cands)[i].vertexRef().key();
-            int quality = (*track_cands)[i].pvAssociationQuality();
-            
-            // here I need to select "good" tracks
-            // save them to all tracks
-            // and if they belong to PV save them to pv tracks
-            if (!(key!=0 ||
-            (quality!=pat::PackedCandidate::UsedInFitTight
-             && quality!=pat::PackedCandidate::UsedInFitLoose)))// key should be 0 and quality should be tight or loose?
-                {
-                  pvertexTracks.push_back(*((*track_cands)[i].bestTrack()));
-                }
-
-            allTracks.push_back(*((*track_cands)[i].bestTrack()));
-            
-          }
-
-
 	const Vertex & Highest_pT_vertex = (*pvs)[0]; //  simply take the first in the collection;
 	std::vector<float> iHighestPt_PrimaryVertex_Pos;
 	if(Highest_pT_vertex.isValid())
