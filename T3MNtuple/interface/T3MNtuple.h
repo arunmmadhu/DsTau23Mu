@@ -449,10 +449,10 @@ class T3MNtuple : public edm::EDAnalyzer {
       std::vector<float>               Gamma_e2x5;
       std::vector<float>               Gamma_e3x3;
       std::vector<float>               Gamma_e5x5;
-      std::vector<int>               Gamma_isPFPhoton;
+      std::vector<int>                 Gamma_isPFPhoton;
 
 
-      //=======  Muons ===
+      //=======  Taus ===
       std::vector<std::vector<float> > Tau_p4;
       std::vector<int> Tau_charge;
       std::vector<int> Tau_DecayMode;
@@ -470,8 +470,16 @@ class T3MNtuple : public edm::EDAnalyzer {
       std::vector<int> Tau_byMediumDeepTau2017v2p1VSjet;
       std::vector<int> Tau_byTightDeepTau2017v2p1VSjet;
 
+      std::vector<float>  Tau_PFTauTrackLV;
+      std::vector<float>  Tau_Track_par;
+      std::vector<float>  Tau_Track_cov;
+      int  Tau_Track_Charge;
+      int  Tau_Track_pdgid;
+      float  Tau_Track_B;
+      float  Tau_Track_M;
 
-
+      std::vector<float> Tau_SVPos;
+      std::vector<float> Tau_SVCov;
 
       //=======  Muons ===
       std::vector<std::vector<double> > Muon_p4;

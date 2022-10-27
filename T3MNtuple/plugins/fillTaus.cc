@@ -110,6 +110,7 @@ void T3MNtuple::fillTaus(const edm::Event& iEvent,
         const edm::View<pat::PackedCandidate>* cands = pfCandHandle.product();
         TLorentzVector aTrack;
         reco::TrackCollection pvTracks;
+        reco::TrackCollection allTracks;
         
            
         for(size_t i=0; i<cands->size(); ++i){
@@ -119,10 +120,10 @@ void T3MNtuple::fillTaus(const edm::Event& iEvent,
           unsigned int key = (*cands)[i].vertexRef().key();
           int quality = (*cands)[i].pvAssociationQuality();
         
+	  allTracks.push_back(*((*cands)[i].bestTrack()));
 	  // key == 0 means the tracks that are assigned to the First PV in the collection, i.e. key = vertex index
           if(key!=0 || (quality!=pat::PackedCandidate::UsedInFitTight && quality!=pat::PackedCandidate::UsedInFitLoose)) continue;
-          
-          pvTracks.push_back(*((*cands)[i].bestTrack()));
+	  pvTracks.push_back(*((*cands)[i].bestTrack()));
         }
         
         
@@ -192,9 +193,162 @@ void T3MNtuple::fillTaus(const edm::Event& iEvent,
 	    Tau_byMediumDeepTau2017v2p1VSjet.push_back(tau->tauID("byMediumDeepTau2017v2p1VSjet"));
 	    Tau_byTightDeepTau2017v2p1VSjet.push_back(tau->tauID("byTightDeepTau2017v2p1VSjet"));
 
+	    std::cout<<"  charged iso cands size "<< tau->signalChargedHadrCands().size() <<"   neutral    " << tau->signalNeutrHadrCands().size() <<"  photons  " << tau ->signalGammaCands().size() <<"   et le decay mode:   " <<tau->decayMode() <<"    " <<tau->leadChargedHadrCand()->p4().eta() <<std::endl;
 
 
-          }
+	    std::vector<double > PFTauTrackLV;    
+	    edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
+	    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transTrackBuilder);
 
-  }
+	    if(tau->decayMode() == 0  or tau->decayMode() == 1 )  //    either tau -> pi nu or tau->pi pi0 nu
+	      {
+
+
+		float PFTauTrack_deltaR=999.;
+		reco::CandidatePtrVector  chargedCandidate = tau->signalChargedHadrCands();
+
+		double deltaR(999.); 
+		reco::Track RefToTauTrack;
+
+		//allTracks
+		//		for(auto iter: pvTracks)
+		for(auto iter: allTracks)
+		  {
+		    float iDr = sqrt(pow(iter.eta() - tau->leadChargedHadrCand()->p4().eta(),2) +
+				     pow(iter.phi() - tau->leadChargedHadrCand()->p4().phi(),2));
+		    if( iDr< deltaR)
+		      {
+			deltaR = iDr;
+			RefToTauTrack = iter;
+		      }
+		  }
+	      
+	    
+	    
+		Tau_PFTauTrackLV.push_back(tau->leadChargedHadrCand()->p4().e());    
+		Tau_PFTauTrackLV.push_back(tau->leadChargedHadrCand()->p4().px());    
+		Tau_PFTauTrackLV.push_back(tau->leadChargedHadrCand()->p4().py());    
+		Tau_PFTauTrackLV.push_back(tau->leadChargedHadrCand()->p4().pz());    
+
+		const reco::Track *TauTrack  =  &RefToTauTrack;
+		
+		GlobalPoint pvpoint(TauTrack->vx(), TauTrack->vy(), TauTrack->vz());
+		reco::TransientTrack transTrk = transTrackBuilder->build(TauTrack);
+		TrackParticle tautrackparticle = ParticleBuilder::CreateTrackParticle(transTrk, transTrackBuilder, pvpoint, true, true);
+
+	
+
+
+		//	std::cout<<"  is the right track found ??  "<< PFTauTrack_deltaR << std::endl;
+		if(deltaR< 0.01)  //if track is matched; just arbitrary value
+		  {
+		    Tau_Track_Charge=tautrackparticle.Charge();
+		    Tau_Track_pdgid=tautrackparticle.PDGID();
+		    Tau_Track_B=tautrackparticle.BField();
+		    Tau_Track_M=tautrackparticle.Mass();
+		    
+		    for (int i = 0; i < tautrackparticle.NParameters(); i++) 
+		      {
+			Tau_Track_par.push_back(tautrackparticle.Parameter(i));
+			for (int j = i; j <tautrackparticle.NParameters(); j++) 
+			  {
+			    Tau_Track_cov.push_back(tautrackparticle.Covariance(i, j));
+			  }
+		      }
+		  }else{
+		  Tau_Track_Charge=-999;
+		  Tau_Track_pdgid=-999;
+		  Tau_Track_B=-999;
+		  Tau_Track_M=-999;
+		}
+	      }
+	  
+	    if (tau->decayMode() == 10 or tau->decayMode() == 11) 
+	      {
+		
+		std::vector<reco::TransientTrack> transTrk;
+		TransientVertex transVtx;
+		// const reco::PFCandidateRefVector cands = l.signalChargedHadrCands();
+		reco::CandidatePtrVector signalCandidates = tau->signalChargedHadrCands();//signalCands();
+     
+		//		edm::Handle<reco::BeamSpot> beamSpotHandle;
+		//		iEvent.getByToken(beamSpotTag, beamSpot);
+ 
+
+		std::vector<reco::TransientTrack> transTracks;  
+		//   find  tracks belonging to tau decay
+		for (reco::CandidatePtrVector::const_iterator itr = signalCandidates.begin(); itr != signalCandidates.end(); ++itr) 
+		  {
+		    double deltaR(999.); 
+		    reco::Track closestTrack;
+		    for(auto iter: allTracks) 
+		      {
+			if( sqrt(pow(iter.eta() - (*itr)->p4().eta(),2) + pow(iter.phi() - (*itr)->p4().phi(),2))  < deltaR)
+			  {
+			    deltaR = sqrt(pow(iter.eta() - (*itr)->p4().eta(),2) + pow(iter.phi() - (*itr)->p4().phi(),2));
+			    closestTrack = iter;
+			  }
+		      }
+		    if(closestTrack.pt()!=0)transTracks.push_back(transTrackBuilder->build(closestTrack));
+		  }
+		std::cout<<" trans tracks:   "<< transTracks.size() << std::endl;
+
+		bool fitOk = false;  
+		if(transTracks.size() >= 2 ) {
+		  KalmanVertexFitter kvf;
+		  try {
+		    transVtx = kvf.vertex(transTracks);
+		    fitOk = true; 
+		  } catch (...) {
+		    fitOk = false; 
+		    std::cout<<"Vtx fit failed!"<<std::endl;
+		  }
+		}
+
+
+		fitOk = fitOk && transVtx.isValid() && fabs(transVtx.position().x())<1 && fabs(transVtx.position().y())<1;
+		std::cout<<" is fit OK ??  "<<   fitOk << << <<std::endl;
+    
+		if(fitOk) {
+
+
+		  Tau_SVPos.push_back(transVtx.position().x());
+		  Tau_SVPos.push_back(transVtx.position().y());
+		  Tau_SVPos.push_back(transVtx.position().z());
+
+
+
+		  reco::Vertex secondaryVertex = transVtx;
+ 
+		  //		  Tau_SVChi2.push_back();
+		  //		  Tau_SV_Status_Chi2.push_back(secondaryVertex.chi2());
+
+		  TMatrixTSym<double> svcov(3);
+		  math::Error<3>::type svCov;
+		  secondaryVertex.fill(svCov);
+		  for (int i = 0; i <3; i++){
+		    for (int j = 0; j < 3; j++) {
+		      svcov(i, j) = svCov(i, j);
+		      svcov(j, i) = svCov(i, j);
+		      // cout<<"  svcov  "<<svcov(i,j)<<endl;
+		    }
+		  }
+		  for (int i = 0; i < 3; i++) {
+		    for (int j = i; j < 3; j++) {
+		      Tau_SVCov.push_back(svcov(i, j));
+		    }
+		  }
+
+		}  // if(fitOk)
+
+
+	      } //  if (tau->decayMode() == 10 or tau->decayMode() == 11) 
+
+
+
+
+	  }
+      }
+
+
 
