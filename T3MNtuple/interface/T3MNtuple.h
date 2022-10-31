@@ -470,16 +470,34 @@ class T3MNtuple : public edm::EDAnalyzer {
       std::vector<int> Tau_byMediumDeepTau2017v2p1VSjet;
       std::vector<int> Tau_byTightDeepTau2017v2p1VSjet;
 
-      std::vector<float>  Tau_PFTauTrackLV;
-      std::vector<float>  Tau_Track_par;
-      std::vector<float>  Tau_Track_cov;
-      int  Tau_Track_Charge;
-      int  Tau_Track_pdgid;
-      float  Tau_Track_B;
-      float  Tau_Track_M;
+      std::vector<int>  Tau_byLooseCombinedIsolationDeltaBetaCorr3Hits;
+      std::vector<int>  Tau_byMediumCombinedIsolationDeltaBetaCorr3Hits;
+      std::vector<int>  Tau_byTightCombinedIsolationDeltaBetaCorr3Hits;
 
-      std::vector<float> Tau_SVPos;
-      std::vector<float> Tau_SVCov;
+
+
+
+
+      std::vector<std::vector<float> >  Tau_PFTauTrack_p4;
+      std::vector<std::vector<float> >  Tau_Track_par;
+      std::vector<std::vector<float> >  Tau_Track_cov;
+  //      std::vector<std::vector<float> > Tau_Gamma_p4;
+
+      std::vector<std::vector<int> >    Tau_Track_Charge;
+      std::vector<std::vector<int> >    Tau_Track_pdgid;
+      std::vector<std::vector<float> >  Tau_Track_B;
+      std::vector<std::vector<float> >  Tau_Track_M;
+
+      std::vector<std::vector<float> > Tau_SVPos;
+      std::vector<std::vector<float> > Tau_SVCov;
+      std::vector<std::vector<int> >   Tau_a1_charge;
+      std::vector<std::vector<int> >   Tau_a1_pdgid;
+      std::vector<std::vector<float> > Tau_a1_B;
+      std::vector<std::vector<float> > Tau_a1_M;
+      std::vector<std::vector<float> > Tau_a1_lvp;
+      std::vector<std::vector<float> > Tau_a1_cov;
+  
+
 
       //=======  Muons ===
       std::vector<std::vector<double> > Muon_p4;
