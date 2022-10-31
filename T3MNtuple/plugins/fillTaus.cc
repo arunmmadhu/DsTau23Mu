@@ -163,12 +163,17 @@ void T3MNtuple::fillTaus(const edm::Event& iEvent,
 	
 
           //Dealing with TauHandle
+
+
+
           for(unsigned iTau = 0; iTau < tauHandle->size(); iTau++){
             pat::TauRef tau(tauHandle,iTau);
             float valueAOD = tau->tauID("byIsolationMVArun2v1DBoldDMwLTraw");
 	    //            float valueMiniAOD = tau->tauID("byIsolationMVArun2v1DBoldDMwLTrawNew");//(*mvaIsoRaw)[tau];
             float valueMiniAOD = tau->tauID("byLooseDeepTau2017v2p1VSmu");//(*mvaIsoRaw)[tau];
             
+
+
 	    // ---------------  fill momentum and ID variables --------------
 	    std::vector<float> iTau_p4;
 	    iTau_p4.push_back(tau->energy());
@@ -202,7 +207,7 @@ void T3MNtuple::fillTaus(const edm::Event& iEvent,
 	    edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
 	    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transTrackBuilder);
 
-	    std::cout<<  "  iso  " << tau->tauID("byTightCombinedIsolationDeltaBetaCorr3Hits")<<std::endl;
+
 
 	    //------- fill Gamma candidates --------
 	    /*	    for(unsigned int iGamma = 0; iGamma < tau ->signalGammaCands().size(); iGamma++)

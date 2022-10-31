@@ -397,9 +397,19 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      
       if(doTaus_)
 	{      
-	
+	  //	  cout<<" Getting tauHandle: "<< 
+	  //	    iEvent.getByToken(TauCandidateToken_, tauHandle) <<" Getting pfTaus: "<< 
+	  //	    iEvent.getByToken(pfTauToken_, pfTaus) <<" Getting dmfNew: "<< 
+	  //	    iEvent.getByToken(dmfNewToken_, dmfNew) <<" Getting vertexs: "<< 
+	  //	    iEvent.getByToken(goodPVToken_ , vertexs) <<" Getting pfCandHandle: "<< 
+	  //	    iEvent.getByToken(thePFCandToken_, pfCandHandle) <<" Getting tracksHandle: "<< iEvent.getByToken(tracks_Token_, tracksHandle) <<endl;
+
+	  iEvent.getByToken(TauCandidateToken_, tauHandle);
+	  iEvent.getByToken(goodPVToken_ , vertexs);
+	  iEvent.getByToken(thePFCandToken_, pfCandHandle);
+	  iEvent.getByToken(tracks_Token_, tracksHandle);
 	  if (tracksHandle.isValid() && vertexs.isValid())
-	    {
+	    {	
 	      if (miniAODRun_)  // && tauHandle.isValid()
 		{
 		  fillTaus(iEvent, iSetup, trackCollection, pvs, beamSpotHandle, tauHandle, vertexs, pfCandHandle, tracksHandle);
