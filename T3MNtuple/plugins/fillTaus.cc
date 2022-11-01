@@ -168,9 +168,9 @@ void T3MNtuple::fillTaus(const edm::Event& iEvent,
 
           for(unsigned iTau = 0; iTau < tauHandle->size(); iTau++){
             pat::TauRef tau(tauHandle,iTau);
-            float valueAOD = tau->tauID("byIsolationMVArun2v1DBoldDMwLTraw");
+	    //            float valueAOD = tau->tauID("byIsolationMVArun2v1DBoldDMwLTraw");
 	    //            float valueMiniAOD = tau->tauID("byIsolationMVArun2v1DBoldDMwLTrawNew");//(*mvaIsoRaw)[tau];
-            float valueMiniAOD = tau->tauID("byLooseDeepTau2017v2p1VSmu");//(*mvaIsoRaw)[tau];
+	    //            float valueMiniAOD = tau->tauID("byLooseDeepTau2017v2p1VSmu");//(*mvaIsoRaw)[tau];
             
 
 
@@ -250,7 +250,7 @@ void T3MNtuple::fillTaus(const edm::Event& iEvent,
 	      {
 
 
-		float PFTauTrack_deltaR=999.;
+		//		float PFTauTrack_deltaR=999.;
 		reco::CandidatePtrVector  chargedCandidate = tau->signalChargedHadrCands();
 
 		double deltaR(999.); 
