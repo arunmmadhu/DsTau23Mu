@@ -42,6 +42,7 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
    puToken_(consumes<vector<PileupSummaryInfo> >(iConfig.getParameter<InputTag>("pileupSummary"))),
    genToken_(consumes<GenParticleCollection>(iConfig.getParameter<InputTag>("genParticles"))),
    patMuonToken_(consumes<vector<pat::Muon>>(iConfig.getParameter<edm::InputTag>("pat_muons"))),
+   patElectronsToken_(consumes<vector<pat::Electron>>(iConfig.getParameter<edm::InputTag>("pat_electrons"))),
    pat_met_puppi_(consumes<vector<pat::MET>>(iConfig.getParameter<edm::InputTag>("met_puppi"))),
    patPhotonToken_(consumes<vector<pat::Photon>>(iConfig.getParameter<edm::InputTag>("pat_phos"))),
    compositeSVToken_(consumes<vector<reco::VertexCompositePtrCandidate>>(iConfig.getParameter<InputTag>("composite_svs"))),
@@ -71,6 +72,7 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
    doTracks_ = iConfig.getParameter<bool>("doTracks");
    doMuons_ = iConfig.getParameter<bool>("doMuons");
    doTaus_ = iConfig.getParameter<bool>("doTaus");
+   doElectrons_ = iConfig.getParameter<bool>("doElectrons");
    do3mutuple_ = iConfig.getParameter<bool>("do3mutuple");
    doL1_ = iConfig.getParameter<bool>("doL1");
    doBJets_ = iConfig.getParameter<bool>("doBJets");
@@ -392,8 +394,20 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             }
 	   }
 	}
-      
-      
+      if(doElectrons_)
+	{
+          iEvent.getByToken(goodPVToken_ , vertexs);
+          iEvent.getByToken(patElectronsToken_, patElectronCollection);
+          iEvent.getByToken(tracks_Token_, tracksHandle);
+	  if (tracksHandle.isValid() && vertexs.isValid())
+	    {	
+	      if (miniAODRun_)  // && tauHandle.isValid()
+		{
+		  fillElectrons(iEvent, iSetup, trackCollection, pvs, beamSpotHandle, patElectronCollection, vertexs);
+		}
+	    }
+	}
+   
      
       if(doTaus_)
 	{      

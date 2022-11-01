@@ -66,6 +66,7 @@ Implementation:
 #include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
@@ -84,7 +85,6 @@ Implementation:
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
-
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetMatchInfo.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
@@ -148,41 +148,50 @@ class T3MNtuple : public edm::EDAnalyzer {
 
       void ClearEvent();
       void fillEventInfo(const edm::Event& iEvent, 
-            const edm::EventSetup& iSetup);
+			 const edm::EventSetup& iSetup);
 
       void fillMET(const edm::Event& iEvent, 
-            const edm::EventSetup& iSetup);
+		   const edm::EventSetup& iSetup);
 
       void fillTracks(const edm::Event& iEvent,
-            const edm::EventSetup& iSetup,
-            const Handle<TrackCollection>& trackCollection);
+		      const edm::EventSetup& iSetup,
+		      const Handle<TrackCollection>& trackCollection);
 
       void fillMuons(const edm::Event& iEvent,
-            const edm::EventSetup& iSetup,
-            const Handle<vector<reco::Muon> >& muons,
-            const Handle<TrackCollection>& trackCollection,
-            const Handle<VertexCollection>& pvs);
+		     const edm::EventSetup& iSetup,
+		     const Handle<vector<reco::Muon> >& muons,
+		     const Handle<TrackCollection>& trackCollection,
+		     const Handle<VertexCollection>& pvs);
 
       void fillMuons(const edm::Event& iEvent,
-            const edm::EventSetup& iSetup,
-            const Handle<vector<pat::Muon> >& muons,
-            const Handle<TrackCollection>& trackCollection,
-            const Handle<VertexCollection>& pvs);
-            
+		     const edm::EventSetup& iSetup,
+		     const Handle<vector<pat::Muon> >& muons,
+		     const Handle<TrackCollection>& trackCollection,
+		     const Handle<VertexCollection>& pvs);
+
+      void fillElectrons(const edm::Event& iEvent,
+			 const edm::EventSetup& iSetup,
+			 const Handle<TrackCollection>& trackCollection,
+			 const Handle<VertexCollection>& pvs,
+			 const Handle<BeamSpot>& beamSpotHandle,
+			 const Handle<vector<pat::Electron> >& Electrons,
+			 const Handle<vector<Vertex> >&  vertexs);
+
+
       void fillTaus(const edm::Event& iEvent,
-            const edm::EventSetup& iSetup,
-            const Handle<TrackCollection>& trackCollection,
-            const Handle<VertexCollection>& pvs,
-            const Handle<BeamSpot>& beamSpotHandle,
-            const Handle<pat::TauCollection>& tauHandle,
-            const Handle<vector<Vertex> >&  vertexs,
-            const Handle<edm::View<pat::PackedCandidate> >& pfCandHandle,
-            const Handle<edm::View<pat::PackedCandidate> >& tracksHandle);
+		    const edm::EventSetup& iSetup,
+		    const Handle<TrackCollection>& trackCollection,
+		    const Handle<VertexCollection>& pvs,
+		    const Handle<BeamSpot>& beamSpotHandle,
+		    const Handle<pat::TauCollection>& tauHandle,
+		    const Handle<vector<Vertex> >&  vertexs,
+		    const Handle<edm::View<pat::PackedCandidate> >& pfCandHandle,
+		    const Handle<edm::View<pat::PackedCandidate> >& tracksHandle);
 
       void fillMCTruth(const edm::Event& iEvent,
-            const edm::EventSetup& iSetup,
-            const Handle<GenParticleCollection>& genParticles,
-            const Handle<vector<PileupSummaryInfo> >& puInfo);
+		       const edm::EventSetup& iSetup,
+		       const Handle<GenParticleCollection>& genParticles,
+		       const Handle<vector<PileupSummaryInfo> >& puInfo);
 
       void fillTrigger(const edm::Event& iEvent,
                        const edm::EventSetup& iSetup,
@@ -296,8 +305,8 @@ class T3MNtuple : public edm::EDAnalyzer {
          T UnambiguousMuonRef(unsigned int index, TString dataFormat="AOD");
 
       // Parameters pertaining to NtupleMaker
-      bool doMC_, doFullMC_, wideSB_, do2mu_, passhlt_, doTracks_, doMuons_, doTaus_,
-           do3mutuple_, doL1_, doThreeMuons_, doTwoMuonsAndTrack_, doBJets_, doPhotons_, miniAODRun_;
+      bool doMC_, doFullMC_, wideSB_, do2mu_, passhlt_, doTracks_, doMuons_, doTaus_, doElectrons_,
+	do3mutuple_, doL1_, doThreeMuons_, doTwoMuonsAndTrack_, doBJets_, doPhotons_, miniAODRun_;
       double TriggerMuonMatchingdr_;
       string WhatData_;
 
@@ -312,6 +321,7 @@ class T3MNtuple : public edm::EDAnalyzer {
 
       Handle<vector<reco::Muon>> recoMuonCollection;
       Handle<vector<pat::Muon>> patMuonCollection;
+      Handle<vector<pat::Electron>> patElectronCollection;
       Handle<JetTagCollection> btagsCvsB;
       Handle<JetTagCollection> btagsCSV; 
       Handle<JetTagCollection> btagsMVA;
@@ -351,6 +361,7 @@ class T3MNtuple : public edm::EDAnalyzer {
       EDGetTokenT<vector<PileupSummaryInfo>> puToken_;
       EDGetTokenT<GenParticleCollection> genToken_;
       EDGetTokenT<vector<pat::Muon>> patMuonToken_;
+      EDGetTokenT<vector<pat::Electron>> patElectronsToken_;
       EDGetTokenT<vector<pat::MET>> pat_met_puppi_;
       EDGetTokenT<vector<pat::Photon>> patPhotonToken_;
       EDGetTokenT<vector<reco::VertexCompositePtrCandidate>> compositeSVToken_;
