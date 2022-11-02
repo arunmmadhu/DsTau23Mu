@@ -641,6 +641,10 @@ T3MNtuple::beginJob()
    output_tree->Branch("Track_dzError", &Track_dzError);
 
 
+   //=============  Electrons Block ====
+   output_tree->Branch("Electron_p4", &Electron_p4);
+
+
    //=============  Muon Block ====
    output_tree->Branch("Muon_p4", &Muon_p4);
    output_tree->Branch("Muon_Poca", &Muon_Poca);
@@ -1141,6 +1145,9 @@ void T3MNtuple::ClearEvent() {
 
    Gamma_isPFPhoton.clear();
 
+
+   //=======  Electronss ===
+   Electron_p4.clear();
 
    //=======  Muons ===
    Muon_p4.clear();

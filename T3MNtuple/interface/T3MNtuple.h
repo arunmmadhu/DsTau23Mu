@@ -507,8 +507,8 @@ class T3MNtuple : public edm::EDAnalyzer {
       std::vector<std::vector<float> > Tau_a1_M;
       std::vector<std::vector<float> > Tau_a1_lvp;
       std::vector<std::vector<float> > Tau_a1_cov;
-  
-
+      //=======  Electrons ===
+      std::vector<std::vector<float> > Electron_p4;
 
       //=======  Muons ===
       std::vector<std::vector<double> > Muon_p4;
