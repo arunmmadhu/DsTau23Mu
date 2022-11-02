@@ -42,6 +42,7 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
    puToken_(consumes<vector<PileupSummaryInfo> >(iConfig.getParameter<InputTag>("pileupSummary"))),
    genToken_(consumes<GenParticleCollection>(iConfig.getParameter<InputTag>("genParticles"))),
    patMuonToken_(consumes<vector<pat::Muon>>(iConfig.getParameter<edm::InputTag>("pat_muons"))),
+   patElectronsToken_(consumes<vector<pat::Electron>>(iConfig.getParameter<edm::InputTag>("pat_electrons"))),
    pat_met_puppi_(consumes<vector<pat::MET>>(iConfig.getParameter<edm::InputTag>("met_puppi"))),
    patPhotonToken_(consumes<vector<pat::Photon>>(iConfig.getParameter<edm::InputTag>("pat_phos"))),
    compositeSVToken_(consumes<vector<reco::VertexCompositePtrCandidate>>(iConfig.getParameter<InputTag>("composite_svs"))),
@@ -71,6 +72,7 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
    doTracks_ = iConfig.getParameter<bool>("doTracks");
    doMuons_ = iConfig.getParameter<bool>("doMuons");
    doTaus_ = iConfig.getParameter<bool>("doTaus");
+   doElectrons_ = iConfig.getParameter<bool>("doElectrons");
    do3mutuple_ = iConfig.getParameter<bool>("do3mutuple");
    doL1_ = iConfig.getParameter<bool>("doL1");
    doBJets_ = iConfig.getParameter<bool>("doBJets");
@@ -377,44 +379,57 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          else edm::LogError("") << "[T3Mntuple]: Photon collection does not exist!";
       }
 
-      if(doMuons_){      
-         if (trackCollection.isValid() && pvs.isValid()){
-            if (miniAODRun_ && patMuonCollection.isValid()){
-               if (DEBUG) cout<<"Filling PAT muons."<<endl;
-               fillMuons(iEvent, iSetup, patMuonCollection, trackCollection, pvs);
-            }
+      if(doMuons_)
+	{      
+         if (trackCollection.isValid() && pvs.isValid())
+	   {
+            if (miniAODRun_ && patMuonCollection.isValid())
+	      {
+		if (DEBUG) cout<<"Filling PAT muons."<<endl;
+		fillMuons(iEvent, iSetup, patMuonCollection, trackCollection, pvs);
+	      }
             else if (!miniAODRun_ && recoMuonCollection.isValid()){
-               if (DEBUG) cout<<"Filling RECO muons."<<endl;
-               fillMuons(iEvent, iSetup, recoMuonCollection, trackCollection, pvs);
+	      if (DEBUG) cout<<"Filling RECO muons."<<endl;
+	      fillMuons(iEvent, iSetup, recoMuonCollection, trackCollection, pvs);
             }
-         }
-      }
-      
-      
+	   }
+	}
+      if(doElectrons_)
+	{
+          iEvent.getByToken(goodPVToken_ , vertexs);
+          iEvent.getByToken(patElectronsToken_, patElectronCollection);
+          iEvent.getByToken(tracks_Token_, tracksHandle);
+	  if (tracksHandle.isValid() && vertexs.isValid())
+	    {	
+	      if (miniAODRun_)  // && tauHandle.isValid()
+		{
+		  fillElectrons(iEvent, iSetup, trackCollection, pvs, beamSpotHandle, patElectronCollection, vertexs);
+		}
+	    }
+	}
+   
      
-      if(doTaus_){      
-         
-         cout<<" Getting tauHandle: "<< iEvent.getByToken(TauCandidateToken_, tauHandle) <<" Getting pfTaus: "<< iEvent.getByToken(pfTauToken_, pfTaus) <<" Getting dmfNew: "<< iEvent.getByToken(dmfNewToken_, dmfNew) <<" Getting vertexs: "<< iEvent.getByToken(goodPVToken_ , vertexs) <<" Getting pfCandHandle: "<< iEvent.getByToken(thePFCandToken_, pfCandHandle) <<" Getting tracksHandle: "<< iEvent.getByToken(tracks_Token_, tracksHandle) <<endl;
-         //iEvent.getByToken(TauCandidateToken_, tauHandle);
-         //iEvent.getByToken(goodPVToken_ , vertexs);
-         //iEvent.getByToken(thePFCandToken_, pfCandHandle);
-         //iEvent.getByToken(tracks_Token_, tracksHandle);
-         
-         //if (DEBUG) cout<<"Validity of tracksHandle is: "<< tracksHandle.isValid() <<"Validity of vertexs is: "<< vertexs.isValid() <<"Validity of pfCandHandle is: "<< pfCandHandle.isValid() <<"Validity of tauHandle is: "<< tauHandle.isValid() <<endl;
-         //cout<<"Validity of tracksHandle is: "<< tracksHandle.isValid() <<" Validity of vertexs is: "<< vertexs.isValid() <<" Validity of pfCandHandle is: "<< pfCandHandle.isValid() <<" Validity of tauHandle is: "<< tauHandle.isValid() <<endl;
-         if (tracksHandle.isValid() && vertexs.isValid()){
-            if (miniAODRun_){  // && tauHandle.isValid()
-               if (DEBUG) cout<<"Filling PAT taus."<<endl;
-               
-               fillTaus(iEvent, iSetup, trackCollection, pvs, beamSpotHandle, tauHandle, vertexs, pfCandHandle, tracksHandle);
-            }
-            //else if (!miniAODRun_ && recoMuonCollection.isValid()){
-            //   if (DEBUG) cout<<"Filling RECO muons."<<endl;
-            //   fillMuons(iEvent, iSetup, recoMuonCollection, trackCollection, pvs);
-            //}
-         }
-      
-      }
+      if(doTaus_)
+	{      
+	  //	  cout<<" Getting tauHandle: "<< 
+	  //	    iEvent.getByToken(TauCandidateToken_, tauHandle) <<" Getting pfTaus: "<< 
+	  //	    iEvent.getByToken(pfTauToken_, pfTaus) <<" Getting dmfNew: "<< 
+	  //	    iEvent.getByToken(dmfNewToken_, dmfNew) <<" Getting vertexs: "<< 
+	  //	    iEvent.getByToken(goodPVToken_ , vertexs) <<" Getting pfCandHandle: "<< 
+	  //	    iEvent.getByToken(thePFCandToken_, pfCandHandle) <<" Getting tracksHandle: "<< iEvent.getByToken(tracks_Token_, tracksHandle) <<endl;
+
+	  iEvent.getByToken(TauCandidateToken_, tauHandle);
+	  iEvent.getByToken(goodPVToken_ , vertexs);
+	  iEvent.getByToken(thePFCandToken_, pfCandHandle);
+	  iEvent.getByToken(tracks_Token_, tracksHandle);
+	  if (tracksHandle.isValid() && vertexs.isValid())
+	    {	
+	      if (miniAODRun_)  // && tauHandle.isValid()
+		{
+		  fillTaus(iEvent, iSetup, trackCollection, pvs, beamSpotHandle, tauHandle, vertexs, pfCandHandle, tracksHandle);
+		}
+	    }
+	}
       
       
          
@@ -781,8 +796,33 @@ T3MNtuple::beginJob()
      output_tree->Branch("Tau_byLooseDeepTau2017v2p1VSjet", &Tau_byLooseDeepTau2017v2p1VSjet);
      output_tree->Branch("Tau_byMediumDeepTau2017v2p1VSjet", &Tau_byMediumDeepTau2017v2p1VSjet);
      output_tree->Branch("Tau_byTightDeepTau2017v2p1VSjet", &Tau_byTightDeepTau2017v2p1VSjet);
-  
 
+
+
+
+
+     output_tree->Branch("Tau_byLooseCombinedIsolationDeltaBetaCorr3Hits", &Tau_byLooseCombinedIsolationDeltaBetaCorr3Hits);
+     output_tree->Branch("Tau_byMediumCombinedIsolationDeltaBetaCorr3Hits", &Tau_byMediumCombinedIsolationDeltaBetaCorr3Hits);
+     output_tree->Branch("Tau_byTightCombinedIsolationDeltaBetaCorr3Hits", &Tau_byTightCombinedIsolationDeltaBetaCorr3Hits);
+
+     output_tree->Branch("Tau_PFTauTrack_p4", &Tau_PFTauTrack_p4);
+     output_tree->Branch("Tau_Track_par", &Tau_Track_par);
+     output_tree->Branch("Tau_Track_cov", &Tau_Track_cov);
+
+     output_tree->Branch("Tau_Track_Charge", &Tau_Track_Charge);
+     output_tree->Branch("Tau_Track_pdgid", &Tau_Track_pdgid);
+     output_tree->Branch("Tau_Track_B", &Tau_Track_B);
+     output_tree->Branch("Tau_Track_M", &Tau_Track_M);
+
+     output_tree->Branch("Tau_SVPos", &Tau_SVPos);
+     output_tree->Branch("Tau_SVCov", &Tau_SVCov);
+     output_tree->Branch("Tau_a1_charge", &Tau_a1_charge);
+     output_tree->Branch("Tau_a1_pdgid", &Tau_a1_pdgid);
+     output_tree->Branch("Tau_a1_B", &Tau_a1_B);
+     output_tree->Branch("Tau_a1_M", &Tau_a1_M);
+     output_tree->Branch("Tau_a1_lvp", &Tau_a1_lvp);
+     output_tree->Branch("Tau_a1_cov", &Tau_a1_cov);
+  
    }
 
 
@@ -901,6 +941,8 @@ T3MNtuple::beginJob()
    output_tree->Branch("Vertex_Isolation4",&Vertex_Isolation4);
 
    output_tree->Branch("Vertex_NMuonsAssocWithPV",&Vertex_NMuonsAssocWithPV);
+
+
    output_tree->Branch("TriggerObject_pt",&TriggerObject_pt);
    output_tree->Branch("TriggerObject_phi",&TriggerObject_phi);
    output_tree->Branch("TriggerObject_eta",&TriggerObject_eta);
@@ -1059,6 +1101,31 @@ void T3MNtuple::ClearEvent() {
    Tau_byLooseDeepTau2017v2p1VSjet.clear();
    Tau_byMediumDeepTau2017v2p1VSjet.clear();
    Tau_byTightDeepTau2017v2p1VSjet.clear();
+
+
+   Tau_byLooseCombinedIsolationDeltaBetaCorr3Hits.clear();
+   Tau_byMediumCombinedIsolationDeltaBetaCorr3Hits.clear();
+   Tau_byTightCombinedIsolationDeltaBetaCorr3Hits.clear();
+
+
+   Tau_PFTauTrack_p4.clear();
+   Tau_Track_par.clear();
+   Tau_Track_cov.clear();
+
+   Tau_Track_Charge.clear();
+   Tau_Track_pdgid.clear();
+   Tau_Track_B.clear();
+   Tau_Track_M.clear();
+
+   Tau_SVPos.clear();
+   Tau_SVCov.clear();
+   Tau_a1_charge.clear();
+   Tau_a1_pdgid.clear();
+   Tau_a1_B.clear();
+   Tau_a1_M.clear();
+   Tau_a1_lvp.clear();
+   Tau_a1_cov.clear();
+
 
 
 
