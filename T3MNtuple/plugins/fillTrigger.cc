@@ -18,7 +18,7 @@ void T3MNtuple::fillTrigger(const edm::Event& iEvent,
 
          string l1tName = (initialDecisions.at(i_l1t)).first;
 	 //	 std::cout<<"l1 trigger  "<< l1tName << std::endl;
-         if(l1tName.find("DoubleMu") != string::npos || l1tName.find("TripleMu") != string::npos || l1tName.find("singleMu"))
+         if(l1tName.find("DoubleMu") != string::npos || l1tName.find("TripleMu") != string::npos || l1tName.find("SingleMu"))
          {
             Trigger_l1name.push_back( l1tName );
 
@@ -48,7 +48,7 @@ void T3MNtuple::fillTrigger(const edm::Event& iEvent,
    for (size_t i_hlt = 0; i_hlt != triggerBitsH->size(); ++i_hlt)
    {
       string hltName = triggerNames.triggerName(i_hlt);
-      if(hltName.find("HLT_DoubleMu") != string::npos  or hltName.find("HLT_Mu") != string::npos or hltName.find("HLT_Dimuon0") != string::npos)
+      if(hltName.find("HLT_DoubleMu") != string::npos  or hltName.find("HLT_Mu") != string::npos or hltName.find("HLT_Dimuon0") != string::npos or hltName.find("HLT_Tau3Mu") != string::npos)
       {
          Trigger_hltname.push_back(hltName);
          Trigger_hltdecision.push_back(triggerBitsH->accept(i_hlt ));
