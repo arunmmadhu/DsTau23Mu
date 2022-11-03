@@ -207,7 +207,7 @@ int T3MNtuple::fillThreeMuons(const edm::Event& iEvent,
                   for (int i = 0; i < signalTau.NParameters(); i++) {
                      signalTau_lvp.at(ntp).push_back(signalTau.Parameter(i));
                      for (int j = i; j < signalTau.NParameters(); j++) {
-                        //	      signalTau_cov.at(ntp).push_back(signalTau.Covariance(i, j));// comment out to keep size low
+		       signalTau_cov.at(ntp).push_back(signalTau.Covariance(i, j));// comment out to keep size low
                      }
                   }
                }
