@@ -643,10 +643,11 @@ T3MNtuple::beginJob()
 
    //=============  Electrons Block ====
    output_tree->Branch("Electron_p4", &Electron_p4);
+   output_tree->Branch("Electron_Charge", &Electron_Charge);
    output_tree->Branch("Electron_puppiNeutralHadronIso", &Electron_puppiNeutralHadronIso);
    output_tree->Branch("Electron_puppiPhotonIso", &Electron_puppiPhotonIso);
    output_tree->Branch("Electron_trackIso", &Electron_trackIso);
-   output_tree->Branch("Electron_isPF", &Electron_isPF);4
+   output_tree->Branch("Electron_isPF", &Electron_isPF);
    output_tree->Branch("Electron_cutBasedElectronID_Fall17_94X_V2_veto", &Electron_cutBasedElectronID_Fall17_94X_V2_veto);
    output_tree->Branch("Electron_cutBasedElectronID_Fall17_94X_V2_loose", &Electron_cutBasedElectronID_Fall17_94X_V2_loose);
    output_tree->Branch("Electron_cutBasedElectronID_Fall17_94X_V2_medium", &Electron_cutBasedElectronID_Fall17_94X_V2_medium);
@@ -1157,18 +1158,15 @@ void T3MNtuple::ClearEvent() {
 
    //=======  Electronss ===
    Electron_p4.clear();
-
+   Electron_Charge.clear();
    Electron_puppiNeutralHadronIso.clear();
    Electron_puppiPhotonIso.clear();
    Electron_trackIso.clear();
    Electron_isPF.clear();
-
    Electron_cutBasedElectronID_Fall17_94X_V2_veto.clear();
    Electron_cutBasedElectronID_Fall17_94X_V2_loose.clear();
    Electron_cutBasedElectronID_Fall17_94X_V2_medium.clear();
    Electron_cutBasedElectronID_Fall17_94X_V2_tight.clear();
-
-
 
 
    //=======  Muons ===

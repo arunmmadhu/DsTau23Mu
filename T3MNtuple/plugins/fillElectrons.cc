@@ -22,7 +22,7 @@ void T3MNtuple::fillElectrons(const edm::Event& iEvent,
      iElectron_p4.push_back(RefElectron->p4().Pz());
      Electron_p4.push_back(iElectron_p4);
 
-
+     Electron_Charge.push_back(RefElectron->charge());
      // ----------------------   recomendations from 
      // https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2#Recipe_for_regular_users_formats
 
