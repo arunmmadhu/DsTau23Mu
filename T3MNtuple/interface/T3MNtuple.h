@@ -513,6 +513,10 @@ class T3MNtuple : public edm::EDAnalyzer {
       std::vector<float>               Electron_puppiPhotonIso;
       std::vector<float>               Electron_trackIso;
       std::vector<bool>                Electron_isPF;
+      std::vector<bool>                Electron_cutBasedElectronID_Fall17_94X_V2_veto;
+      std::vector<bool>                Electron_cutBasedElectronID_Fall17_94X_V2_loose;
+      std::vector<bool>                Electron_cutBasedElectronID_Fall17_94X_V2_medium;
+      std::vector<bool>                Electron_cutBasedElectronID_Fall17_94X_V2_tight;
 
 
       //=======  Muons ===
