@@ -14,6 +14,8 @@
 //
 double T3MNtuple::MuonPtCut_(-1.);
 double T3MNtuple::MuonEtaCut_(999);
+double T3MNtuple::ElectronPtCut_(-1.);
+double T3MNtuple::ElectronEtaCut_(999);
 double T3MNtuple::TrackPtCut_(-1.);
 double T3MNtuple::TrackEtaCut_(999);
 double T3MNtuple::phimassmin_(1.7);
@@ -81,6 +83,8 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
    doTwoMuonsAndTrack_= iConfig.getParameter<bool>("doTwoMuonsAndTrack");
    MuonPtCut_ = iConfig.getParameter<double>("MuonPtCut"); //default: 1.0
    MuonEtaCut_ = iConfig.getParameter<double>("MuonEtaCut"); //default: 2.4
+   ElectronPtCut_ = iConfig.getParameter<double>("ElectronPtCut"); //default: 1.0
+   ElectronEtaCut_ = iConfig.getParameter<double>("ElectronEtaCut"); //default: 2.4
    TrackPtCut_ = iConfig.getParameter<double>("TrackPtCut"); //default: 1.0
    TrackEtaCut_ = iConfig.getParameter<double>("TrackEtaCut"); //default: 2.4
    miniAODRun_ = iConfig.getParameter<bool>("miniAODRun"); // true if running over MiniAOD

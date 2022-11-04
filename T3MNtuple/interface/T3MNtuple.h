@@ -312,6 +312,8 @@ class T3MNtuple : public edm::EDAnalyzer {
 
       static double MuonPtCut_;
       static double MuonEtaCut_;
+      static double ElectronPtCut_;
+      static double ElectronEtaCut_;
       static double TrackPtCut_;
       static double TrackEtaCut_;
       static double phimassmin_;
