@@ -21,6 +21,12 @@ void T3MNtuple::fillElectrons(const edm::Event& iEvent,
      iElectron_p4.push_back(RefElectron->p4().Py());
      iElectron_p4.push_back(RefElectron->p4().Pz());
      Electron_p4.push_back(iElectron_p4);
+
+     Electron_puppiNeutralHadronIso.push_back(RefElectron->puppiNeutralHadronIso());
+     Electron_puppiPhotonIso.push_back(RefElectron->puppiPhotonIso());
+     Electron_trackIso.push_back(RefElectron->trackIso());
+     Electron_isPF.push_back(RefElectron->isPF());
+
      
    }
 }

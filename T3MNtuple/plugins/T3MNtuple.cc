@@ -643,6 +643,10 @@ T3MNtuple::beginJob()
 
    //=============  Electrons Block ====
    output_tree->Branch("Electron_p4", &Electron_p4);
+   output_tree->Branch("Electron_puppiNeutralHadronIso", &Electron_puppiNeutralHadronIso);
+   output_tree->Branch("Electron_puppiPhotonIso", &Electron_puppiPhotonIso);
+   output_tree->Branch("Electron_trackIso", &Electron_trackIso);
+   output_tree->Branch("Electron_isPF", &Electron_isPF);
 
 
    //=============  Muon Block ====
@@ -1148,6 +1152,13 @@ void T3MNtuple::ClearEvent() {
 
    //=======  Electronss ===
    Electron_p4.clear();
+
+   Electron_puppiNeutralHadronIso.clear();
+   Electron_puppiPhotonIso.clear();
+   Electron_trackIso.clear();
+   Electron_isPF.clear();
+
+
 
    //=======  Muons ===
    Muon_p4.clear();
