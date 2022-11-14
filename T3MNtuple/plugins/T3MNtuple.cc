@@ -802,6 +802,7 @@ T3MNtuple::beginJob()
      output_tree->Branch("Tau_charge", &Tau_charge);
      output_tree->Branch("Tau_DecayMode", &Tau_DecayMode);
      output_tree->Branch("Tau_DecayModeFinding", &Tau_DecayModeFinding);
+     output_tree->Branch("Tau_NewDecayModeFinding", &Tau_NewDecayModeFinding);
 
      output_tree->Branch("Tau_byLooseDeepTau2017v2p1VSe", &Tau_byLooseDeepTau2017v2p1VSe);
      output_tree->Branch("Tau_byMediumDeepTau2017v2p1VSe", &Tau_byMediumDeepTau2017v2p1VSe);
@@ -816,12 +817,15 @@ T3MNtuple::beginJob()
      output_tree->Branch("Tau_byTightDeepTau2017v2p1VSjet", &Tau_byTightDeepTau2017v2p1VSjet);
 
 
-
-
-
      output_tree->Branch("Tau_byLooseCombinedIsolationDeltaBetaCorr3Hits", &Tau_byLooseCombinedIsolationDeltaBetaCorr3Hits);
      output_tree->Branch("Tau_byMediumCombinedIsolationDeltaBetaCorr3Hits", &Tau_byMediumCombinedIsolationDeltaBetaCorr3Hits);
      output_tree->Branch("Tau_byTightCombinedIsolationDeltaBetaCorr3Hits", &Tau_byTightCombinedIsolationDeltaBetaCorr3Hits);
+     output_tree->Branch("Tau_byCombinedIsolationDeltaBetaCorrRaw3Hits", &Tau_byCombinedIsolationDeltaBetaCorrRaw3Hits);
+
+     output_tree->Branch("Tau_FloatDiscriminants", &Tau_FloatDiscriminants);
+     output_tree->Branch("Tau_IntDiscriminants", &Tau_IntDiscriminants);
+
+
 
      output_tree->Branch("Tau_PFTauTrack_p4", &Tau_PFTauTrack_p4);
      output_tree->Branch("Tau_Track_par", &Tau_Track_par);
@@ -1107,6 +1111,8 @@ void T3MNtuple::ClearEvent() {
    Tau_charge.clear();
    Tau_DecayMode.clear();
    Tau_DecayModeFinding.clear();
+   Tau_NewDecayModeFinding.clear();
+
 
    Tau_byLooseDeepTau2017v2p1VSe.clear();
    Tau_byMediumDeepTau2017v2p1VSe.clear();
@@ -1124,7 +1130,10 @@ void T3MNtuple::ClearEvent() {
    Tau_byLooseCombinedIsolationDeltaBetaCorr3Hits.clear();
    Tau_byMediumCombinedIsolationDeltaBetaCorr3Hits.clear();
    Tau_byTightCombinedIsolationDeltaBetaCorr3Hits.clear();
+   Tau_byCombinedIsolationDeltaBetaCorrRaw3Hits.clear();
 
+   Tau_FloatDiscriminants.clear();
+   Tau_IntDiscriminants.clear();
 
    Tau_PFTauTrack_p4.clear();
    Tau_Track_par.clear();

@@ -17,37 +17,27 @@ void T3MNtuple::fillTaus(const edm::Event& iEvent,
         //
         tauIntDiscrims_ = 
         {
-          "decayModeFinding", // it is decayModeFindingOldDMs
-          "decayModeFindingNewDMs",
-          
-          "byLooseCombinedIsolationDeltaBetaCorr3Hits",
-          "byMediumCombinedIsolationDeltaBetaCorr3Hits",
-          "byTightCombinedIsolationDeltaBetaCorr3Hits",
-          
           "byVLooseIsolationMVArun2v1DBoldDMwLT",
           "byLooseIsolationMVArun2v1DBoldDMwLT",
           "byMediumIsolationMVArun2v1DBoldDMwLT",
           "byTightIsolationMVArun2v1DBoldDMwLT",
           "byVTightIsolationMVArun2v1DBoldDMwLT",
-        
-        
+                
           "byVLooseIsolationMVArun2v1DBnewDMwLT",    
           "byLooseIsolationMVArun2v1DBnewDMwLT",
           "byMediumIsolationMVArun2v1DBnewDMwLT",
           "byTightIsolationMVArun2v1DBnewDMwLT",
           "byVTightIsolationMVArun2v1DBnewDMwLT",
-        
-        
+                
           "byLooseIsolationMVArun2v1DBdR03oldDMwLT",
           "byMediumIsolationMVArun2v1DBdR03oldDMwLT",
           "byTightIsolationMVArun2v1DBdR03oldDMwLT",
           "byVTightIsolationMVArun2v1DBdR03oldDMwLT",
           
-          "byLooseCombinedIsolationDeltaBetaCorr3HitsdR03",
+	  /*          "byLooseCombinedIsolationDeltaBetaCorr3HitsdR03",
           "byMediumCombinedIsolationDeltaBetaCorr3HitsdR03",
           "byTightCombinedIsolationDeltaBetaCorr3HitsdR03",
-        
-        
+                
           "againstElectronMVA5category",
           
           "byLooseIsolationMVA3newDMwLT",
@@ -64,16 +54,13 @@ void T3MNtuple::fillTaus(const edm::Event& iEvent,
           "byVTightIsolationMVA3newDMwLT",
           "byVVTightIsolationMVA3newDMwLT",
         
-        
           "byVLooseIsolationMVA3oldDMwLT",
           "byVTightIsolationMVA3oldDMwLT",
-          "byVVTightIsolationMVA3oldDMwLT",
-        
-        
+          "byVVTightIsolationMVA3oldDMwLT", */
+                
           "againstMuonLoose3",
           "againstMuonTight3",
-        
-        
+                
           "againstElectronVLooseMVA6",
           "againstElectronLooseMVA6",
           "againstElectronMediumMVA6",
@@ -81,28 +68,23 @@ void T3MNtuple::fillTaus(const edm::Event& iEvent,
           "againstElectronVTightMVA6"
         };
         
-        
         tauFloatDiscrims_ =
         {
-          "byCombinedIsolationDeltaBetaCorrRaw3Hits",
           "byIsolationMVArun2v1DBoldDMwLTraw",
-          "byIsolationMVA3oldDMwoLTraw",
-          "byIsolationMVA3oldDMwLTraw",
-          "byIsolationMVA3newDMwoLTraw",
-          "againstElectronMVA5raw",
+	  //          "byIsolationMVA3oldDMwoLTraw",
+	  //          "byIsolationMVA3oldDMwLTraw",
+	  //          "byIsolationMVA3newDMwoLTraw",
+	  //          "againstElectronMVA5raw",
           "byPhotonPtSumOutsideSignalCone",
-          "byPileupWeightedIsolationRaw3Hits",
-          "footprintCorrection",
+	  //          "byPileupWeightedIsolationRaw3Hits",
+	  //          "footprintCorrection",
           "neutralIsoPtSumWeight",
           "photonPtSumOutsideSignalCone",
-          "byIsolationMVA3newDMwLTraw",
+	  //          "byIsolationMVA3newDMwLTraw",
           "chargedIsoPtSum",
           "neutralIsoPtSum",
           "puCorrPtSum",
         };
-        
-        
-        
         
         
         // For the packedPFCandidate TRACKS from pfCandHandle, saved to pvTracks
@@ -174,7 +156,8 @@ void T3MNtuple::fillTaus(const edm::Event& iEvent,
 	  Tau_charge.push_back(tau->charge());
 	  Tau_DecayMode.push_back(tau->decayMode());
 	  Tau_DecayModeFinding.push_back(tau->tauID("decayModeFinding"));
-
+	  Tau_NewDecayModeFinding.push_back(tau->tauID("decayModeFindingNewDMs"));
+	  //--------------------------   Selected Tau ID's 
 	  Tau_byLooseDeepTau2017v2p1VSe.push_back(tau->tauID("byLooseDeepTau2017v2p1VSe"));
 	  Tau_byMediumDeepTau2017v2p1VSe.push_back(tau->tauID("byMediumDeepTau2017v2p1VSe"));
 	  Tau_byTightDeepTau2017v2p1VSe.push_back(tau->tauID("byTightDeepTau2017v2p1VSe"));
@@ -191,6 +174,35 @@ void T3MNtuple::fillTaus(const edm::Event& iEvent,
 	  Tau_byLooseCombinedIsolationDeltaBetaCorr3Hits.push_back(tau->tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits"));
 	  Tau_byMediumCombinedIsolationDeltaBetaCorr3Hits.push_back(tau->tauID("byMediumCombinedIsolationDeltaBetaCorr3Hits"));
 	  Tau_byTightCombinedIsolationDeltaBetaCorr3Hits.push_back(tau->tauID("byTightCombinedIsolationDeltaBetaCorr3Hits"));
+
+	  Tau_byCombinedIsolationDeltaBetaCorrRaw3Hits.push_back(tau->tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits"));
+
+
+	  //  fill the rest of float ID's 
+	  std::vector<float> iTau_FloatDiscriminants;
+	  for (unsigned int i = 0; i < tauFloatDiscrims_.size(); i++)
+	    {
+	      string ID = tauFloatDiscrims_.at(i);
+	      float discr(-999.);
+	      if(tau->isTauIDAvailable(ID.c_str())) discr = tau->tauID(ID.c_str());
+	      iTau_FloatDiscriminants.push_back(discr);
+	    }
+
+	  // fill all userints
+	  std::vector<int> iTau_IntDiscriminants;
+	  for (unsigned int i = 0; i < tauIntDiscrims_.size(); i++)
+	    {
+	      string ID = tauIntDiscrims_.at(i);
+	      float discr(-999.);
+	      if(tau->isTauIDAvailable(ID.c_str())) discr = tau->tauID(ID.c_str());
+	      iTau_IntDiscriminants.push_back(discr);
+
+	    }
+
+
+	  Tau_FloatDiscriminants.push_back(iTau_FloatDiscriminants);	    
+	  Tau_IntDiscriminants.push_back(iTau_IntDiscriminants);
+
 
 	  std::vector<double > PFTauTrackLV;    
 	  edm::ESHandle<TransientTrackBuilder> transTrackBuilder;

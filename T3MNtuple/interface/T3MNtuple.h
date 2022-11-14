@@ -470,6 +470,8 @@ class T3MNtuple : public edm::EDAnalyzer {
       std::vector<int> Tau_charge;
       std::vector<int> Tau_DecayMode;
       std::vector<int> Tau_DecayModeFinding;
+      std::vector<int> Tau_NewDecayModeFinding;
+
 
       std::vector<int> Tau_byLooseDeepTau2017v2p1VSe;
       std::vector<int> Tau_byMediumDeepTau2017v2p1VSe;
@@ -486,7 +488,9 @@ class T3MNtuple : public edm::EDAnalyzer {
       std::vector<int>  Tau_byLooseCombinedIsolationDeltaBetaCorr3Hits;
       std::vector<int>  Tau_byMediumCombinedIsolationDeltaBetaCorr3Hits;
       std::vector<int>  Tau_byTightCombinedIsolationDeltaBetaCorr3Hits;
-
+      std::vector<float> Tau_byCombinedIsolationDeltaBetaCorrRaw3Hits;
+      std::vector<std::vector<float> > Tau_FloatDiscriminants;
+      std::vector<std::vector<int> >   Tau_IntDiscriminants;
 
 
 
