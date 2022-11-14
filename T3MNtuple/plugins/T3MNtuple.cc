@@ -650,6 +650,7 @@ T3MNtuple::beginJob()
    output_tree->Branch("Electron_Charge", &Electron_Charge);
    output_tree->Branch("Electron_puppiNeutralHadronIso", &Electron_puppiNeutralHadronIso);
    output_tree->Branch("Electron_puppiPhotonIso", &Electron_puppiPhotonIso);
+   output_tree->Branch("Electron_puppiChargedHadronIso", &Electron_puppiChargedHadronIso);
    output_tree->Branch("Electron_trackIso", &Electron_trackIso);
    output_tree->Branch("Electron_isPF", &Electron_isPF);
    output_tree->Branch("Electron_cutBasedElectronID_Fall17_94X_V2_veto", &Electron_cutBasedElectronID_Fall17_94X_V2_veto);
@@ -1174,6 +1175,7 @@ void T3MNtuple::ClearEvent() {
    Electron_Charge.clear();
    Electron_puppiNeutralHadronIso.clear();
    Electron_puppiPhotonIso.clear();
+   Electron_puppiChargedHadronIso.clear();
    Electron_trackIso.clear();
    Electron_isPF.clear();
    Electron_cutBasedElectronID_Fall17_94X_V2_veto.clear();

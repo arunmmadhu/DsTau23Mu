@@ -30,6 +30,7 @@ void T3MNtuple::fillElectrons(const edm::Event& iEvent,
 	 
 	 
 	 Electron_puppiNeutralHadronIso.push_back(RefElectron->puppiNeutralHadronIso());
+	 Electron_puppiChargedHadronIso.push_back(RefElectron->puppiChargedHadronIso());
 	 Electron_puppiPhotonIso.push_back(RefElectron->puppiPhotonIso());
 	 Electron_trackIso.push_back(RefElectron->trackIso());
 	 Electron_isPF.push_back(RefElectron->isPF());

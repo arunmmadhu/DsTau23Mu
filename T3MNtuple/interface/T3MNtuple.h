@@ -518,6 +518,7 @@ class T3MNtuple : public edm::EDAnalyzer {
       std::vector<int>                 Electron_Charge;
       std::vector<float>               Electron_puppiNeutralHadronIso;
       std::vector<float>               Electron_puppiPhotonIso;
+      std::vector<float>               Electron_puppiChargedHadronIso;
       std::vector<float>               Electron_trackIso;
       std::vector<bool>                Electron_isPF;
       std::vector<bool>                Electron_cutBasedElectronID_Fall17_94X_V2_veto;
