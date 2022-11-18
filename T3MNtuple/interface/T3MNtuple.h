@@ -114,6 +114,7 @@ Implementation:
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicParticleFactoryFromTransientTrack.h"
 #include "DsTau23Mu/T3MNtuple/interface/PDGInfo.h"
 #include "DsTau23Mu/T3MNtuple/interface/DataMCType.h"
+#include "DsTau23Mu/T3MNtuple/interface/TauDecay_CMSSW.h"
 #include "TH2.h"
 #include <TTree.h>
 #include "TRandom3.h"
@@ -425,6 +426,7 @@ class T3MNtuple : public edm::EDAnalyzer {
       int EventNumber;
       unsigned int Event_EventNumber;
       int Event_DataMC_Type;
+      unsigned int  DataMC_Type_idx;
       unsigned int Event_RunNumber;
       int Event_bunchCrossing;
       int Event_orbitNumber;

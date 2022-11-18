@@ -53,7 +53,14 @@ void T3MNtuple::fillMCTruth(const edm::Event& iEvent,
          }
       }
 
+      TauDecay_CMSSW myTauDecay;
       DataMCType DMT;
+      DataMC_Type_idx = DMT.GetType();
+      myTauDecay.CheckForSignal(DataMC_Type_idx, genParticles);
+      Event_DataMC_Type=DataMC_Type_idx;
+
+      std::cout<<"Fill Truth MC, coded decay mode:   "<< Event_DataMC_Type <<std::endl;
+      //genParticles
       unsigned int k(0);
       for (reco::GenParticleCollection::const_iterator itr = genParticles->begin(); itr != genParticles->end(); ++itr) {
          if (DMT.isSignalParticle(itr->pdgId())) {
@@ -116,6 +123,9 @@ void T3MNtuple::fillMCTruth(const edm::Event& iEvent,
                   unsigned int tauidx = MCTauandProd_p4.size();
                   MCSignalParticle_Tauidx.at(MCSignalParticle_Tauidx.size() - 1).push_back(tauidx);
                   // Analysis the tau decay
+
+		  unsigned int JAK_ID, TauBitMask;
+		  myTauDecay.AnalyzeTau(static_cast<const reco::GenParticle*>(dau), JAK_ID, TauBitMask);
                   std::vector<const reco::GenParticle*> TauProducts = TauDecayProducts(static_cast<const reco::GenParticle*>(dau));
                   MCTauandProd_midx.push_back(k);
                   MCTauandProd_pdgid.push_back(std::vector<int>());

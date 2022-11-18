@@ -25,7 +25,8 @@ class DataMCType{
 	     Ds_MuRhoMuMu=153,
 	     Ds_MuOmegaMuMu=163,
 	     D_MuOmegaMuMu_MuMuPi0=175,
-	     dy_ll=200,
+	     DY_ll=200,
+	     DY_tautau=205,
 	     z2tautau_tau3mu=210,
 	     unknown=999
 	     // add here more MC types
@@ -35,6 +36,7 @@ class DataMCType{
   ~DataMCType();
 
   unsigned int GetType(TString name);
+  unsigned int SignalCode(unsigned int type,unsigned int JAK_ID1, unsigned int nprong1,unsigned int JAK_ID2, unsigned int nprong2);
   bool isSignalParticle(int pdg_id);
   void StoreType(TString t){type=t;}
   unsigned int GetType(){return GetType(type);}

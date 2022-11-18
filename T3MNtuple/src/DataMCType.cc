@@ -1,5 +1,6 @@
 #include "DsTau23Mu/T3MNtuple/interface/DataMCType.h"
 #include "DsTau23Mu/T3MNtuple/interface/PDGInfo.h"
+#include "DsTau23Mu/T3MNtuple/interface/TauDecay.h"
 #include <iostream>
 #include <cstdlib>
 
@@ -35,12 +36,47 @@ unsigned int DataMCType::GetType(TString name){
   if(name=="d_muomegamumu_mumupi0")     return D_MuOmegaMuMu_MuMuPi0;
   if(name=="bbcc2mu")                   return bbcc2mu;
   if(name=="bbcc3mu")                   return bbcc3mu;
-  if(name=="dy_ll")                     return dy_ll;
+  if(name=="dy_ll")                     return DY_ll;
+  if(name=="dy_tautau")                 return DY_tautau;
   if(name=="z2tautau_tau3mu")           return z2tautau_tau3mu;
 
   std::cout << "ERROR: Data/MC Type " << name << " UNKNOWN!!!! " << std::endl;
   return unknown;
 }
+
+
+unsigned int DataMCType::SignalCode(unsigned int type,unsigned int JAK_ID1, unsigned int nprong1,unsigned int JAK_ID2, unsigned int nprong2){
+  if(type==Data)return type;
+
+
+  if(JAK_ID1==TauDecay::JAK_3MUON && nprong1==3 && (JAK_ID2==TauDecay::JAK_MUON && nprong2==1))   return type*1000 + JAK_ID1*10 + JAK_ID2;
+  if(JAK_ID2==TauDecay::JAK_3MUON && nprong2==3 && (JAK_ID1==TauDecay::JAK_MUON && nprong1==1))   return type*1000 + JAK_ID2*10 + JAK_ID1;
+
+  if(JAK_ID1==TauDecay::JAK_3MUON && nprong1==3 && (JAK_ID2==TauDecay::JAK_ELECTRON && nprong2==1))   return type*1000 + JAK_ID1*10 + JAK_ID2;
+  if(JAK_ID2==TauDecay::JAK_3MUON && nprong2==3 && (JAK_ID1==TauDecay::JAK_ELECTRON && nprong1==1))   return type*1000 + JAK_ID2*10 + JAK_ID1;
+
+  if(JAK_ID1==TauDecay::JAK_3MUON && nprong1==3 && (JAK_ID2!=TauDecay::JAK_ELECTRON && JAK_ID2!=TauDecay::JAK_MUON))
+    {
+      JAK_ID2 = TauDecay::JAK_PION;  //  use JAK_ID == 3 for any hadronic tau decay
+      return type*1000 + JAK_ID1*10 + JAK_ID2;
+    }
+  if(JAK_ID2==TauDecay::JAK_3MUON && nprong2==3 && (JAK_ID1!=TauDecay::JAK_ELECTRON && JAK_ID1!=TauDecay::JAK_MUON))
+    {
+      JAK_ID1 = TauDecay::JAK_PION; //  use JAK_ID == 3 for any hadronic tau decay
+      return type*1000 + JAK_ID2*10 + JAK_ID1;
+    }
+
+  ////////////////////////////////////////////////////////////////////////////////////
+  //
+  //   For the decay Z-> tau (3mu) tau(X) it returns: 210231 (IF X = electron);
+  //                                                  210232 (IF X = muon    );
+  //                                                  210233 (IF X = hadrons );
+  //
+
+
+  return type;
+}
+
 
 
 bool DataMCType::isSignalParticle(int pdg_id){
