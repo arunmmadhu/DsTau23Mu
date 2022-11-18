@@ -59,7 +59,6 @@ void T3MNtuple::fillMCTruth(const edm::Event& iEvent,
       myTauDecay.CheckForSignal(DataMC_Type_idx, genParticles);
       Event_DataMC_Type=DataMC_Type_idx;
 
-      std::cout<<"Fill Truth MC, coded decay mode:   "<< Event_DataMC_Type <<std::endl;
       //genParticles
       unsigned int k(0);
       for (reco::GenParticleCollection::const_iterator itr = genParticles->begin(); itr != genParticles->end(); ++itr) {

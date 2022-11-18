@@ -624,7 +624,6 @@ T3MNtuple::beginJob()
    output_tree->Branch("Event_nsignal_candidates", &Event_nsignal_candidates);
    output_tree->Branch("Event_ndsphipi_candidate", &Event_ndsphipi_candidate);
    output_tree->Branch("Event_DataMC_Type" ,&Event_DataMC_Type);
-   std::cout<<"  what i write into the ntuple  "<< std::endl;
    output_tree->Branch("Event_METEt" ,&Event_METEt);
    output_tree->Branch("Event_METPhi" ,&Event_METPhi);
    output_tree->Branch("Event_METXX" ,&Event_METXX);
