@@ -85,7 +85,7 @@ void TauDecay_CMSSW::CheckForSignal(unsigned int &type,const Handle<GenParticleC
   for (unsigned int iGen = 0; iGen < genHandle->size(); iGen++){
     unsigned int JAK_ID1(0), nprong1(0), JAK_ID2(0), nprong2(0);
     const GenParticle& genP = (*genHandle)[iGen];
-    if(DMT.isSignalParticle((*genHandle)[iGen].pdgId()) && genP.numberOfDaughters() > 1){
+    if(DMT.DecodeDecayForSignalParticle((*genHandle)[iGen].pdgId()) && genP.numberOfDaughters() > 1){
 
       for(unsigned int i = 0; i <(*genHandle)[iGen].numberOfDaughters(); i++){
 	const reco::Candidate *dau=(*genHandle)[iGen].daughter(i);

@@ -48,7 +48,6 @@ unsigned int DataMCType::GetType(TString name){
 unsigned int DataMCType::SignalCode(unsigned int type,unsigned int JAK_ID1, unsigned int nprong1,unsigned int JAK_ID2, unsigned int nprong2){
   if(type==Data)return type;
 
-
   if(JAK_ID1==TauDecay::JAK_3MUON && nprong1==3 && (JAK_ID2==TauDecay::JAK_MUON && nprong2==1))   return type*1000 + JAK_ID1*10 + JAK_ID2;
   if(JAK_ID2==TauDecay::JAK_3MUON && nprong2==3 && (JAK_ID1==TauDecay::JAK_MUON && nprong1==1))   return type*1000 + JAK_ID2*10 + JAK_ID1;
 
@@ -82,6 +81,14 @@ unsigned int DataMCType::SignalCode(unsigned int type,unsigned int JAK_ID1, unsi
 bool DataMCType::isSignalParticle(int pdg_id){
   unsigned int pdgid=abs(pdg_id);
   if(pdgid==PDGInfo::Ds_plus || pdgid==PDGInfo::B_plus || pdgid==PDGInfo::B_0  || pdgid ==PDGInfo::Z0 ){
+    return true;
+  }
+  return false; 
+}
+
+bool DataMCType::DecodeDecayForSignalParticle(int pdg_id){
+  unsigned int pdgid=abs(pdg_id);
+  if( pdgid ==PDGInfo::Z0 ){
     return true;
   }
   return false; 
