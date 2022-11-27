@@ -17,13 +17,14 @@ void T3MNtuple::fillTrigger(const edm::Event& iEvent,
       for (size_t i_l1t = 0; i_l1t < initialDecisions.size(); i_l1t++){
 
          string l1tName = (initialDecisions.at(i_l1t)).first;
-	 //	 std::cout<<"l1 trigger  "<< l1tName << std::endl;
+
          if(l1tName.find("DoubleMu") != string::npos || l1tName.find("TripleMu") != string::npos || l1tName.find("SingleMu"))
          {
             Trigger_l1name.push_back( l1tName );
 
             Trigger_l1decision.push_back( initialDecisions.at(i_l1t).second );
             Trigger_l1prescale.push_back( 1 );
+	    //	    std::cout<<"l1 trigger  "<< l1tName <<  "  =     "<< initialDecisions.at(i_l1t).second <<std::endl;
          }
       }
    }
@@ -50,6 +51,7 @@ void T3MNtuple::fillTrigger(const edm::Event& iEvent,
       string hltName = triggerNames.triggerName(i_hlt);
       if(hltName.find("HLT_DoubleMu") != string::npos  or hltName.find("HLT_Mu") != string::npos or hltName.find("HLT_Dimuon0") != string::npos or hltName.find("HLT_Tau3Mu") != string::npos)
       {
+	//	std::cout<<"hltName "<< hltName << "   =   " << triggerBitsH->accept(i_hlt ) <<std::endl;
          Trigger_hltname.push_back(hltName);
          Trigger_hltdecision.push_back(triggerBitsH->accept(i_hlt ));
       }
@@ -57,24 +59,38 @@ void T3MNtuple::fillTrigger(const edm::Event& iEvent,
 
    // Fill Trigger object info
    if (miniAODRun_){
-
+     //     std::cout<<"----------- " << std::endl;
       for (pat::TriggerObjectStandAlone to: *triggerObjects){
 
          to.unpackPathNames(triggerNames);
          trigger::size_type nFilters = to.filterLabels().size();
          for (trigger::size_type iFilter=0; iFilter<nFilters; iFilter++){
             std::string filterName = to.filterLabels()[iFilter];
-            
-            if (filterName.compare("hltTau3muTkVertexFilter")!=0 &&
+	    //	    std::cout<<"  filter Name   "<< filterName  <<std::endl;            
+
+
+	    if (filterName.compare("hltTau3muTkVertexFilter")!=0 &&
                 filterName.compare("hltdstau3muDisplaced3muFltr")!=0 &&
+                filterName.compare("hltTau3MuIsoFilterCharge1")!=0 &&
+                filterName.compare("hltTau3MuTriMuon1filter")!=0 &&
+                filterName.compare("hltMu1Mu1TrkPairPt2DR0p5MassMax1p9")!=0 &&
                 //filterName.compare("hltL3crIsoL1sMu18L1f0L2f10QL3f20QL3trkIsoFiltered0p07")!=0 &&
-                filterName.compare("hltDisplacedmumuFilterDimuon0LowMass")) continue;
-            
-            TriggerObject_name.push_back(filterName);
-            TriggerObject_pt.push_back(to.pt());
-            TriggerObject_eta.push_back(to.eta());
-            TriggerObject_phi.push_back(to.phi());
-         }
+		filterName.compare("hltDisplacedmumuFilterDimuon0LowMass")) continue;
+	    
+
+	    /*	    if (filterName.compare("hltTau3muTkVertexFilter") or
+                filterName.compare("hltdstau3muDisplaced3muFltr") or
+                filterName.compare("hltTau3MuIsoFilterCharge1") or
+                filterName.compare("hltTau3MuTriMuon1filter") or
+                filterName.compare("hltMu1Mu1TrkPairPt2DR0p5MassMax1p9") or
+		filterName.compare("hltDisplacedmumuFilterDimuon0LowMass")) 
+	    */
+		TriggerObject_name.push_back(filterName);
+		TriggerObject_pt.push_back(to.pt());
+		TriggerObject_eta.push_back(to.eta());
+		TriggerObject_phi.push_back(to.phi());
+
+	 }
       }
 
    } else {

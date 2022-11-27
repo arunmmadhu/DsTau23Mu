@@ -292,6 +292,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    if(doL1_ && triggerBitsH.isValid()){
      if (miniAODRun_ && triggerObjects.isValid())
+       //       std::cout<<"  ---- new event  "<< std::endl;
        fillTrigger(iEvent, iSetup, triggerBitsH, triggerSummary, triggerObjects, triggerNames);
      if (!miniAODRun_ && triggerSummary.isValid())
        fillTrigger(iEvent, iSetup, triggerBitsH, triggerSummary, triggerObjects, triggerNames);
