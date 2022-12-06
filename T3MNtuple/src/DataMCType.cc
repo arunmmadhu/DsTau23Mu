@@ -38,6 +38,14 @@ unsigned int DataMCType::GetType(TString name){
   if(name=="bbcc3mu")                   return bbcc3mu;
   if(name=="dy_ll")                     return DY_ll;
   if(name=="dy_tautau")                 return DY_tautau;
+  if(name=="ww")                        return WW;
+  if(name=="wgl")                       return WGl;
+  if(name=="zgmumu")                    return ZGmumu;
+  if(name=="zgll")                      return ZGll;
+  if(name=="zz4l")                      return ZZ4l;
+  if(name=="wz3l")                      return WZ3l;
+
+
   if(name=="z2tautau_tau3mu")           return z2tautau_tau3mu;
 
   std::cout << "ERROR: Data/MC Type " << name << " UNKNOWN!!!! " << std::endl;
