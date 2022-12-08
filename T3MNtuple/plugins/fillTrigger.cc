@@ -49,7 +49,12 @@ void T3MNtuple::fillTrigger(const edm::Event& iEvent,
    for (size_t i_hlt = 0; i_hlt != triggerBitsH->size(); ++i_hlt)
    {
       string hltName = triggerNames.triggerName(i_hlt);
-      if(hltName.find("HLT_DoubleMu") != string::npos  or hltName.find("HLT_Mu") != string::npos or hltName.find("HLT_Dimuon0") != string::npos or hltName.find("HLT_Tau3Mu") != string::npos)
+      std::cout<<"   hltName  "<< hltName << "     status= "<<triggerBitsH->accept(i_hlt ) << std::endl;
+      if(hltName.find("HLT_DoubleMu") != string::npos  or hltName.find("HLT_Mu")      != string::npos or 
+	 hltName.find("HLT_Dimuon0")  != string::npos  or hltName.find("HLT_Tau3Mu")  != string::npos or
+	 hltName.find("HLT_IsoMu27")  != string::npos  or hltName.find("HLT_IsoMu24") != string::npos or                   //  Single Mu Triggers
+	 hltName.find("HLT_Ele32_WPTight_Gsf") !=string::npos or hltName.find("HLT_Ele35_WPTight_Gsf") != string::npos)    //  Single E  Triggers
+	 
       {
 	//	std::cout<<"hltName "<< hltName << "   =   " << triggerBitsH->accept(i_hlt ) <<std::endl;
          Trigger_hltname.push_back(hltName);
