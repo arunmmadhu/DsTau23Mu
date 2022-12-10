@@ -36,8 +36,9 @@ void T3MNtuple::fillTrigger(const edm::Event& iEvent,
       int columnN= gtUtil_->prescaleColumn();
       for (size_t i_l1t = 0; i_l1t < initialDecisions.size(); i_l1t++) {
          string l1tName = (initialDecisions.at(i_l1t)).first;
-
-         if(l1tName.find("DoubleMu") != string::npos || l1tName.find("TripleMu") != string::npos || l1tName.find("SingleMu"))
+	 
+	 //         if(l1tName.find("DoubleMu") != string::npos || l1tName.find("TripleMu") != string::npos || l1tName.find("SingleMu"))  
+	 // lets keep all L1's
          {
             Trigger_l1name.push_back( l1tName );
             Trigger_l1decision.push_back( initialDecisions.at(i_l1t).second );
@@ -49,7 +50,7 @@ void T3MNtuple::fillTrigger(const edm::Event& iEvent,
    for (size_t i_hlt = 0; i_hlt != triggerBitsH->size(); ++i_hlt)
    {
       string hltName = triggerNames.triggerName(i_hlt);
-      std::cout<<"   hltName  "<< hltName << "     status= "<<triggerBitsH->accept(i_hlt ) << std::endl;
+      //      std::cout<<"   hltName  "<< hltName << "     status= "<<triggerBitsH->accept(i_hlt ) << std::endl;
       if(hltName.find("HLT_DoubleMu") != string::npos  or hltName.find("HLT_Mu")      != string::npos or 
 	 hltName.find("HLT_Dimuon0")  != string::npos  or hltName.find("HLT_Tau3Mu")  != string::npos or
 	 hltName.find("HLT_IsoMu27")  != string::npos  or hltName.find("HLT_IsoMu24") != string::npos or                   //  Single Mu Triggers
@@ -79,6 +80,25 @@ void T3MNtuple::fillTrigger(const edm::Event& iEvent,
                 filterName.compare("hltTau3MuIsoFilterCharge1")!=0 &&
                 filterName.compare("hltTau3MuTriMuon1filter")!=0 &&
                 filterName.compare("hltMu1Mu1TrkPairPt2DR0p5MassMax1p9")!=0 &&
+
+                filterName.compare("hltL1sSingleMu22or25")!=0 &&
+                filterName.compare("hltPreIsoMu27")!=0 &&
+                filterName.compare("hltL1fL1sMu22or25L1Filtered0")!=0 &&
+                filterName.compare("hltL2fL1sMu22or25L1f0L2Filtered10Q")!=0 &&
+                filterName.compare("hltL1fForIterL3L1fL1sMu22or25L1Filtered0")!=0 &&
+                filterName.compare("hltL3fL1sMu22Or25L1f0L2f10QL3Filtered27Q")!=0 &&
+                filterName.compare("hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07")!=0 &&
+                filterName.compare("hltL1sSingleMu22")!=0 &&
+                filterName.compare("hltPreIsoMu24")!=0 &&
+                filterName.compare("hltL1fL1sMu22L1Filtered0")!=0 &&
+                filterName.compare("hltL2fL1sSingleMu22L1f0L2Filtered10Q")!=0 &&
+                filterName.compare("hltL1fForIterL3L1fL1sMu22L1Filtered0")!=0 &&
+                filterName.compare("hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p07")!=0 &&
+                filterName.compare("hltL1sSingleEGor")!=0 &&
+                filterName.compare("hltPreEle32WPTightGsf")!=0 &&
+                filterName.compare("hltPreEle35WPTightGsf")!=0 &&
+                filterName.compare("hltL1sSingleEGor")!=0 &&
+
                 //filterName.compare("hltL3crIsoL1sMu18L1f0L2f10QL3f20QL3trkIsoFiltered0p07")!=0 &&
 		filterName.compare("hltDisplacedmumuFilterDimuon0LowMass")) continue;
 	    
