@@ -44,6 +44,8 @@ unsigned int DataMCType::GetType(TString name){
   if(name=="zgll")                      return ZGll;
   if(name=="zz4l")                      return ZZ4l;
   if(name=="wz3l")                      return WZ3l;
+  if(name=="zz4l_1toinf")               return ZZ4l_1toInf;
+  if(name=="wz3l_min0p1")               return WZ3l_Min0p1;
 
 
   if(name=="z2tautau_tau3mu")           return z2tautau_tau3mu;
