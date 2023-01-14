@@ -374,6 +374,7 @@ void T3MNtuple::fillTaus(const edm::Event& iEvent,
 		    for (int i = 0; i < a1.NParameters(); i++) 
 		      {
 			Tau_a1_lvp.at(NTau).push_back(a1.Parameter(i));
+			//			std::cout<<" i   " << i << "  Tau_a1_lvp   "<< a1.Parameter(i) << " size   "  << Tau_a1_lvp.at(NTau).size() <<std::endl;
 			for (int j = i; j < a1.NParameters(); j++) 
 			  {
 			    Tau_a1_cov.at(NTau).push_back(a1.Covariance(i, j));
