@@ -432,8 +432,8 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      if (miniAODRun_)  // && tauHandle.isValid()
 		{
 		  fillTaus(iEvent, iSetup, trackCollection, pvs, beamSpotHandle, tauHandle, vertexs, pfCandHandle, tracksHandle);
-		  std::cout<<" Tau_a1_lvp  size "<< Tau_a1_lvp.size() <<std::endl;
-		  if(Tau_a1_lvp.size() > 0) std::cout<<"   Tau_a1_lvp   sub size   "<< Tau_a1_lvp.at(0).size() << std::endl;
+		  //		  std::cout<<" Tau_a1_lvp  size "<< Tau_a1_lvp.size() <<std::endl;
+		  //		  if(Tau_a1_lvp.size() > 0) std::cout<<"   Tau_a1_lvp   sub size   "<< Tau_a1_lvp.at(0).size() << std::endl;
 
 		}
 	    }
