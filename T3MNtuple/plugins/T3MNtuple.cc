@@ -241,8 +241,8 @@ bool T3MNtuple::isGoodGenParticle(const reco::GenParticle &GenPar){
    void
 T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 { 
-  //   if (DEBUG) 
-   std::cout<<" ========================  new event =============== "<< std::endl;
+  if (DEBUG) 
+    std::cout<<" ========================  new event =============== "<< std::endl;
    cnt_++;
    ClearEvent();
 
