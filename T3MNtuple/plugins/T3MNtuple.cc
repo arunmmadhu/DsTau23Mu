@@ -241,7 +241,8 @@ bool T3MNtuple::isGoodGenParticle(const reco::GenParticle &GenPar){
    void
 T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 { 
-   if (DEBUG)   std::cout<<" ========================  new event =============== "<< std::endl;
+  //   if (DEBUG) 
+   std::cout<<" ========================  new event =============== "<< std::endl;
    cnt_++;
    ClearEvent();
 
@@ -453,18 +454,65 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 
+
+
 std::vector<const reco::GenParticle* > T3MNtuple::TauDecayProducts(const reco::GenParticle *Tau){
    std::vector<const reco::GenParticle* > out;
    unsigned int pdgid=abs(Tau->pdgId());
+   const reco::Candidate *Tau_withstatus2 = NULL;
+
+
    if(pdgid==PDGInfo::tau_minus){ // check that it is a tau
-      out.push_back(Tau);
-      for (unsigned int i=0; i< Tau->numberOfDaughters(); i++){
-         const reco::Candidate *dau=Tau->daughter(i);
-         out.push_back(static_cast<const reco::GenParticle*>(dau));
-      }
+     
+     if(Tau->status() == 2)
+       {
+	 out.push_back(Tau);
+	 for (unsigned int i=0; i< Tau->numberOfDaughters(); i++)
+	   {
+	     const reco::Candidate *dau=Tau->daughter(i);
+	     out.push_back(static_cast<const reco::GenParticle*>(dau));
+	   }
+	 return out;
+       }
+     
+     
+     if(Tau->status() !=2)
+       {
+	 for (unsigned int j=0; j< Tau->numberOfDaughters(); j++)
+	   {
+	     const reco::Candidate *subtau = Tau->daughter(j);
+	     if(abs(subtau->pdgId() ) == PDGInfo::tau_minus)
+	       {
+		 Tau_withstatus2 = subtau;
+		 if(subtau->status()!=2)
+		   {
+		     for (unsigned int k=0; k< subtau->numberOfDaughters(); k++)
+		       {
+			 const reco::Candidate *subsubtau = subtau->daughter(k);
+			 if(abs(subsubtau->pdgId() ) == PDGInfo::tau_minus)
+			   {
+			     Tau_withstatus2 = subsubtau; //   not an elegant way, but i presume two steps down are enough
+			   }
+		       }
+		   }
+	       }
+	   }
+       }
+
+
+
+     out.push_back(static_cast<const reco::GenParticle*>(Tau_withstatus2));
+     for (unsigned int i=0; i< Tau_withstatus2->numberOfDaughters(); i++)
+       {
+	 const reco::Candidate *dau=Tau_withstatus2->daughter(i);
+	 out.push_back(static_cast<const reco::GenParticle*>(dau));
+       }
+
    }
+   
    return out;
 }
+
 
 void T3MNtuple::matchLegCombinations(vector<TLorentzVector>& particleP4, vector<TLorentzVector>& trigObjectP4, double drmax, vector<float>& match)
 {

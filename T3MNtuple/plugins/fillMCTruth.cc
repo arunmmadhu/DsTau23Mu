@@ -118,7 +118,7 @@ void T3MNtuple::fillMCTruth(const edm::Event& iEvent,
 
                MCSignalParticle_childpdgid.at(MCSignalParticle_childpdgid.size() - 1).push_back(dau->pdgId());
                MCSignalParticle_childp4.at(MCSignalParticle_childpdgid.size() - 1).push_back(ichildp4);
-               if (abs(dau->pdgId()) == PDGInfo::tau_minus) {
+               if (abs(dau->pdgId()) == PDGInfo::tau_minus ) {
                   unsigned int tauidx = MCTauandProd_p4.size();
                   MCSignalParticle_Tauidx.at(MCSignalParticle_Tauidx.size() - 1).push_back(tauidx);
                   // Analysis the tau decay
@@ -126,13 +126,14 @@ void T3MNtuple::fillMCTruth(const edm::Event& iEvent,
 		  unsigned int JAK_ID, TauBitMask;
 		  myTauDecay.AnalyzeTau(static_cast<const reco::GenParticle*>(dau), JAK_ID, TauBitMask);
                   std::vector<const reco::GenParticle*> TauProducts = TauDecayProducts(static_cast<const reco::GenParticle*>(dau));
+
                   MCTauandProd_midx.push_back(k);
                   MCTauandProd_pdgid.push_back(std::vector<int>());
                   MCTauandProd_charge.push_back(std::vector<int>());
                   MCTauandProd_p4.push_back(std::vector<std::vector<float> >());
                   MCTauandProd_Vertex.push_back(std::vector<std::vector<float> >());
                   for (unsigned int j = 0; j < TauProducts.size(); j++) {
-                     MCTauandProd_pdgid.at(tauidx).push_back(TauProducts.at(j)->pdgId());
+		     MCTauandProd_pdgid.at(tauidx).push_back(TauProducts.at(j)->pdgId());
                      MCTauandProd_charge.at(tauidx).push_back(TauProducts.at(j)->charge());
                      std::vector<float> iTauandProd_p4;
                      std::vector<float> iTauandProd_vertex;
@@ -144,7 +145,6 @@ void T3MNtuple::fillMCTruth(const edm::Event& iEvent,
                      iTauandProd_vertex.push_back(TauProducts.at(j)->vx());
                      iTauandProd_vertex.push_back(TauProducts.at(j)->vy());
                      iTauandProd_vertex.push_back(TauProducts.at(j)->vz());
-                     //		std::cout<<"  iTauandProd_p4   "<<iTauandProd_p4.size() << std::endl;
                      MCTauandProd_p4.at(tauidx).push_back(iTauandProd_p4);
                      MCTauandProd_Vertex.at(tauidx).push_back(iTauandProd_vertex);
                   }

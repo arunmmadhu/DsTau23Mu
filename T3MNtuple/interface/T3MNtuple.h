@@ -299,6 +299,7 @@ class T3MNtuple : public edm::EDAnalyzer {
       bool getTrackMatch(const Handle<std::vector<reco::Track> > &trackCollection, reco::TrackRef &refTrack, int &match);
       bool isGoodGenParticle(const reco::GenParticle &GenPar);
       bool SkipThisParticle(const reco::GenParticle &GenPar);
+
       std::vector<const reco::GenParticle* > TauDecayProducts(const reco::GenParticle *Tau);
       std::vector<int> SortByPt(std::vector<TLorentzVector> invec);
 
