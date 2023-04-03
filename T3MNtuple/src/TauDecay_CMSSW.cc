@@ -78,6 +78,7 @@ void TauDecay_CMSSW::AddPi0Info(const reco::GenParticle *Particle,unsigned int m
   }
 }
 
+
 void TauDecay_CMSSW::CheckForSignal(unsigned int &type,const Handle<GenParticleCollection>& genHandle){
   //void TauDecay_CMSSW::CheckForSignal(unsigned int &type,edm::Handle <edm::View<reco::GenParticle> > genHandle){
   DataMCType DMT;
