@@ -64,6 +64,7 @@ unsigned int DataMCType::SignalCode(unsigned int type,unsigned int JAK_ID1, unsi
   if(JAK_ID1==TauDecay::JAK_3MUON && nprong1==3 && (JAK_ID2==TauDecay::JAK_ELECTRON && nprong2==1))   return type*1000 + JAK_ID1*10 + JAK_ID2;
   if(JAK_ID2==TauDecay::JAK_3MUON && nprong2==3 && (JAK_ID1==TauDecay::JAK_ELECTRON && nprong1==1))   return type*1000 + JAK_ID2*10 + JAK_ID1;
 
+
   if(JAK_ID1==TauDecay::JAK_3MUON && nprong1==3 && (JAK_ID2!=TauDecay::JAK_ELECTRON && JAK_ID2!=TauDecay::JAK_MUON))
     {
       JAK_ID2 = TauDecay::JAK_PION;  //  use JAK_ID == 3 for any hadronic tau decay
