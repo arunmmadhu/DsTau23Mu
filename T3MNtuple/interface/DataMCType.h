@@ -35,6 +35,10 @@ class DataMCType{
 	     ZZ4l=550,
 	     WZ3l=560,
 	     ZZ4l_1toInf=570,
+             ZZ4l_powheg=571,
+             ZZ4l_amcatnlo=572,
+             QCD_15=601,
+             QCD_20=602,
 	     WZ3l_Min0p1=580,
 	     unknown=999
 	     // add here more MC types
