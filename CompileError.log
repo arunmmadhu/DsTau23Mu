@@ -1,0 +1,15 @@
+>> Local Products Rules ..... started
+>> Local Products Rules ..... done
+>> Entering Package DsTau23Mu/T3MNtuple
+>> Creating project symlinks
+>> Compiling edm plugin /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillElectrons.cc
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillElectrons.cc:6:10: fatal error: RecoEgamma/EgammaTools/interface/EffectiveAreas.h: No such file or directory
+    6 | #include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillElectrons.cc:6:10: fatal error: RecoEgamma/EgammaTools/interface/EffectiveAreas.h: No such file or directory
+    6 | #include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+gmake: *** [config/SCRAM/GMake/Makefile.rules:1720: tmp/slc7_amd64_gcc10/src/DsTau23Mu/T3MNtuple/plugins/DsTau23MuT3MNtuplePlugin/fillElectrons.cc.o] Error 1
+gmake: *** [There are compilation/build errors. Please see the detail log above.] Error 2
