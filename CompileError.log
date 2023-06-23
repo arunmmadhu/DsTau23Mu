@@ -1,15 +1,272 @@
+[mmadhu@lxplus780]/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src% scram b
 >> Local Products Rules ..... started
 >> Local Products Rules ..... done
->> Entering Package DsTau23Mu/T3MNtuple
+>> Entering Package RecoVertex/AdaptiveVertexFinder
 >> Creating project symlinks
+>> Leaving Package RecoVertex/AdaptiveVertexFinder
+>> Package RecoVertex/AdaptiveVertexFinder built
+>> Subsystem RecoVertex built
+>> Entering Package DsTau23Mu/T3MNtuple
 >> Compiling edm plugin /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillElectrons.cc
-/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillElectrons.cc:6:10: fatal error: RecoEgamma/EgammaTools/interface/EffectiveAreas.h: No such file or directory
-    6 | #include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
-      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-compilation terminated.
-/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillElectrons.cc:6:10: fatal error: RecoEgamma/EgammaTools/interface/EffectiveAreas.h: No such file or directory
-    6 | #include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
-      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-compilation terminated.
-gmake: *** [config/SCRAM/GMake/Makefile.rules:1720: tmp/slc7_amd64_gcc10/src/DsTau23Mu/T3MNtuple/plugins/DsTau23MuT3MNtuplePlugin/fillElectrons.cc.o] Error 1
+>> Compiling edm plugin /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillMCTruth.cc
+>> Compiling edm plugin /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillMuons.cc
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillMuons.cc: In member function 'void T3MNtuple::fillMuons(const edm::Event&, const edm::EventSetup&, const edm::Handle<std::vector<reco::Muon> >&, const edm::Handle<std::vector<reco::Track> >&, const edm::Handle<std::vector<reco::Vertex> >&)':
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillMuons.cc:395:100: warning: 'bool edm::eventsetup::EventSetupRecord::get(const char*, HolderT&) const [with HolderT = edm::ESHandle<TransientTrackBuilder>]' is deprecated [-Wdeprecated-declarations]
+  395 |                   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transTrackBuilder);
+      |                                                                                                    ^
+In file included from /cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetup.h:33,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/interface/T3MNtuple.h:30,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillMuons.cc:1:
+/cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetupRecord.h:115:27: note: declared here
+  115 |       CMS_DEPRECATED bool get(char const* iName, HolderT& iHolder) const {
+      |                           ^~~
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillMuons.cc: In member function 'void T3MNtuple::fillMuons(const edm::Event&, const edm::EventSetup&, const edm::Handle<std::vector<pat::Muon> >&, const edm::Handle<std::vector<reco::Track> >&, const edm::Handle<std::vector<reco::Vertex> >&)':
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillMuons.cc:817:100: warning: 'bool edm::eventsetup::EventSetupRecord::get(const char*, HolderT&) const [with HolderT = edm::ESHandle<TransientTrackBuilder>]' is deprecated [-Wdeprecated-declarations]
+  817 |                   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transTrackBuilder);
+      |                                                                                                    ^
+In file included from /cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetup.h:33,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/interface/T3MNtuple.h:30,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillMuons.cc:1:
+/cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetupRecord.h:115:27: note: declared here
+  115 |       CMS_DEPRECATED bool get(char const* iName, HolderT& iHolder) const {
+      |                           ^~~
+>> Compiling edm plugin /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillPhotons.cc
+>> Compiling edm plugin /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillTaus.cc
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillTaus.cc: In member function 'void T3MNtuple::fillTaus(const edm::Event&, const edm::EventSetup&, const edm::Handle<std::vector<reco::Track> >&, const edm::Handle<std::vector<reco::Vertex> >&, const edm::Handle<reco::BeamSpot>&, const edm::Handle<std::vector<pat::Tau> >&, const edm::Handle<std::vector<reco::Vertex> >&, const edm::Handle<edm::View<pat::PackedCandidate> >&, const edm::Handle<edm::View<pat::PackedCandidate> >&)':
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillTaus.cc:209:85: warning: 'bool edm::eventsetup::EventSetupRecord::get(const char*, HolderT&) const [with HolderT = edm::ESHandle<TransientTrackBuilder>]' is deprecated [-Wdeprecated-declarations]
+  209 |    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transTrackBuilder);
+      |                                                                                     ^
+In file included from /cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetup.h:33,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/interface/T3MNtuple.h:30,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillTaus.cc:1:
+/cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetupRecord.h:115:27: note: declared here
+  115 |       CMS_DEPRECATED bool get(char const* iName, HolderT& iHolder) const {
+      |                           ^~~
+>> Compiling edm plugin /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillThreeMuons.cc
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillThreeMuons.cc: In member function 'int T3MNtuple::fillThreeMuons(const edm::Event&, const edm::EventSetup&, const edm::Handle<std::vector<reco::Muon> >&, const edm::Handle<std::vector<reco::Track> >&, const edm::Handle<reco::BeamSpot>&, const edm::Handle<trigger::TriggerEvent>&)':
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillThreeMuons.cc:22:74: warning: 'bool edm::eventsetup::EventSetupRecord::get(const char*, HolderT&) const [with HolderT = edm::ESHandle<TransientTrackBuilder>]' is deprecated [-Wdeprecated-declarations]
+   22 |       iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+      |                                                                          ^
+In file included from /cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetup.h:33,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/interface/T3MNtuple.h:30,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillThreeMuons.cc:1:
+/cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetupRecord.h:115:27: note: declared here
+  115 |       CMS_DEPRECATED bool get(char const* iName, HolderT& iHolder) const {
+      |                           ^~~
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillThreeMuons.cc: In member function 'int T3MNtuple::fillThreeMuons(const edm::Event&, const edm::EventSetup&, const edm::Handle<std::vector<pat::Muon> >&, const edm::Handle<std::vector<reco::Track> >&, const edm::Handle<reco::BeamSpot>&, const edm::Handle<std::vector<pat::TriggerObjectStandAlone> >&, const edm::TriggerNames&)':
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillThreeMuons.cc:140:74: warning: 'bool edm::eventsetup::EventSetupRecord::get(const char*, HolderT&) const [with HolderT = edm::ESHandle<TransientTrackBuilder>]' is deprecated [-Wdeprecated-declarations]
+  140 |       iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+      |                                                                          ^
+In file included from /cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetup.h:33,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/interface/T3MNtuple.h:30,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillThreeMuons.cc:1:
+/cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetupRecord.h:115:27: note: declared here
+  115 |       CMS_DEPRECATED bool get(char const* iName, HolderT& iHolder) const {
+      |                           ^~~
+>> Compiling edm plugin /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillTracks.cc
+>> Compiling edm plugin /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillTrigger.cc
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillTrigger.cc: In member function 'void T3MNtuple::fillTrigger(const edm::Event&, const edm::EventSetup&, const edm::Handle<edm::TriggerResults>&, const edm::Handle<trigger::TriggerEvent>&, const edm::Handle<std::vector<pat::TriggerObjectStandAlone> >&, const edm::TriggerNames&)':
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillTrigger.cc:35:38: warning: 'bool edm::eventsetup::EventSetupRecord::get(HolderT&) const [with HolderT = edm::ESHandle<L1TGlobalPrescalesVetos>]' is deprecated [-Wdeprecated-declarations]
+   35 |       if(psRcd) psRcd->get(psAndVetos);
+      |                                      ^
+In file included from /cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetup.h:33,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/interface/T3MNtuple.h:30,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillTrigger.cc:1:
+/cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetupRecord.h:110:27: note: declared here
+  110 |       CMS_DEPRECATED bool get(HolderT& iHolder) const {
+      |                           ^~~
+>> Compiling edm plugin /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillTwoMuonsAndTracks.cc
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillTwoMuonsAndTracks.cc: In member function 'int T3MNtuple::fillTwoMuonsAndTracks(const edm::Event&, const edm::EventSetup&, const edm::Handle<std::vector<reco::Muon> >&, const edm::Handle<std::vector<reco::Track> >&, const edm::Handle<reco::BeamSpot>&, const edm::Handle<trigger::TriggerEvent>&)':
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillTwoMuonsAndTracks.cc:24:74: warning: 'bool edm::eventsetup::EventSetupRecord::get(const char*, HolderT&) const [with HolderT = edm::ESHandle<TransientTrackBuilder>]' is deprecated [-Wdeprecated-declarations]
+   24 |       iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+      |                                                                          ^
+In file included from /cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetup.h:33,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/interface/T3MNtuple.h:30,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillTwoMuonsAndTracks.cc:1:
+/cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetupRecord.h:115:27: note: declared here
+  115 |       CMS_DEPRECATED bool get(char const* iName, HolderT& iHolder) const {
+      |                           ^~~
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillTwoMuonsAndTracks.cc: In member function 'int T3MNtuple::fillTwoMuonsAndTracks(const edm::Event&, const edm::EventSetup&, const edm::Handle<std::vector<pat::Muon> >&, const edm::Handle<std::vector<reco::Track> >&, const edm::Handle<reco::BeamSpot>&, const edm::Handle<std::vector<pat::TriggerObjectStandAlone> >&, const edm::TriggerNames&)':
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillTwoMuonsAndTracks.cc:111:74: warning: 'bool edm::eventsetup::EventSetupRecord::get(const char*, HolderT&) const [with HolderT = edm::ESHandle<TransientTrackBuilder>]' is deprecated [-Wdeprecated-declarations]
+  111 |       iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+      |                                                                          ^
+In file included from /cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetup.h:33,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/interface/T3MNtuple.h:30,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillTwoMuonsAndTracks.cc:1:
+/cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetupRecord.h:115:27: note: declared here
+  115 |       CMS_DEPRECATED bool get(char const* iName, HolderT& iHolder) const {
+      |                           ^~~
+>> Compiling edm plugin /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillVertices.cc
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillVertices.cc: In member function 'void T3MNtuple::fillVertices(const edm::Event&, const edm::EventSetup&, const edm::Handle<std::vector<reco::Muon> >&, const edm::Handle<std::vector<reco::Track> >&, const edm::Handle<std::vector<reco::Vertex> >&, const edm::Handle<std::vector<reco::Vertex> >&, const edm::Handle<reco::BeamSpot>&)':
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillVertices.cc:21:71: warning: 'bool edm::eventsetup::EventSetupRecord::get(const char*, HolderT&) const [with HolderT = edm::ESHandle<TransientTrackBuilder>]' is deprecated [-Wdeprecated-declarations]
+   21 |    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+      |                                                                       ^
+In file included from /cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetup.h:33,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/interface/T3MNtuple.h:30,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillVertices.cc:1:
+/cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetupRecord.h:115:27: note: declared here
+  115 |       CMS_DEPRECATED bool get(char const* iName, HolderT& iHolder) const {
+      |                           ^~~
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillVertices.cc:27:77: warning: 'bool edm::eventsetup::EventSetupRecord::get(const char*, HolderT&) const [with HolderT = edm::ESHandle<TransientTrackBuilder>]' is deprecated [-Wdeprecated-declarations]
+   27 |          iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+      |                                                                             ^
+In file included from /cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetup.h:33,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/interface/T3MNtuple.h:30,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillVertices.cc:1:
+/cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetupRecord.h:115:27: note: declared here
+  115 |       CMS_DEPRECATED bool get(char const* iName, HolderT& iHolder) const {
+      |                           ^~~
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillVertices.cc:591:74: warning: 'bool edm::eventsetup::EventSetupRecord::get(const char*, HolderT&) const [with HolderT = edm::ESHandle<TransientTrackBuilder>]' is deprecated [-Wdeprecated-declarations]
+  591 |       iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",TheB);
+      |                                                                          ^
+In file included from /cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetup.h:33,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/interface/T3MNtuple.h:30,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillVertices.cc:1:
+/cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetupRecord.h:115:27: note: declared here
+  115 |       CMS_DEPRECATED bool get(char const* iName, HolderT& iHolder) const {
+      |                           ^~~
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillVertices.cc:684:60: warning: suggest braces around empty body in an 'if' statement [-Wempty-body]
+  684 |             if(FitTrackMu1Ok&&FitTrackMu2Ok&&FitTrackMu3Ok);// dummy; to make it compile
+      |                                                            ^
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillVertices.cc:740:89: warning: 'bool edm::eventsetup::EventSetupRecord::get(const char*, HolderT&) const [with HolderT = edm::ESHandle<TransientTrackBuilder>]' is deprecated [-Wdeprecated-declarations]
+  740 |        iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transTrackBuilder);
+      |                                                                                         ^
+In file included from /cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetup.h:33,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/interface/T3MNtuple.h:30,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillVertices.cc:1:
+/cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetupRecord.h:115:27: note: declared here
+  115 |       CMS_DEPRECATED bool get(char const* iName, HolderT& iHolder) const {
+      |                           ^~~
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillVertices.cc: In member function 'void T3MNtuple::fillVertices(const edm::Event&, const edm::EventSetup&, const edm::Handle<std::vector<pat::Muon> >&, const edm::Handle<std::vector<reco::Track> >&, const edm::Handle<std::vector<reco::Vertex> >&, const edm::Handle<std::vector<reco::VertexCompositePtrCandidate> >&, const edm::Handle<reco::BeamSpot>&)':
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillVertices.cc:941:71: warning: 'bool edm::eventsetup::EventSetupRecord::get(const char*, HolderT&) const [with HolderT = edm::ESHandle<TransientTrackBuilder>]' is deprecated [-Wdeprecated-declarations]
+  941 |    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+      |                                                                       ^
+In file included from /cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetup.h:33,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/interface/T3MNtuple.h:30,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillVertices.cc:1:
+/cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetupRecord.h:115:27: note: declared here
+  115 |       CMS_DEPRECATED bool get(char const* iName, HolderT& iHolder) const {
+      |                           ^~~
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillVertices.cc:947:77: warning: 'bool edm::eventsetup::EventSetupRecord::get(const char*, HolderT&) const [with HolderT = edm::ESHandle<TransientTrackBuilder>]' is deprecated [-Wdeprecated-declarations]
+  947 |          iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+      |                                                                             ^
+In file included from /cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetup.h:33,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/interface/T3MNtuple.h:30,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillVertices.cc:1:
+/cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetupRecord.h:115:27: note: declared here
+  115 |       CMS_DEPRECATED bool get(char const* iName, HolderT& iHolder) const {
+      |                           ^~~
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillVertices.cc:1553:74: warning: 'bool edm::eventsetup::EventSetupRecord::get(const char*, HolderT&) const [with HolderT = edm::ESHandle<TransientTrackBuilder>]' is deprecated [-Wdeprecated-declarations]
+ 1553 |       iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",TheB);
+      |                                                                          ^
+In file included from /cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetup.h:33,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/interface/T3MNtuple.h:30,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillVertices.cc:1:
+/cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetupRecord.h:115:27: note: declared here
+  115 |       CMS_DEPRECATED bool get(char const* iName, HolderT& iHolder) const {
+      |                           ^~~
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillVertices.cc:1657:60: warning: suggest braces around empty body in an 'if' statement [-Wempty-body]
+ 1657 |             if(FitTrackMu1Ok&&FitTrackMu2Ok&&FitTrackMu3Ok);// dummy; to make it compile
+      |                                                            ^
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillVertices.cc:1714:96: warning: 'bool edm::eventsetup::EventSetupRecord::get(const char*, HolderT&) const [with HolderT = edm::ESHandle<TransientTrackBuilder>]' is deprecated [-Wdeprecated-declarations]
+ 1714 |               iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transTrackBuilder);
+      |                                                                                                ^
+In file included from /cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetup.h:33,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/interface/T3MNtuple.h:30,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/fillVertices.cc:1:
+/cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetupRecord.h:115:27: note: declared here
+  115 |       CMS_DEPRECATED bool get(char const* iName, HolderT& iHolder) const {
+      |                           ^~~
+>> Compiling edm plugin /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/findThreeMuonsCandidates.cc
+>> Compiling edm plugin /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/DsTau23Mu/T3MNtuple/plugins/findTwoMuonsTrackCandidates.cc
+>> Building LCG reflex dict from header file src/DsTau23Mu/T3MNtuple/src/classes.h
+>> Compiling LCG dictionary: tmp/slc7_amd64_gcc10/src/DsTau23Mu/T3MNtuple/src/DsTau23MuT3MNtuple/a/DsTau23MuT3MNtuple_xr.cc
+>> Building  shared library tmp/slc7_amd64_gcc10/src/DsTau23Mu/T3MNtuple/src/DsTau23MuT3MNtuple/libDsTau23MuT3MNtuple.so
+Copying tmp/slc7_amd64_gcc10/src/DsTau23Mu/T3MNtuple/src/DsTau23MuT3MNtuple/libDsTau23MuT3MNtuple.so to productstore area:
+>> Checking EDM Class Version for src/DsTau23Mu/T3MNtuple/src/classes_def.xml in libDsTau23MuT3MNtuple.so
+TClassTable::Add:0: RuntimeWarning: class edm::Wrapper<edm::Association<vector<reco::Track> > > already in TClassTable
+@@@@ ----> OK  EDM Class Version
+>> Checking EDM Class Transients in libDsTau23MuT3MNtuple.so
+Warning in <TInterpreter::ReadRootmapFile>: class  edm::Wrapper<edm::Association<vector<reco::Track> > > found in libDataFormatsTrackReco.so  is already in libDsTau23MuT3MNtuple.so
+TClassTable::Add:0: RuntimeWarning: class edm::Wrapper<edm::Association<vector<reco::Track> > > already in TClassTable
+@@@@ ----> OK  EDM Class Transients
+Leaving library rule at DsTau23Mu/T3MNtuple
+>> Entering Package RecoEgamma/EgammaTools
+Entering library rule at RecoEgamma/EgammaTools
+>> Compiling  /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/AnyMVAEstimatorRun2Base.cc
+>> Compiling  /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/BaselinePFSCRegression.cc
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/BaselinePFSCRegression.cc: In member function 'void BaselinePFSCRegression::update(const edm::EventSetup&)':
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/BaselinePFSCRegression.cc:13:30: warning: 'bool edm::eventsetup::EventSetupRecord::get(HolderT&) const [with HolderT = edm::ESHandle<CaloTopology>]' is deprecated [-Wdeprecated-declarations]
+   13 |     topo_record->get(calotopo);
+      |                              ^
+In file included from /cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetupRecordImplementation.h:26,
+                 from /cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/CondFormats/DataRecord/interface/GBRWrapperRcd.h:22,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/interface/SCRegressionCalculator.h:4,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/interface/BaselinePFSCRegression.h:4,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/BaselinePFSCRegression.cc:1:
+/cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetupRecord.h:110:27: note: declared here
+  110 |       CMS_DEPRECATED bool get(HolderT& iHolder) const {
+      |                           ^~~
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/BaselinePFSCRegression.cc:18:30: warning: 'bool edm::eventsetup::EventSetupRecord::get(HolderT&) const [with HolderT = edm::ESHandle<CaloGeometry>]' is deprecated [-Wdeprecated-declarations]
+   18 |     geom_record->get(calogeom);
+      |                              ^
+In file included from /cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetupRecordImplementation.h:26,
+                 from /cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/CondFormats/DataRecord/interface/GBRWrapperRcd.h:22,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/interface/SCRegressionCalculator.h:4,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/interface/BaselinePFSCRegression.h:4,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/BaselinePFSCRegression.cc:1:
+/cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetupRecord.h:110:27: note: declared here
+  110 |       CMS_DEPRECATED bool get(HolderT& iHolder) const {
+      |                           ^~~
+>> Compiling  /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/ConversionLikelihoodCalculator.cc
+>> Compiling  /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/ECALPositionCalculator.cc
+>> Compiling  /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/EGEnergyCorrector.cc
+>> Compiling  /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/EGEnergyCorrectorFactoryFromEventSetup.cc
+>> Compiling  /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/EGEnergySysIndex.cc
+>> Compiling  /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/EcalClusterLocal.cc
+>> Compiling  /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/EcalRegressionData.cc
+>> Compiling  /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/EgammaDNNHelper.cc
+>> Compiling  /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/EgammaPCAHelper.cc
+>> Compiling  /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/EgammaRandomSeeds.cc
+>> Compiling  /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/EgammaRegressionContainer.cc
+>> Compiling  /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/ElectronEnergyCalibrator.cc
+>> Compiling  /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/EnergyScaleCorrection.cc
+>> Compiling  /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/EpCombinationTool.cc
+>> Compiling  /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/HGCalClusterTools.cc
+>> Compiling  /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/HGCalEgammaIDHelper.cc
+>> Compiling  /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/HGCalIsoCalculator.cc
+>> Compiling  /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/HGCalShowerShapeHelper.cc
+>> Compiling  /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/HoECalculator.cc
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/HoECalculator.cc: In member function 'double HoECalculator::getHoE(GlobalPoint, float, const edm::Event&, const edm::EventSetup&)':
+/afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/HoECalculator.cc:47:49: warning: 'bool edm::eventsetup::EventSetupRecord::get(HolderT&) const [with HolderT = edm::ESHandle<CaloGeometry>]' is deprecated [-Wdeprecated-declarations]
+   47 |     c.get<CaloGeometryRecord>().get(theCaloGeom_);
+      |                                                 ^
+In file included from /cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetup.h:33,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/interface/HoECalculator.h:5,
+                 from /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/HoECalculator.cc:1:
+/cvmfs/cms.cern.ch/slc7_amd64_gcc10/cms/cmssw-patch/CMSSW_12_4_11_patch3/src/FWCore/Framework/interface/EventSetupRecord.h:110:27: note: declared here
+  110 |       CMS_DEPRECATED bool get(HolderT& iHolder) const {
+      |                           ^~~
+>> Compiling  /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/LongDeps.cc
+>> Compiling  /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/LowPtConversion.cc
+>> Compiling  /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/MVAVariableHelper.cc
+>> Compiling  /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/PhotonEnergyCalibrator.cc
+>> Compiling  /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/ShowerDepth.cc
+>> Compiling  /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/egEnergyCorrectorFactoryFromRootFile.cc
+>> Compiling  /afs/cern.ch/work/m/mmadhu/T3M/Setup/Tools/ControlScripts/ZTauTuple_Data_Run3/CMSSW_12_4_11_patch3/src/RecoEgamma/EgammaTools/src/validateEgammaCandidate.cc
+>> Building  shared library tmp/slc7_amd64_gcc10/src/RecoEgamma/EgammaTools/src/RecoEgammaEgammaTools/libRecoEgammaEgammaTools.so
+Copying tmp/slc7_amd64_gcc10/src/RecoEgamma/EgammaTools/src/RecoEgammaEgammaTools/libRecoEgammaEgammaTools.so to productstore area:
+Leaving library rule at RecoEgamma/EgammaTools
+>> Building  edm plugin tmp/slc7_amd64_gcc10/src/DsTau23Mu/T3MNtuple/plugins/DsTau23MuT3MNtuplePlugin/libDsTau23MuT3MNtuplePlugin.so
+/cvmfs/cms.cern.ch/slc7_amd64_gcc10/external/gcc/10.3.0-84898dea653199466402e67d73657f10/bin/../lib/gcc/x86_64-unknown-linux-gnu/10.3.0/../../../../x86_64-unknown-linux-gnu/bin/ld: tmp/slc7_amd64_gcc10/src/DsTau23Mu/T3MNtuple/plugins/DsTau23MuT3MNtuplePlugin/T3MNtuple.cc.o: in function `std::_Function_handler<void (edm::BranchDescription const&), std::reference_wrapper<l1t::L1TGlobalUtilHelper> >::_M_invoke(std::_Any_data const&, edm::BranchDescription const&)':
+T3MNtuple.cc:(.text._ZNSt17_Function_handlerIFvRKN3edm17BranchDescriptionEESt17reference_wrapperIN3l1t19L1TGlobalUtilHelperEEE9_M_invokeERKSt9_Any_dataS3_[_ZNSt17_Function_handlerIFvRKN3edm17BranchDescriptionEESt17reference_wrapperIN3l1t19L1TGlobalUtilHelperEEE9_M_invokeERKSt9_Any_dataS3_]+0x4): undefined reference to `l1t::L1TGlobalUtilHelper::operator()(edm::BranchDescription const&)'
+/cvmfs/cms.cern.ch/slc7_amd64_gcc10/external/gcc/10.3.0-84898dea653199466402e67d73657f10/bin/../lib/gcc/x86_64-unknown-linux-gnu/10.3.0/../../../../x86_64-unknown-linux-gnu/bin/ld: tmp/slc7_amd64_gcc10/src/DsTau23Mu/T3MNtuple/plugins/DsTau23MuT3MNtuplePlugin/T3MNtuple.cc.o: in function `l1t::L1TGlobalUtil::L1TGlobalUtil<T3MNtuple>(edm::ParameterSet const&, edm::ConsumesCollector&, T3MNtuple&, edm::InputTag const&, edm::InputTag const&, l1t::UseEventSetupIn)':
+T3MNtuple.cc:(.text._ZN3l1t13L1TGlobalUtilC2I9T3MNtupleEERKN3edm12ParameterSetERNS3_17ConsumesCollectorERT_RKNS3_8InputTagESD_NS_15UseEventSetupInE[_ZN3l1t13L1TGlobalUtilC5I9T3MNtupleEERKN3edm12ParameterSetERNS3_17ConsumesCollectorERT_RKNS3_8InputTagESD_NS_15UseEventSetupInE]+0x23): undefined reference to `l1t::L1TGlobalUtil::L1TGlobalUtil()'
+/cvmfs/cms.cern.ch/slc7_amd64_gcc10/external/gcc/10.3.0-84898dea653199466402e67d73657f10/bin/../lib/gcc/x86_64-unknown-linux-gnu/10.3.0/../../../../x86_64-unknown-linux-gnu/bin/ld: T3MNtuple.cc:(.text._ZN3l1t13L1TGlobalUtilC2I9T3MNtupleEERKN3edm12ParameterSetERNS3_17ConsumesCollectorERT_RKNS3_8InputTagESD_NS_15UseEventSetupInE[_ZN3l1t13L1TGlobalUtilC5I9T3MNtupleEERKN3edm12ParameterSetERNS3_17ConsumesCollectorERT_RKNS3_8InputTagESD_NS_15UseEventSetupInE]+0x137): undefined reference to `l1t::L1TGlobalUtil::eventSetupConsumes(edm::ConsumesCollector&, l1t::UseEventSetupIn)'
+/cvmfs/cms.cern.ch/slc7_amd64_gcc10/external/gcc/10.3.0-84898dea653199466402e67d73657f10/bin/../lib/gcc/x86_64-unknown-linux-gnu/10.3.0/../../../../x86_64-unknown-linux-gnu/bin/ld: T3MNtuple.cc:(.text._ZN3l1t13L1TGlobalUtilC2I9T3MNtupleEERKN3edm12ParameterSetERNS3_17ConsumesCollectorERT_RKNS3_8InputTagESD_NS_15UseEventSetupInE[_ZN3l1t13L1TGlobalUtilC5I9T3MNtupleEERKN3edm12ParameterSetERNS3_17ConsumesCollectorERT_RKNS3_8InputTagESD_NS_15UseEventSetupInE]+0x168): undefined reference to `l1t::L1TGlobalUtil::~L1TGlobalUtil()'
+/cvmfs/cms.cern.ch/slc7_amd64_gcc10/external/gcc/10.3.0-84898dea653199466402e67d73657f10/bin/../lib/gcc/x86_64-unknown-linux-gnu/10.3.0/../../../../x86_64-unknown-linux-gnu/bin/ld: tmp/slc7_amd64_gcc10/src/DsTau23Mu/T3MNtuple/plugins/DsTau23MuT3MNtuplePlugin/fillTrigger.cc.o: in function `T3MNtuple::fillTrigger(edm::Event const&, edm::EventSetup const&, edm::Handle<edm::TriggerResults> const&, edm::Handle<trigger::TriggerEvent> const&, edm::Handle<std::vector<pat::TriggerObjectStandAlone, std::allocator<pat::TriggerObjectStandAlone> > > const&, edm::TriggerNames const&)':
+fillTrigger.cc:(.text+0x1f4): undefined reference to `l1t::L1TGlobalUtil::retrieveL1(edm::Event const&, edm::EventSetup const&, edm::EDGetToken)'
+/cvmfs/cms.cern.ch/slc7_amd64_gcc10/external/gcc/10.3.0-84898dea653199466402e67d73657f10/bin/../lib/gcc/x86_64-unknown-linux-gnu/10.3.0/../../../../x86_64-unknown-linux-gnu/bin/ld: fillTrigger.cc:(.text+0x156d): undefined reference to `char const* edm::typelookup::className<L1TGlobalPrescalesVetos>()'
+collect2: error: ld returned 1 exit status
+gmake: *** [config/SCRAM/GMake/Makefile.rules:1720: tmp/slc7_amd64_gcc10/src/DsTau23Mu/T3MNtuple/plugins/DsTau23MuT3MNtuplePlugin/libDsTau23MuT3MNtuplePlugin.so] Error 1
 gmake: *** [There are compilation/build errors. Please see the detail log above.] Error 2
