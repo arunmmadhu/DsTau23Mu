@@ -9,7 +9,8 @@ void T3MNtuple::fillTrigger(const edm::Event& iEvent,
 {
   //  std::cout<<"do we Fill trigger ???  "<< std::endl;
 
-   gtUtil_->retrieveL1(iEvent, iSetup, algToken_);
+  gtUtil_->retrieveL1(iEvent, iSetup, algToken_);
+  //   gtUtil_->retrieveL1Setup(iEvent, iSetup, algToken_);
    const vector<pair<string, bool> > initialDecisions = gtUtil_->decisionsInitial();
 
    if (!iEvent.isRealData())
@@ -45,7 +46,9 @@ void T3MNtuple::fillTrigger(const edm::Event& iEvent,
             Trigger_l1prescale.push_back( (psAndVetos->prescale_table_)[columnN][i_l1t]);
          }
       }
-   } 
+   }
+
+
 
    for (size_t i_hlt = 0; i_hlt != triggerBitsH->size(); ++i_hlt)
    {

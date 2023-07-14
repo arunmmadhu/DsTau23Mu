@@ -64,7 +64,11 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
 {
 
 
-   gtUtil_ = new L1TGlobalUtil(iConfig, consumesCollector(), *this, algInputTag_, algInputTag_);
+  //   gtUtil_ = new L1TGlobalUtil(iConfig, consumesCollector(), *this, algInputTag_, algInputTag_, UseEventSetupIn::Run);
+   l1t::UseEventSetupIn useEventSetupIn = l1t::UseEventSetupIn::Run;
+   gtUtil_ =  new L1TGlobalUtil(iConfig, consumesCollector(), *this, algInputTag_, algInputTag_, useEventSetupIn);
+
+   //   gtUtil_ = new L1TGlobalUtil(iConfig, ConsumesCollector(), UseEventSetupIn::Run);
    doMC_ = iConfig.getParameter<bool>("doMC");
    doFullMC_ = iConfig.getParameter<bool>("doFullMC");
    wideSB_ = iConfig.getParameter<bool>("wideSB");

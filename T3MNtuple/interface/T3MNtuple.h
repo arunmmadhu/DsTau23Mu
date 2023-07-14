@@ -60,6 +60,12 @@ Implementation:
 #include "RecoMuon/MuonIdentification/interface/MuonCaloCompatibility.h"
 #include "DataFormats/MuonReco/interface/MuonShower.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+
+#include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
+#include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
+
+#include "L1Trigger/L1TGlobal/interface/L1TGlobalUtil.h"
+ 
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -92,7 +98,6 @@ Implementation:
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
-#include "L1Trigger/L1TGlobal/interface/L1TGlobalUtil.h"
 #include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosRcd.h"
