@@ -4,6 +4,7 @@
   <class name="std::vector<double, std::allocator<double> > " />
   <class name="std::vector<std::vector<double, std::allocator<double> > > " />
   <class name="std::vector< std::vector<std::vector<double > > >  " />
+  <class name="std::vector< std::vector<std::vector<float > > >  " />
 
   <class name="std::vector< std::vector<int > >   " />
   <class name="std::vector< std::vector<unsigned int > >   " />
