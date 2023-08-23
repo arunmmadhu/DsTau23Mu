@@ -7,13 +7,13 @@ void T3MNtuple::fillTrigger(const edm::Event& iEvent,
                             const Handle<vector<pat::TriggerObjectStandAlone> >& triggerObjects,
                             const TriggerNames& triggerNames)
 {
-  std::cout<<" 11111111111111111 "<< std::endl;
+  //  std::cout<<" 11111111111111111 "<< std::endl;
   //  gtUtil_->retrieveL1(iEvent, iSetup, algToken_); // <<<< ------------------
   //  edm::EDGetToken gtAlgToken;
   //  gtUtil_->retrieveL1(iEvent, iSetup); // <<<< ------------------
   //  gtUtil_->retrieveL1(iEvent,  iSetup,  gtAlgToken); // <<<< ------------------
 
-  std::cout<<" 22222222222 "<< std::endl;
+  //  std::cout<<" 22222222222 "<< std::endl;
   //   gtUtil_->retrieveL1Setup(iEvent, iSetup, algToken_);
 
 
@@ -61,7 +61,7 @@ void T3MNtuple::fillTrigger(const edm::Event& iEvent,
 
 
 
-   std::cout<<"  fill trigger deb 3 "<< std::endl;
+
    for (size_t i_hlt = 0; i_hlt != triggerBitsH->size(); ++i_hlt)
    {
       string hltName = triggerNames.triggerName(i_hlt);
