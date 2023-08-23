@@ -37,6 +37,7 @@ unsigned int DataMCType::GetType(TString name){
   if(name=="d_muomegamumu_mumupi0")     return D_MuOmegaMuMu_MuMuPi0;
   if(name=="bbcc2mu")                   return bbcc2mu;
   if(name=="bbcc3mu")                   return bbcc3mu;
+  if(name=="dimuon_minbias")            return dimuon_minbias;
   if(name=="dy_ll")                     return DY_ll;
   if(name=="dy_tautau")                 return DY_tautau;
   if(name=="ww")                        return WW;
@@ -97,7 +98,7 @@ unsigned int DataMCType::SignalCode(unsigned int type,unsigned int JAK_ID1, unsi
 
 bool DataMCType::isSignalParticle(int pdg_id){
   unsigned int pdgid=abs(pdg_id);
-  if(pdgid==PDGInfo::Ds_plus || pdgid==PDGInfo::B_plus || pdgid==PDGInfo::B_0  || pdgid ==PDGInfo::Z0  || pdgid == PDGIngo::W_plus || pdgid == PDGIngo::W_minus){
+  if(pdgid==PDGInfo::Ds_plus || pdgid==PDGInfo::B_plus || pdgid==PDGInfo::B_0  || pdgid ==PDGInfo::Z0  || pdgid == PDGInfo::W_plus){
     return true;
   }
   return false; 

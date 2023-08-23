@@ -12,6 +12,7 @@ class DataMCType{
 	     B_Tau=50,
 	     B0_Tau=60,
 	     Bp_Tau=90,
+	     dimuon_minbias=111,
 	     bbcc2mu=119,
 	     bbcc3mu=120,
 	     Tau_3Mu2Nu=121,
