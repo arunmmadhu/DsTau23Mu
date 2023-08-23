@@ -54,6 +54,7 @@ unsigned int DataMCType::GetType(TString name){
 
 
   if(name=="z2tautau_tau3mu")           return z2tautau_tau3mu;
+  if(name=="w_tau3mu")                  return w_tau3mu;
 
   std::cout << "ERROR: Data/MC Type " << name << " UNKNOWN!!!! " << std::endl;
   return unknown;
@@ -96,7 +97,7 @@ unsigned int DataMCType::SignalCode(unsigned int type,unsigned int JAK_ID1, unsi
 
 bool DataMCType::isSignalParticle(int pdg_id){
   unsigned int pdgid=abs(pdg_id);
-  if(pdgid==PDGInfo::Ds_plus || pdgid==PDGInfo::B_plus || pdgid==PDGInfo::B_0  || pdgid ==PDGInfo::Z0 ){
+  if(pdgid==PDGInfo::Ds_plus || pdgid==PDGInfo::B_plus || pdgid==PDGInfo::B_0  || pdgid ==PDGInfo::Z0  || pdgid == PDGIngo::W_plus || pdgid == PDGIngo::W_minus){
     return true;
   }
   return false; 

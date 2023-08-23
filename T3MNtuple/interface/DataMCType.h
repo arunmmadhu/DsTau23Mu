@@ -29,6 +29,7 @@ class DataMCType{
 	     DY_ll=200,
 	     DY_tautau=205,
 	     z2tautau_tau3mu=210,
+	     w_tau3mu=220,
 	     WW=510,
 	     WGl=520,
 	     ZGmumu=530,
