@@ -384,9 +384,10 @@ class T3MNtuple : public edm::EDAnalyzer {
       EDGetTokenT<edm::View<pat::PackedCandidate>> tracks_Token_;
 
 
-      edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> m_l1TriggerMenuToken;
-      edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> m_L1TUtmTriggerMenuRunToken;
+  //      edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> m_l1TriggerMenuToken;
+  //      edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> m_L1TUtmTriggerMenuRunToken;
       const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> ttkToken_;
+      edm::EDGetToken algTok_;
       edm::EDGetToken gtAlgToken;
 
       TString sampleType_;
@@ -863,7 +864,8 @@ class T3MNtuple : public edm::EDAnalyzer {
       TH1F *h_phimass;
       TH1F *h_svmass;
       TH1F *h_phimassj;
-      InputTag algInputTag_;
+      edm::InputTag algInputTag_;
+      const edm::InputTag algTag_, extTag_;
       int cnt_;
 };
 

@@ -7,20 +7,8 @@ void T3MNtuple::fillTrigger(const edm::Event& iEvent,
                             const Handle<vector<pat::TriggerObjectStandAlone> >& triggerObjects,
                             const TriggerNames& triggerNames)
 {
-  //  std::cout<<" 11111111111111111 "<< std::endl;
-  //  gtUtil_->retrieveL1(iEvent, iSetup, algToken_); // <<<< ------------------
-  //  edm::EDGetToken gtAlgToken;
-  //  gtUtil_->retrieveL1(iEvent, iSetup); // <<<< ------------------
-  //  gtUtil_->retrieveL1(iEvent,  iSetup,  gtAlgToken); // <<<< ------------------
 
-  //  std::cout<<" 22222222222 "<< std::endl;
-  //   gtUtil_->retrieveL1Setup(iEvent, iSetup, algToken_);
-
-
-
-
-  /*  
-
+  gtUtil_->retrieveL1(iEvent, iSetup, algTok_);
    const vector<pair<string, bool> > initialDecisions = gtUtil_->decisionsInitial();
    if (!iEvent.isRealData())
    {
@@ -38,6 +26,8 @@ void T3MNtuple::fillTrigger(const edm::Event& iEvent,
          }
       }
    }
+
+
    else
    {
       std::cout<<"  fill trigger deb 2 "<< std::endl;
@@ -57,7 +47,7 @@ void T3MNtuple::fillTrigger(const edm::Event& iEvent,
          }
       }
    }
-  */
+  
 
 
 

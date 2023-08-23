@@ -59,10 +59,11 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
    goodPVToken_(consumes<vector<Vertex>>(iConfig.getParameter<InputTag>("goodPVTag"))),
    thePFCandToken_(consumes<edm::View<pat::PackedCandidate>>        (iConfig.getParameter<edm::InputTag>("thePFCandTag"))),
    tracks_Token_(consumes<edm::View<pat::PackedCandidate>>(edm::InputTag("packedPFCandidates"))),
-   m_l1TriggerMenuToken(esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>()),
-   m_L1TUtmTriggerMenuRunToken(esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd, edm::Transition::BeginRun>()),
+//   m_l1TriggerMenuToken(esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>()),
+//   m_L1TUtmTriggerMenuRunToken(esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd, edm::Transition::BeginRun>()),
 //  ttkToken_(esConsumes<TransientTrackBuilder, TransientTrackRecord>()),
    ttkToken_(esConsumes(edm::ESInputTag{"", "TransientTrackBuilder"})),
+   algTok_(consumes<BXVector<GlobalAlgBlk>>(iConfig.getParameter<edm::InputTag>("algInputTag"))),
    sampleType_(iConfig.getUntrackedParameter<string>("DataMCType",""))
 
 {
@@ -76,7 +77,8 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
    l1t::UseEventSetupIn useEventSetupIn = l1t::UseEventSetupIn::Run;
    //   _L1TUtmTriggerMenuRunToken = iC.esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd, edm::Transition::BeginRun>();
    //   gtUtil_ =  new L1TGlobalUtil(iConfig, consumesCollector(), *this, algInputTag_, algInputTag_, useEventSetupIn);
-   gtUtil_ =  new L1TGlobalUtil(iConfig, consumesCollector(), *this,  useEventSetupIn);
+   //   gtUtil_ =  new L1TGlobalUtil(iConfig, consumesCollector(), *this,  useEventSetupIn);
+   gtUtil_ = new l1t::L1TGlobalUtil(iConfig, consumesCollector(), *this, algTag_, extTag_, l1t::UseEventSetupIn::Event);
    //   gtUtil_ =  new L1TGlobalUtil(iConfig, consumesCollector(), *this, m_l1TriggerMenuToken, m_l1TriggerMenuToken, useEventSetupIn);
    //gtUtil_ =  new L1TGlobalUtil(iConfig, consumesCollector(), useEventSetupIn);
 
