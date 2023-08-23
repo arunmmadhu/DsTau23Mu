@@ -8,8 +8,10 @@ void T3MNtuple::fillTrigger(const edm::Event& iEvent,
                             const TriggerNames& triggerNames)
 {
 
-  gtUtil_->retrieveL1(iEvent, iSetup, algTok_);
+   gtUtil_->retrieveL1(iEvent, iSetup, algTok_);
    const vector<pair<string, bool> > initialDecisions = gtUtil_->decisionsInitial();
+   const vector<pair<string, double> > PSValues = gtUtil_->prescales();
+
    if (!iEvent.isRealData())
    {
       for (size_t i_l1t = 0; i_l1t < initialDecisions.size(); i_l1t++){
@@ -30,11 +32,11 @@ void T3MNtuple::fillTrigger(const edm::Event& iEvent,
 
    else
    {
-      std::cout<<"  fill trigger deb 2 "<< std::endl;
-      ESHandle<L1TGlobalPrescalesVetos> psAndVetos;
-      auto psRcd = iSetup.tryToGet<L1TGlobalPrescalesVetosRcd>();
-      if(psRcd) psRcd->get(psAndVetos);
-      int columnN= gtUtil_->prescaleColumn();
+     //      std::cout<<"  fill trigger deb 2 "<< std::endl;
+     //      ESHandle<L1TGlobalPrescalesVetos> psAndVetos;
+     //      auto psRcd = iSetup.tryToGet<L1TGlobalPrescalesVetosRcd>();
+     //      if(psRcd) psRcd->get(psAndVetos);
+     //      int columnN= gtUtil_->prescaleColumn();
       for (size_t i_l1t = 0; i_l1t < initialDecisions.size(); i_l1t++) {
          string l1tName = (initialDecisions.at(i_l1t)).first;
 	 
@@ -43,7 +45,7 @@ void T3MNtuple::fillTrigger(const edm::Event& iEvent,
          {
             Trigger_l1name.push_back( l1tName );
             Trigger_l1decision.push_back( initialDecisions.at(i_l1t).second );
-            Trigger_l1prescale.push_back( (psAndVetos->prescale_table_)[columnN][i_l1t]);
+            Trigger_l1prescale.push_back( PSValues.at(i_l1t).second );
          }
       }
    }
