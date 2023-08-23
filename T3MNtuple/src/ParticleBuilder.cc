@@ -8,7 +8,9 @@
 #include <TVector3.h>
 
 
-LorentzVectorParticle ParticleBuilder::CreateLorentzVectorParticle(reco::TransientTrack &transTrk, edm::ESHandle<TransientTrackBuilder>  &transTrackBuilder,reco::Vertex &V, bool fromPerigee,bool useTrackHelixPropogation){
+//LorentzVectorParticle ParticleBuilder::CreateLorentzVectorParticle(reco::TransientTrack &transTrk, edm::ESHandle<TransientTrackBuilder>  &transTrackBuilder,reco::Vertex &V, bool fromPerigee,bool useTrackHelixPropogation){
+
+LorentzVectorParticle ParticleBuilder::CreateLorentzVectorParticle(reco::TransientTrack &transTrk,  const TransientTrackBuilder* transTrackBuilder, reco::Vertex &V, bool fromPerigee,bool useTrackHelixPropogation){
   GlobalPoint p(V.position().x(),V.position().y(),V.position().z());
   TrackParticle tp=CreateTrackParticle(transTrk,transTrackBuilder,p,fromPerigee,useTrackHelixPropogation);
 
@@ -40,7 +42,7 @@ LorentzVectorParticle ParticleBuilder::CreateLorentzVectorParticle(reco::Transie
 }
 
 
-TrackParticle ParticleBuilder::CreateTrackParticle(reco::TransientTrack &transTrk, edm::ESHandle<TransientTrackBuilder>  &transTrackBuilder, const GlobalPoint p, bool fromPerigee,bool useTrackHelixPropogation){
+TrackParticle ParticleBuilder::CreateTrackParticle(reco::TransientTrack &transTrk, const TransientTrackBuilder* transTrackBuilder, const GlobalPoint p, bool fromPerigee,bool useTrackHelixPropogation){
   // Configured for CMSSW Tracks only
   TMatrixT<double>    par(TrackParticle::NHelixPar+1,1);
   TMatrixTSym<double> cov(TrackParticle::NHelixPar+1);

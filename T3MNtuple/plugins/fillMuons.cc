@@ -391,9 +391,12 @@ void T3MNtuple::fillMuons( const edm::Event& iEvent,
                Muon_cov.push_back(std::vector<float>());
                if (Track.isNonnull()) {
                   GlobalPoint pvpoint(Track->vx(), Track->vy(), Track->vz());
-                  edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
-                  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transTrackBuilder);
+		  //                  edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
+                  //iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transTrackBuilder);
+		  
+		  const TransientTrackBuilder* transTrackBuilder = &iSetup.getData(ttkToken_);
                   reco::TransientTrack transTrk = transTrackBuilder->build(Track);
+
                   TrackParticle trackparticle = ParticleBuilder::CreateTrackParticle(transTrk, transTrackBuilder, pvpoint, true, true);
                   Muon_trackCharge.push_back(trackparticle.Charge());
                   Muon_pdgid.push_back(trackparticle.PDGID());
@@ -813,8 +816,9 @@ void T3MNtuple::fillMuons( const edm::Event& iEvent,
                Muon_cov.push_back(std::vector<float>());
                if (Track.isNonnull()) {
                   GlobalPoint pvpoint(Track->vx(), Track->vy(), Track->vz());
-                  edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
-                  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transTrackBuilder);
+		  //                  edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
+		  //                  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transTrackBuilder);
+		  const TransientTrackBuilder* transTrackBuilder = &iSetup.getData(ttkToken_);
                   reco::TransientTrack transTrk = transTrackBuilder->build(Track);
                   TrackParticle trackparticle = ParticleBuilder::CreateTrackParticle(transTrk, transTrackBuilder, pvpoint, true, true);
                   Muon_trackCharge.push_back(trackparticle.Charge());

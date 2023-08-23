@@ -7,12 +7,21 @@ void T3MNtuple::fillTrigger(const edm::Event& iEvent,
                             const Handle<vector<pat::TriggerObjectStandAlone> >& triggerObjects,
                             const TriggerNames& triggerNames)
 {
-  //  std::cout<<"do we Fill trigger ???  "<< std::endl;
+  std::cout<<" 11111111111111111 "<< std::endl;
+  //  gtUtil_->retrieveL1(iEvent, iSetup, algToken_); // <<<< ------------------
+  //  edm::EDGetToken gtAlgToken;
+  //  gtUtil_->retrieveL1(iEvent, iSetup); // <<<< ------------------
+  //  gtUtil_->retrieveL1(iEvent,  iSetup,  gtAlgToken); // <<<< ------------------
 
-  gtUtil_->retrieveL1(iEvent, iSetup, algToken_);
+  std::cout<<" 22222222222 "<< std::endl;
   //   gtUtil_->retrieveL1Setup(iEvent, iSetup, algToken_);
-   const vector<pair<string, bool> > initialDecisions = gtUtil_->decisionsInitial();
 
+
+
+
+  /*  
+
+   const vector<pair<string, bool> > initialDecisions = gtUtil_->decisionsInitial();
    if (!iEvent.isRealData())
    {
       for (size_t i_l1t = 0; i_l1t < initialDecisions.size(); i_l1t++){
@@ -31,6 +40,7 @@ void T3MNtuple::fillTrigger(const edm::Event& iEvent,
    }
    else
    {
+      std::cout<<"  fill trigger deb 2 "<< std::endl;
       ESHandle<L1TGlobalPrescalesVetos> psAndVetos;
       auto psRcd = iSetup.tryToGet<L1TGlobalPrescalesVetosRcd>();
       if(psRcd) psRcd->get(psAndVetos);
@@ -38,7 +48,7 @@ void T3MNtuple::fillTrigger(const edm::Event& iEvent,
       for (size_t i_l1t = 0; i_l1t < initialDecisions.size(); i_l1t++) {
          string l1tName = (initialDecisions.at(i_l1t)).first;
 	 
-	 //         if(l1tName.find("DoubleMu") != string::npos || l1tName.find("TripleMu") != string::npos || l1tName.find("SingleMu"))  
+	 // if(l1tName.find("DoubleMu") != string::npos || l1tName.find("TripleMu") != string::npos || l1tName.find("SingleMu"))  
 	 // lets keep all L1's
          {
             Trigger_l1name.push_back( l1tName );
@@ -47,9 +57,11 @@ void T3MNtuple::fillTrigger(const edm::Event& iEvent,
          }
       }
    }
+  */
 
 
 
+   std::cout<<"  fill trigger deb 3 "<< std::endl;
    for (size_t i_hlt = 0; i_hlt != triggerBitsH->size(); ++i_hlt)
    {
       string hltName = triggerNames.triggerName(i_hlt);

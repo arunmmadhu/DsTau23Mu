@@ -205,9 +205,11 @@ void T3MNtuple::fillTaus(const edm::Event& iEvent,
 
 
 	  std::vector<double > PFTauTrackLV;    
-	  edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
-	  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transTrackBuilder);
+	  //	  edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
+	  //	  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transTrackBuilder);
 
+
+	  const TransientTrackBuilder* transTrackBuilder = &iSetup.getData(ttkToken_);
 
 	  int NTau = Tau_a1_lvp.size();
 	  Tau_SVPos.push_back(std::vector<float>());

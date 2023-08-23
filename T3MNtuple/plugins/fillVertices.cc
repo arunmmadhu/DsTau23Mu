@@ -17,14 +17,18 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
 
    std::vector<std::vector<std::vector<double> > > particles_p4;
    std::vector<std::vector<TransientTrack> > signalTracksCollection;
-   ESHandle<TransientTrackBuilder> theB;
-   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+   //   ESHandle<TransientTrackBuilder> theB;
+   //   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+
+   const TransientTrackBuilder* theB = &iSetup.getData(ttkToken_);  // ESGetToken
    if(ThreeMuons_idx.size()!=0){
       for ( auto &iThreeMuon :  ThreeMuons_idx ) {
          particles_p4.push_back(std::vector<std::vector<double> > ());
          vector<TransientTrack> isignalTracksCollection;
-         ESHandle<TransientTrackBuilder> theB;
-         iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+	 //         ESHandle<TransientTrackBuilder> theB;
+	 //         iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+
+	 const TransientTrackBuilder* theB = &iSetup.getData(ttkToken_);
          for ( auto &iMuon :  iThreeMuon ) {
             reco::MuonRef Muon(muons, iMuon);
 
@@ -586,9 +590,13 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
 
 
       vector<TransientTrack> iIsolationTracksCollection;
-      ESHandle<TransientTrackBuilder> TheB;
       std::vector<std::vector<int> >  VertexWithSignalMuonIsValid;
-      iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",TheB);
+
+
+      //      ESHandle<TransientTrackBuilder> TheB;
+      //      iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",TheB);
+
+      const TransientTrackBuilder* TheB = &iSetup.getData(ttkToken_);
 
       if (DEBUG) cout<<"Finding isolation tracks"<<endl;
       
@@ -681,7 +689,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
             iIsolationTrack_VertexWithSignalMuonIsValid.push_back(V_IsoTrack_Mu1.isValid());
             iIsolationTrack_VertexWithSignalMuonIsValid.push_back(V_IsoTrack_Mu2.isValid());
             iIsolationTrack_VertexWithSignalMuonIsValid.push_back(V_IsoTrack_Mu3.isValid());
-            if(FitTrackMu1Ok&&FitTrackMu2Ok&&FitTrackMu3Ok);// dummy; to make it compile
+            if(FitTrackMu1Ok&&FitTrackMu2Ok&&FitTrackMu3Ok){};// dummy; to make it compile
             if(V_IsoTrack_Mu1.isValid())
             {
                iIsolationTrack_VertexWithSignalMuonChi2.push_back(V_IsoTrack_Mu1.totalChiSquared());
@@ -736,9 +744,13 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
 	      int ntp = IsolationTrack_par.size();
 	      IsolationTrack_par.push_back(std::vector<float>());
 	      IsolationTrack_cov.push_back(std::vector<float>());
-	      edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
-	      iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transTrackBuilder);
-	      reco::TransientTrack transTrk = transTrackBuilder->build(t);
+
+
+	      //	      edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
+	      //	      iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transTrackBuilder);
+	      const TransientTrackBuilder* transTrackBuilder = &iSetup.getData(ttkToken_);
+	      reco::TransientTrack transTrk = theB->build(t);
+
 	      TrackParticle trackparticle = ParticleBuilder::CreateTrackParticle(transTrk, transTrackBuilder, pvpoint, true, true);
 	      IsolationTrack_Helcharge.push_back(trackparticle.Charge());
 	      IsolationTrack_pdgid.push_back(trackparticle.PDGID());
@@ -937,14 +949,20 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
 
    std::vector<std::vector<std::vector<double> > > particles_p4;
    std::vector<std::vector<TransientTrack> > signalTracksCollection;
-   ESHandle<TransientTrackBuilder> theB;
-   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+   //   ESHandle<TransientTrackBuilder> theB;
+   //   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+
+   const TransientTrackBuilder* theB = &iSetup.getData(ttkToken_);
    if(ThreeMuons_idx.size()!=0){
       for ( auto &iThreeMuon :  ThreeMuons_idx ) {
          particles_p4.push_back(std::vector<std::vector<double> > ());
          vector<TransientTrack> isignalTracksCollection;
-         ESHandle<TransientTrackBuilder> theB;
-         iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+
+
+	 //         ESHandle<TransientTrackBuilder> theB;
+	 //         iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+
+	 const TransientTrackBuilder* theB = &iSetup.getData(ttkToken_);
          for ( auto &iMuon :  iThreeMuon ) {
             pat::MuonRef Muon(muons, iMuon);
 
@@ -1548,10 +1566,12 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
       std::vector<int>   IsolationTracksIndices;
 
       vector<TransientTrack> iIsolationTracksCollection;
-      ESHandle<TransientTrackBuilder> TheB;
       std::vector<std::vector<int> >  VertexWithSignalMuonIsValid;
-      iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",TheB);
 
+
+      //      ESHandle<TransientTrackBuilder> TheB;
+      //      iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",TheB);
+      const TransientTrackBuilder* TheB = &iSetup.getData(ttkToken_);
 
 
       if (DEBUG)     std::cout<<" sig   " << ThreeMuons_idx.size() << " two mu plus track   "<< TwoMuonsTrack_idx.size() <<  " signaltrack collect     "<< signalTracksCollection.size() <<  " signal Counter  "<<index <<std::endl;
@@ -1654,7 +1674,7 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
             iIsolationTrack_VertexWithSignalMuonIsValid.push_back(V_IsoTrack_Mu1.isValid());
             iIsolationTrack_VertexWithSignalMuonIsValid.push_back(V_IsoTrack_Mu2.isValid());
             iIsolationTrack_VertexWithSignalMuonIsValid.push_back(V_IsoTrack_Mu3.isValid());
-            if(FitTrackMu1Ok&&FitTrackMu2Ok&&FitTrackMu3Ok);// dummy; to make it compile
+            if(FitTrackMu1Ok&&FitTrackMu2Ok&&FitTrackMu3Ok){};// dummy; to make it compile
             if(V_IsoTrack_Mu1.isValid())
             {
                iIsolationTrack_VertexWithSignalMuonChi2.push_back(V_IsoTrack_Mu1.totalChiSquared());
@@ -1710,8 +1730,11 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
               int ntp = IsolationTrack_par.size();
               IsolationTrack_par.push_back(std::vector<float>());
               IsolationTrack_cov.push_back(std::vector<float>());
-	      edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
-              iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transTrackBuilder);
+
+	      //	      edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
+	      //              iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", transTrackBuilder);
+
+	      const TransientTrackBuilder* transTrackBuilder = &iSetup.getData(ttkToken_);
 	      reco::TransientTrack transTrk = transTrackBuilder->build(t);
               TrackParticle trackparticle = ParticleBuilder::CreateTrackParticle(transTrk, transTrackBuilder, pvpoint, true, true);
               IsolationTrack_Helcharge.push_back(trackparticle.Charge());

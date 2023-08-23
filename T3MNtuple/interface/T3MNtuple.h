@@ -82,7 +82,6 @@ Implementation:
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
@@ -383,6 +382,12 @@ class T3MNtuple : public edm::EDAnalyzer {
       EDGetTokenT<vector<Vertex> > goodPVToken_ ;
       EDGetTokenT<edm::View<pat::PackedCandidate>> thePFCandToken_;
       EDGetTokenT<edm::View<pat::PackedCandidate>> tracks_Token_;
+
+
+      edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> m_l1TriggerMenuToken;
+      edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> m_L1TUtmTriggerMenuRunToken;
+      const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> ttkToken_;
+      edm::EDGetToken gtAlgToken;
 
       TString sampleType_;
       L1TGlobalUtil* gtUtil_;               

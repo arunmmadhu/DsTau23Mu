@@ -18,8 +18,10 @@ int T3MNtuple::fillThreeMuons(const edm::Event& iEvent,
    for ( auto &iThreeMuon :  PreselectedThreeMuonsCollection ) {
       vector<TransientTrack> t_trks;   
       TransientVertex transVtx;
-      ESHandle<TransientTrackBuilder> theB;
-      iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+      //      ESHandle<TransientTrackBuilder> theB;
+      //      iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+
+      const TransientTrackBuilder* theB = &iSetup.getData(ttkToken_);
       reco::MuonRef Muon1(muons, iThreeMuon.at(0));
       reco::MuonRef Muon2(muons, iThreeMuon.at(1));
       reco::MuonRef Muon3(muons, iThreeMuon.at(2));
@@ -136,8 +138,10 @@ int T3MNtuple::fillThreeMuons(const edm::Event& iEvent,
    for ( auto &iThreeMuon :  PreselectedThreeMuonsCollection ) {
       vector<TransientTrack> t_trks;   
       TransientVertex transVtx;
-      ESHandle<TransientTrackBuilder> theB;
-      iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+      //      ESHandle<TransientTrackBuilder> theB;
+      //      iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+
+      const TransientTrackBuilder* theB = &iSetup.getData(ttkToken_);
       pat::MuonRef Muon1(muons, iThreeMuon.at(0));
       pat::MuonRef Muon2(muons, iThreeMuon.at(1));
       pat::MuonRef Muon3(muons, iThreeMuon.at(2));

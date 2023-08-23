@@ -10,18 +10,25 @@ int T3MNtuple::fillTwoMuonsAndTracks(const edm::Event& iEvent,
 {
 
    std::vector<std::vector<unsigned int> > PreselectedTwoMuonsTrackCollection  = findTwoMuonsAndTrackCandidates(iEvent, iSetup, beamSpotHandle, muons, trackCollection);
-   if(DEBUG)  std::cout<<" PreselectedTwoMuonsTrackCollection  "<< PreselectedTwoMuonsTrackCollection.size()<< std::endl;
+   if(DEBUG)  std::cout<<"-->  PreselectedTwoMuonsTrackCollection  "<< PreselectedTwoMuonsTrackCollection.size()<< std::endl;
    if(PreselectedTwoMuonsTrackCollection.size()==0){
       return 0;          //No two muons + track candidate found!
    }
 
 
 
-   for ( auto &iTwoMuTr :  PreselectedTwoMuonsTrackCollection ) {
+
+   for ( auto &iTwoMuTr :  PreselectedTwoMuonsTrackCollection ) 
+     {
+
       vector<TransientTrack> t_trks;
       TransientVertex transVtx;
-      ESHandle<TransientTrackBuilder> theB;
-      iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+      //      ESHandle<TransientTrackBuilder> theB;
+      //      const TransientTrackBuilder* theB = &iSetup.getData(esConsumes(edm::ESInputTag{"", "TransientTrackBuilder"}));
+      const TransientTrackBuilder* theB = &iSetup.getData(ttkToken_);
+      //      iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+
+
       reco::MuonRef Muon1(muons, iTwoMuTr.at(0));
       reco::MuonRef Muon2(muons, iTwoMuTr.at(1));
 
@@ -97,7 +104,7 @@ int T3MNtuple::fillTwoMuonsAndTracks(const edm::Event& iEvent,
 
 
    std::vector<std::vector<unsigned int> > PreselectedTwoMuonsTrackCollection  = findTwoMuonsAndTrackCandidates(iEvent, iSetup, beamSpotHandle, muons, trackCollection);
-   if(DEBUG)  std::cout<<" PreselectedTwoMuonsTrackCollection  "<< PreselectedTwoMuonsTrackCollection.size()<< std::endl;
+   if(DEBUG)  std::cout<<"---> PreselectedTwoMuonsTrackCollection  "<< PreselectedTwoMuonsTrackCollection.size()<< std::endl;
    if(PreselectedTwoMuonsTrackCollection.size()==0){
       return 0;          //No two muons + track candidate found!
    }
@@ -105,10 +112,17 @@ int T3MNtuple::fillTwoMuonsAndTracks(const edm::Event& iEvent,
 
 
    for ( auto &iTwoMuTr :  PreselectedTwoMuonsTrackCollection ) {
+
       vector<TransientTrack> t_trks;
       TransientVertex transVtx;
-      ESHandle<TransientTrackBuilder> theB;
-      iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+      std::cout<<"   deb  1   "<< std::endl;
+      //      ESHandle<TransientTrackBuilder> theB;
+      const TransientTrackBuilder* theB = &iSetup.getData(ttkToken_);
+
+
+      //      iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
+
+      std::cout<<"   deb  2   "<< std::endl;
       pat::MuonRef Muon1(muons, iTwoMuTr.at(0));
       pat::MuonRef Muon2(muons, iTwoMuTr.at(1));
 

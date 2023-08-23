@@ -59,27 +59,35 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
    goodPVToken_(consumes<vector<Vertex>>(iConfig.getParameter<InputTag>("goodPVTag"))),
    thePFCandToken_(consumes<edm::View<pat::PackedCandidate>>        (iConfig.getParameter<edm::InputTag>("thePFCandTag"))),
    tracks_Token_(consumes<edm::View<pat::PackedCandidate>>(edm::InputTag("packedPFCandidates"))),
+   m_l1TriggerMenuToken(esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd>()),
+   m_L1TUtmTriggerMenuRunToken(esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd, edm::Transition::BeginRun>()),
+//  ttkToken_(esConsumes<TransientTrackBuilder, TransientTrackRecord>()),
+   ttkToken_(esConsumes(edm::ESInputTag{"", "TransientTrackBuilder"})),
    sampleType_(iConfig.getUntrackedParameter<string>("DataMCType",""))
-   
+
 {
+
+  //  edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> m_l1TriggerMenuToken;
+  //  edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> m_L1TUtmTriggerMenuRunToken;
+
 
 
   //   gtUtil_ = new L1TGlobalUtil(iConfig, consumesCollector(), *this, algInputTag_, algInputTag_, UseEventSetupIn::Run);
    l1t::UseEventSetupIn useEventSetupIn = l1t::UseEventSetupIn::Run;
-   gtUtil_ =  new L1TGlobalUtil(iConfig, consumesCollector(), *this, algInputTag_, algInputTag_, useEventSetupIn);
+   //   _L1TUtmTriggerMenuRunToken = iC.esConsumes<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd, edm::Transition::BeginRun>();
+   //   gtUtil_ =  new L1TGlobalUtil(iConfig, consumesCollector(), *this, algInputTag_, algInputTag_, useEventSetupIn);
+   gtUtil_ =  new L1TGlobalUtil(iConfig, consumesCollector(), *this,  useEventSetupIn);
+   //   gtUtil_ =  new L1TGlobalUtil(iConfig, consumesCollector(), *this, m_l1TriggerMenuToken, m_l1TriggerMenuToken, useEventSetupIn);
+   //gtUtil_ =  new L1TGlobalUtil(iConfig, consumesCollector(), useEventSetupIn);
+
 
    //   gtUtil_ = new L1TGlobalUtil(iConfig, ConsumesCollector(), UseEventSetupIn::Run);
    doMC_ = iConfig.getParameter<bool>("doMC");
    doFullMC_ = iConfig.getParameter<bool>("doFullMC");
-   wideSB_ = iConfig.getParameter<bool>("wideSB");
-   do2mu_ = iConfig.getParameter<bool>("do2mu");
-   passhlt_ = iConfig.getParameter<bool>("passhlt");
-   mid_ = iConfig.getParameter<int>("mid");
    doTracks_ = iConfig.getParameter<bool>("doTracks");
    doMuons_ = iConfig.getParameter<bool>("doMuons");
    doTaus_ = iConfig.getParameter<bool>("doTaus");
    doElectrons_ = iConfig.getParameter<bool>("doElectrons");
-   do3mutuple_ = iConfig.getParameter<bool>("do3mutuple");
    doL1_ = iConfig.getParameter<bool>("doL1");
    doBJets_ = iConfig.getParameter<bool>("doBJets");
    doPhotons_ = iConfig.getParameter<bool>("doPhotons");
@@ -96,7 +104,7 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
    DataMCType DMT;
    Event_DataMC_Type=DMT.GetType(sampleType_);    
 
-   DEBUG = false;
+   DEBUG = true;
 }
 
 
@@ -249,8 +257,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::cout<<" ========================  new event =============== "<< std::endl;
    cnt_++;
    ClearEvent();
-
-   // Clear handles
+   // Clear handlesx
 
    recoMuonCollection.clear();
    patMuonCollection.clear();
@@ -289,18 +296,22 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          if (!iEvent.getByToken(puToken_, puInfo)) edm::LogError("") << "[T3MNtuple]: PileUp Info does not exist!";
       }
    }
-
    if ( iEvent.getByToken(triggerToken_, triggerBitsH) ) triggerNames = iEvent.triggerNames( *triggerBitsH );
+
    else edm::LogError("") << "[T3MNtuple]: Trigger Bits collection does not exist!";
+
    if ( miniAODRun_ && !iEvent.getByToken(triggerObjectToken_, triggerObjects)) edm::LogError("") << "[T3MNtuple]: Running plugin on MiniAOD; Trigger Object collection does not exist!";
    if ( !miniAODRun_ && !iEvent.getByToken(trigeventToken_, triggerSummary)) edm::LogError("") << "[T3MNtuple]: Running plugin on AOD; Trigger Summary does not exist!";
 
    if(doL1_ && triggerBitsH.isValid()){
+
      if (miniAODRun_ && triggerObjects.isValid())
        //       std::cout<<"  ---- new event  "<< std::endl;
        fillTrigger(iEvent, iSetup, triggerBitsH, triggerSummary, triggerObjects, triggerNames);
+
      if (!miniAODRun_ && triggerSummary.isValid())
        fillTrigger(iEvent, iSetup, triggerBitsH, triggerSummary, triggerObjects, triggerNames);
+
    }
 
 
