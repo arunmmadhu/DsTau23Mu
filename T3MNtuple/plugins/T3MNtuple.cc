@@ -979,6 +979,7 @@ T3MNtuple::beginJob()
    output_tree->Branch("Vertex_signal_AF_Chi2", &Vertex_signal_AF_Chi2);
    output_tree->Branch("Vertex_signal_AF_Ndf", &Vertex_signal_AF_Ndf);
    output_tree->Branch("Vertex_signal_KF_BS_2Ddistance", &Vertex_signal_KF_BS_2Ddistance);
+   output_tree->Branch("Vertex_signal_KF_BS", &Vertex_signal_KF_BS);
    output_tree->Branch("Vertex_signal_KF_BS_error", &Vertex_signal_KF_BS_error);
    output_tree->Branch("Vertex_signal_KF_BS_significance", &Vertex_signal_KF_BS_significance);
    output_tree->Branch("Vertex_pair_quality", &Vertex_pair_quality);
@@ -1455,6 +1456,7 @@ void T3MNtuple::ClearEvent() {
    Vertex_signal_KF_BS_2Ddistance.clear();
    Vertex_signal_KF_BS_error.clear();
    Vertex_signal_KF_BS_significance.clear();
+   Vertex_signal_KF_BS.clear();
 
    Vertex_2MuonsIsoTrack_KF_Chi2.clear();
    Vertex_2MuonsIsoTrack_KF_cov.clear();
