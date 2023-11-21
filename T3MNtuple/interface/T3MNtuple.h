@@ -749,6 +749,7 @@ class T3MNtuple : public edm::EDAnalyzer {
       std::vector<double> Vertex_signal_KF_BS_2Ddistance;
       std::vector<double> Vertex_signal_KF_BS_error;
       std::vector<double> Vertex_signal_KF_BS_significance;
+      std::vector<std::vector<double>> Vertex_signal_KF_BS;
 
       std::vector<std::vector<double > > Vertex_signal_AF_pos;
 

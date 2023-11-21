@@ -148,10 +148,13 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
          double BSdistance2D = vertTool2D.distance(BSstate, TripletVtx).value();
          double BSdist_err2D = vertTool2D.distance(BSstate, TripletVtx).error();
          double BSdist_sign2D =vertTool2D.distance(BSstate, TripletVtx).significance();
+         
+         std::vector<double> BS_Vector{BSstate.position().x(), BSstate.position().y(), BSstate.position().z()};
 
          Vertex_signal_KF_BS_2Ddistance.push_back(BSdistance2D);
          Vertex_signal_KF_BS_error.push_back(BSdist_err2D);
          Vertex_signal_KF_BS_significance.push_back(BSdist_sign2D);
+         Vertex_signal_KF_BS.push_back(BS_Vector);
 
          for(; trkIt != transVtx.refittedTracks().end(); ++ trkIt) {
             std::vector<double> irefitted_tracks_p4;
@@ -1074,9 +1077,12 @@ void T3MNtuple::fillVertices(const edm::Event& iEvent,
          double BSdist_err2D = vertTool2D.distance(BSstate, TripletVtx).error();
          double BSdist_sign2D =vertTool2D.distance(BSstate, TripletVtx).significance();
 
+         std::vector<double> BS_Vector{BSstate.position().x(), BSstate.position().y(), BSstate.position().z()};
+
          Vertex_signal_KF_BS_2Ddistance.push_back(BSdistance2D);
          Vertex_signal_KF_BS_error.push_back(BSdist_err2D);
          Vertex_signal_KF_BS_significance.push_back(BSdist_sign2D);
+         Vertex_signal_KF_BS.push_back(BS_Vector);
 
          for(; trkIt != transVtx.refittedTracks().end(); ++ trkIt) {
             std::vector<double> irefitted_tracks_p4;
