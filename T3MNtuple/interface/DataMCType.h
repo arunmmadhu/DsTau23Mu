@@ -41,6 +41,7 @@ class DataMCType{
              QCD_15=601,
              QCD_20=602,
 	     WZ3l_Min0p1=580,
+	     ttbar=700,
 	     unknown=999
 	     // add here more MC types
   };

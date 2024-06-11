@@ -49,6 +49,7 @@ unsigned int DataMCType::GetType(TString name){
   if(name=="zz4l_powheg")               return ZZ4l_powheg;
   if(name=="zz4l_amcatnlo")             return ZZ4l_amcatnlo;
   if(name=="wz3l_min0p1")               return WZ3l_Min0p1;
+  if(name=="ttbar")                     return ttbar;
   if(name=="qcd_15")                    return QCD_15;
   if(name=="qcd_20")                    return QCD_20;
 
