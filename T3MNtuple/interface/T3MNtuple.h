@@ -470,6 +470,7 @@ class T3MNtuple : public edm::EDAnalyzer {
 
       //=======  Taus ===
       std::vector<std::vector<float> > Tau_p4;
+      std::vector<std::vector<float> > Tau_Poca;
       std::vector<int> Tau_charge;
       std::vector<int> Tau_DecayMode;
       std::vector<int> Tau_DecayModeFinding;

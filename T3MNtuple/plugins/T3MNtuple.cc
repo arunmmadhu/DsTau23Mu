@@ -853,6 +853,7 @@ T3MNtuple::beginJob()
 
    if(doTaus_){
      output_tree->Branch("Tau_p4", &Tau_p4);
+     output_tree->Branch("Tau_Poca", &Tau_Poca);
      output_tree->Branch("Tau_charge", &Tau_charge);
      output_tree->Branch("Tau_DecayMode", &Tau_DecayMode);
      output_tree->Branch("Tau_DecayModeFinding", &Tau_DecayModeFinding);
@@ -1165,6 +1166,7 @@ void T3MNtuple::ClearEvent() {
 
    //=======  Taus  ===
    Tau_p4.clear();
+   Tau_Poca.clear();
    Tau_charge.clear();
    Tau_DecayMode.clear();
    Tau_DecayModeFinding.clear();

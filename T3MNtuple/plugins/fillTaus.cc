@@ -116,7 +116,9 @@ void T3MNtuple::fillTaus(const edm::Event& iEvent,
 	    iHighestPt_PrimaryVertex_Pos.push_back(Highest_pT_vertex.position().x());
 	    iHighestPt_PrimaryVertex_Pos.push_back(Highest_pT_vertex.position().y());
 	    iHighestPt_PrimaryVertex_Pos.push_back(Highest_pT_vertex.position().z());
+	    //	    std::cout<<"  VTX   z   " << Highest_pT_vertex.position().z() <<std::endl;
 	  }
+
 	Vertex_HighestPt_PrimaryVertex.push_back(iHighestPt_PrimaryVertex_Pos);
 
 	TMatrixTSym<double> hpTcov(LorentzVectorParticle::NVertex);
@@ -152,6 +154,16 @@ void T3MNtuple::fillTaus(const edm::Event& iEvent,
 	  iTau_p4.push_back(tau->py());
 	  iTau_p4.push_back(tau->pz());
 	  Tau_p4.push_back(iTau_p4);
+
+
+	  std::vector<float> iTau_Poca;
+	  iTau_Poca.push_back(tau->leadChargedHadrCand()->vx());
+	  iTau_Poca.push_back(tau->leadChargedHadrCand()->vy());
+	  iTau_Poca.push_back(tau->leadChargedHadrCand()->vz());
+	  Tau_Poca.push_back(iTau_Poca);
+
+	  //	  std::cout<<"  tau vx   "<< tau->vx() <<  "  vz " << tau->leadChargedHadrCand()->vz() << std::endl;
+
 	  
 	  Tau_charge.push_back(tau->charge());
 	  Tau_DecayMode.push_back(tau->decayMode());
