@@ -29,6 +29,14 @@ void T3MNtuple::fillElectrons(const edm::Event& iEvent,
 	 iElectron_p4.push_back(RefElectron->p4().Py());
 	 iElectron_p4.push_back(RefElectron->p4().Pz());
 	 Electron_p4.push_back(iElectron_p4);
+
+	 std::vector<float> iElectron_Poca;
+	 iElectron_Poca.push_back(RefElectron->vx());
+	 iElectron_Poca.push_back(RefElectron->vy());
+	 iElectron_Poca.push_back(RefElectron->vz());
+	 Electron_Poca.push_back(iElectron_Poca);
+	 
+	 std::cout<<"  debug ele poca   "<< RefElectron->vx() << "    "<< RefElectron->vy() << "   "<< RefElectron->vz() <<std::endl;
 	 
 	 Electron_Charge.push_back(RefElectron->charge());
 	 // ----------------------   recomendations from 
