@@ -52,6 +52,12 @@ unsigned int DataMCType::GetType(TString name){
   if(name=="ttbar")                     return ttbar;
   if(name=="qcd_15")                    return QCD_15;
   if(name=="qcd_20")                    return QCD_20;
+  
+  if(name=="bbcc3mu_type1")             return bbcc3mu_type1;
+  if(name=="bbcc3mu_type2")             return bbcc3mu_type2;
+  if(name=="bbcc3mu_type3")             return bbcc3mu_type3;
+  if(name=="bbcc3mu_type5")             return bbcc3mu_type5;
+  if(name=="bbcc3mu_type9")             return bbcc3mu_type9;
 
 
   if(name=="z2tautau_tau3mu")           return z2tautau_tau3mu;

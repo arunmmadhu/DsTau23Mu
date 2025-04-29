@@ -98,6 +98,7 @@ Implementation:
 #include "CondFormats/DataRecord/interface/L1TGlobalPrescalesVetosRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetos.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "TLorentzVector.h"
 #include "TMatrixT.h"
 #include <vector>
@@ -192,7 +193,8 @@ class T3MNtuple : public edm::EDAnalyzer {
       void fillMCTruth(const edm::Event& iEvent,
 		       const edm::EventSetup& iSetup,
 		       const Handle<GenParticleCollection>& genParticles,
-		       const Handle<vector<PileupSummaryInfo> >& puInfo);
+		       const Handle<vector<PileupSummaryInfo> >& puInfo,
+                       const Handle<GenEventInfoProduct>& generator);
 
       void fillTrigger(const edm::Event& iEvent,
                        const edm::EventSetup& iSetup,
@@ -342,6 +344,7 @@ class T3MNtuple : public edm::EDAnalyzer {
       Handle<BeamSpot> beamSpotHandle;
       Handle<vector<PileupSummaryInfo>> puInfo;
       Handle<GenParticleCollection> genParticles;
+      Handle<GenEventInfoProduct> generator;
       Handle<pat::TauCollection> tauHandle;
       Handle<reco::PFTauCollection> pfTaus;
       Handle<reco::PFTauDiscriminator> dmfNew;
@@ -364,6 +367,7 @@ class T3MNtuple : public edm::EDAnalyzer {
       EDGetTokenT<BeamSpot> bsToken_;
       EDGetTokenT<vector<PileupSummaryInfo>> puToken_;
       EDGetTokenT<GenParticleCollection> genToken_;
+      EDGetTokenT<GenEventInfoProduct> genInfoToken_;
       EDGetTokenT<vector<pat::Muon>> patMuonToken_;
       EDGetTokenT<vector<pat::Electron>> patElectronsToken_;
       EDGetTokenT<vector<pat::MET>> pat_met_puppi_;
@@ -411,7 +415,7 @@ class T3MNtuple : public edm::EDAnalyzer {
              uSta_reco[3], tKink_reco[3], gKink_reco[3], tRC2_reco[3], sRC2_reco[3], cLP_reco[3],
              cLM_reco[3], lDist_reco[3], gDEP_reco[3], tMat_reco[3], gTP_reco[3],
              ddz_12, m2mu_ss, m2mu_os1, m2mu_os2, m2mu_12, m2mu_23, m2mu_31, m2mu_min, m2mu_max,
-             puN, n_vtx, eta_min, eta_max, 
+             puN, genWeight, n_vtx, eta_min, eta_max, 
              pf_reco[3], rpcmu_reco[3], rpchits_reco[3], nOVMH_reco[3], pterr_reco[3],
              pv_nmu, pv1_tC, pv1_nC, pv2_tC, pv2_nC, ntrk0p1, ntrk0p2, ntrk0p5, maxdxy_pv0, calomuon_3,
              jet_pt[30], jet_overlap[30], btagcvsb[30], btagcsv[30], btagmva[30],

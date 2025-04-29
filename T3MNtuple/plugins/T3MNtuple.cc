@@ -43,6 +43,7 @@ T3MNtuple::T3MNtuple(const edm::ParameterSet& iConfig):
    bsToken_(consumes<BeamSpot>(iConfig.getParameter<InputTag>("beamSpotHandle"))),
    puToken_(consumes<vector<PileupSummaryInfo> >(iConfig.getParameter<InputTag>("pileupSummary"))),
    genToken_(consumes<GenParticleCollection>(iConfig.getParameter<InputTag>("genParticles"))),
+   genInfoToken_(consumes<GenEventInfoProduct>(edm::InputTag("generator"))),
    patMuonToken_(consumes<vector<pat::Muon>>(iConfig.getParameter<edm::InputTag>("pat_muons"))),
    patElectronsToken_(consumes<vector<pat::Electron>>(iConfig.getParameter<edm::InputTag>("pat_electrons"))),
    pat_met_puppi_(consumes<vector<pat::MET>>(iConfig.getParameter<edm::InputTag>("met_puppi"))),
@@ -266,6 +267,7 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    beamSpotHandle.clear();
    puInfo.clear();
    genParticles.clear();
+   generator.clear();
    tauHandle.clear();
    pfTaus.clear();
    vertexs.clear();
@@ -279,10 +281,12 @@ T3MNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    if(doMC_){
       if ( iEvent.getByToken(genToken_, genParticles) &&
-	   iEvent.getByToken(puToken_, puInfo) ) fillMCTruth(iEvent, iSetup, genParticles, puInfo);
+	   iEvent.getByToken(puToken_, puInfo) &&
+           iEvent.getByToken(genInfoToken_, generator)) fillMCTruth(iEvent, iSetup, genParticles, puInfo, generator);
       else {
          if (!iEvent.getByToken(genToken_, genParticles)) edm::LogError("") << "[T3MNtuple]: GEN collection does not exist!";
          if (!iEvent.getByToken(puToken_, puInfo)) edm::LogError("") << "[T3MNtuple]: PileUp Info does not exist!";
+         if (!iEvent.getByToken(genInfoToken_, generator)) edm::LogError("") << "[T3MNtuple]: PileUp Info does not exist!";
       }
    }
 
@@ -684,6 +688,8 @@ T3MNtuple::beginJob()
 
 
    output_tree->Branch("puN", &puN, "puN/D");
+   
+   output_tree->Branch("genWeight", &genWeight, "genWeight/D");
 
    output_tree->Branch("Track_p4", &Track_p4);
    output_tree->Branch("Track_normalizedChi2", &Track_normalizedChi2);
@@ -1135,6 +1141,8 @@ void T3MNtuple::ClearEvent() {
 
 
    puN = 0;
+   
+   genWeight = 0;
 
    l1_doublemu0 = 0; l1_triplemu0 = 0; l1_triplemu500 = 0;
    l1_doublemu_10_0 = 0; l1_doublemu_11_4 = 0;

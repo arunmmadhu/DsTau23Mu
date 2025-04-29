@@ -3,7 +3,8 @@
 void T3MNtuple::fillMCTruth(const edm::Event& iEvent,
       const edm::EventSetup& iSetup,
       const Handle<GenParticleCollection>& genParticles,
-      const Handle<vector<PileupSummaryInfo>>& puInfo)
+      const Handle<vector<PileupSummaryInfo>>& puInfo,
+      const Handle<GenEventInfoProduct>& generator)
 {
   //  std::cout<<"do we fill MC  ??? "<< std::endl;
   if (!iEvent.isRealData())
@@ -152,6 +153,11 @@ void T3MNtuple::fillMCTruth(const edm::Event& iEvent,
             }
             k++;
          }
+      }
+      
+      genWeight = 1.0;  // default
+      if (generator.isValid()) {
+              genWeight = generator->weight();
       }
 
       puN = puInfo->begin()->getTrueNumInteractions();
