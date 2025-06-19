@@ -222,7 +222,7 @@ bool T3MNtuple::getTrackMatch(const Handle<std::vector<reco::Track> > & trackCol
 bool T3MNtuple::SkipThisParticle(const reco::GenParticle &GenPar){
 
    int id = abs(GenPar.pdgId());
-   if(id == 21 || id == 1 || id == 2 || id ==3 || id == 4 || id == 5 || id == 6) return true;
+   //if(id == 21 || id == 1 || id == 2 || id ==3 || id == 4 || id == 5 || id == 6) return true;
    if(id == 22 && GenPar.p4().Pt() < 0.1 ) return true;
    return false;
 
